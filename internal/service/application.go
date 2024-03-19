@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/nats-io/nats.go"
 	"github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/sirupsen/logrus"
@@ -43,16 +42,6 @@ func NewApplication(ctx context.Context) app.Application {
 	}
 	mq, err := rabbitmq.NewConn(mqc.Source(), rabbitmq.WithConnectionOptionsLogging)
 
-	natsc, err := mevconn.NewNATSConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	nts, err := nats.Connect(natsc.URL(), nats.Token(natsc.Token()))
-	if err != nil {
-		panic(err)
-	}
-
 	access, err := DialToAccessClient()
 	if err != nil {
 		panic(err)
@@ -81,7 +70,7 @@ func NewApplication(ctx context.Context) app.Application {
 	engine := gin.New()
 	engine.HandleMethodNotAllowed = false
 
-	svr := web.NewServer(logger, relic, nts).WithUpdatePublisher(mq).WithUpdateConsumer(mq)
+	svr := web.NewServer(logger, relic).WithUpdatePublisher(mq).WithUpdateConsumer(mq)
 	svr.RegisterServiceClient(web.GameClientRouteKey, web.NewGameServiceClientRouter(game))
 	svr.RegisterServiceClient(web.SocialClientRouteKey, web.NewSocialServiceClientRouter(social))
 	svr.RegisterServiceClient(web.RankingClientRouteKey, web.NewRankServiceClientRouter(rank))
@@ -95,7 +84,7 @@ func NewApplication(ctx context.Context) app.Application {
 		UserRoleHandler:    handler.NewUserRoleHandler(access),
 	}
 
-	priv := &ports.PrivateAPIRouter{
+	private := &ports.PrivateAPIRouter{
 		BaseAPIRouter:   core,
 		BanUserHandler:  handler.NewBanUserHandler(access),
 		UserRoleHandler: handler.NewUserRoleHandler(access),
@@ -103,7 +92,7 @@ func NewApplication(ctx context.Context) app.Application {
 
 	cache := app.NewCustomerIDMemoryCache()
 
-	pub := &ports.PublicAPIRouter{
+	public := &ports.PublicAPIRouter{
 		BaseAPIRouter:      core,
 		LoginUserHandle:    handler.NewLoginHandler(access, cache),
 		RegisterUserHandle: handler.NewRegisterUserHandler(access),
@@ -113,8 +102,8 @@ func NewApplication(ctx context.Context) app.Application {
 	}
 
 	core.ApplyRouterDecorations(engine)
-	priv.ApplyRouterDecorations(engine)
-	pub.ApplyRouterDecorations(engine)
+	private.ApplyRouterDecorations(engine)
+	public.ApplyRouterDecorations(engine)
 
 	application.NewRelic = relic
 	application.Engine = engine
@@ -122,15 +111,10 @@ func NewApplication(ctx context.Context) app.Application {
 	application.WebServer = app.WebServer{
 		Server: svr,
 	}
-	application.Clients = app.Clients{
-		AccessService: access,
-		GameService:   game,
-		SocialService: social,
-	}
 	application.Routers = app.Routers{
 		Core:          core,
-		PublicRouter:  pub,
-		PrivateRouter: priv,
+		PublicRouter:  public,
+		PrivateRouter: private,
 	}
 
 	return application

@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"mevway/internal/app/web"
@@ -12,16 +11,9 @@ import (
 type Application struct {
 	NewRelic       *newrelic.Application
 	Engine         *gin.Engine
-	Clients        Clients
 	Routers        Routers
 	WebServer      WebServer
 	EventPublisher *mevent.Publisher
-}
-
-type Clients struct {
-	AccessService services.AccessServiceClient
-	GameService   services.MeviusGameServiceClient
-	SocialService services.MeviusSocialServiceClient
 }
 
 type Routers struct {
