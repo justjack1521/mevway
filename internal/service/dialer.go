@@ -1,13 +1,12 @@
 package service
 
 import (
+	"github.com/justjack1521/mevconn"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"google.golang.org/grpc"
-	"mevway/internal/config"
 )
 
-func DialToAccessClient(config config.Application) (services.AccessServiceClient, error) {
-
+func DialToAccessClient() (services.AccessServiceClient, error) {
 	//cert, err := ioutil.ReadFile(config.AccessClient.CertificatePath)
 	//if err != nil {
 	//	return nil, err
@@ -21,8 +20,8 @@ func DialToAccessClient(config config.Application) (services.AccessServiceClient
 	//cred := credentials.NewTLS(&tls.Config{
 	//	RootCAs: pool,
 	//})
-
-	conn, err := grpc.Dial(config.AccessClient.ConnectionString(), grpc.WithInsecure())
+	config, err := mevconn.CreateGrpcServiceConfig(mevconn.AUTHSERVICENAME)
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
@@ -31,82 +30,46 @@ func DialToAccessClient(config config.Application) (services.AccessServiceClient
 
 }
 
-func DialToLobbyClient(config config.Application) (services.MeviusMultiServiceClient, error) {
-	conn, err := grpc.Dial(config.LobbyClient.ConnectionString(), grpc.WithInsecure())
+func DialToLobbyClient() (services.MeviusMultiServiceClient, error) {
+	config, err := mevconn.CreateGrpcServiceConfig(mevconn.MULTISERVICENAME)
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-
 	return services.NewMeviusMultiServiceClient(conn), nil
 }
 
-func DialToSocialClient(config config.Application) (services.MeviusSocialServiceClient, error) {
-
-	//cert, err := ioutil.ReadFile(config.PresenceClient.CertificatePath)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//pool := x509.NewCertPool()
-	//if !pool.AppendCertsFromPEM(cert) {
-	//	return nil, fmt.Errorf("failed to add server CA's certificate")
-	//}
-	//
-	//cred := credentials.NewTLS(&tls.Config{
-	//	RootCAs: pool,
-	//})
-
-	conn, err := grpc.Dial(config.PresenceClient.ConnectionString(), grpc.WithInsecure())
+func DialToSocialClient() (services.MeviusSocialServiceClient, error) {
+	config, err := mevconn.CreateGrpcServiceConfig(mevconn.SOCIALSERVICENAME)
 	if err != nil {
 		return nil, err
 	}
-
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
 	return services.NewMeviusSocialServiceClient(conn), nil
-
 }
 
-func DialToGameClient(config config.Application) (services.MeviusGameServiceClient, error) {
-
-	//cert, err := ioutil.ReadFile(config.GameClient.CertificatePath)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//pool := x509.NewCertPool()
-	//if !pool.AppendCertsFromPEM(cert) {
-	//	return nil, fmt.Errorf("failed to add server CA's certificate")
-	//}
-	//
-	//cred := credentials.NewTLS(&tls.Config{
-	//	RootCAs: pool,
-	//})
-
-	conn, err := grpc.Dial(config.GameClient.ConnectionString(), grpc.WithInsecure())
+func DialToGameClient() (services.MeviusGameServiceClient, error) {
+	config, err := mevconn.CreateGrpcServiceConfig(mevconn.GAMESERVICENAME)
 	if err != nil {
 		return nil, err
 	}
-
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
 	return services.NewMeviusGameServiceClient(conn), nil
 
 }
 
-func DialToRankClient(config config.Application) (services.MeviusRankServiceClient, error) {
-
-	//cert, err := ioutil.ReadFile(config.RankClient.CertificatePath)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//pool := x509.NewCertPool()
-	//if !pool.AppendCertsFromPEM(cert) {
-	//	return nil, fmt.Errorf("failed to add server CA's certificate")
-	//}
-	//
-	//cred := credentials.NewTLS(&tls.Config{
-	//	RootCAs: pool,
-	//})
-
-	conn, err := grpc.Dial(config.RankClient.ConnectionString(), grpc.WithInsecure())
+func DialToRankClient() (services.MeviusRankServiceClient, error) {
+	config, err := mevconn.CreateGrpcServiceConfig(mevconn.RANKSERVICENAME)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}

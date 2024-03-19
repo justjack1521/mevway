@@ -133,28 +133,39 @@ func (s *Server) Run() {
 	}
 }
 
-func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *protocommon.BaseRequest) error {
+func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *protocommon.BaseRequest) (err error) {
+
+	defer func() {
+		if err != nil {
+			s.logger.WithFields(logrus.Fields{
+				"client":    wc.ClientID,
+				"service":   request.Service,
+				"operation": request.Operation,
+			}).WithError(err).Error("Error Routing Client Request")
+		} else {
+			s.logger.WithFields(logrus.Fields{
+				"client":    wc.ClientID,
+				"service":   request.Service,
+				"operation": request.Operation,
+			}).Info("Client Request Routed")
+		}
+	}()
 
 	s.logger.WithFields(logrus.Fields{
+		"client":    wc.ClientID,
 		"service":   request.Service,
 		"operation": request.Operation,
-	}).Info("Executing Request")
+	}).Info("Routing Client Request")
 
-	segmentRoute := newrelic.FromContext(ctx).StartSegment("socket/route")
 	md := metadata.New(map[string]string{"X-API-CLIENT": wc.ClientID.String()})
 	wcc := wc.NewClientContext(metadata.NewOutgoingContext(ctx, md), request)
 
-	fmt.Println(RoutingKey(request.Service))
-
 	service, exists := s.Services[RoutingKey(request.Service)]
 	if exists == false {
-		return ErrFailedRoutingClientRequest(ErrMalformedRequest)
+		return fmt.Errorf("service not found at key: %d", request.Service)
 	}
 
-	result, err := service.Route(wcc, int(request.Operation), request.Data)
-	segmentRoute.End()
-
-	segmentResponse := newrelic.FromContext(ctx).StartSegment("socket/response")
+	response, err := service.Route(wcc, int(request.Operation), request.Data)
 	if err != nil {
 		st := status.Convert(err)
 		for _, detail := range st.Details() {
@@ -166,19 +177,15 @@ func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *pr
 				return nil
 			}
 		}
-		return s.SendClientError(wcc, 9, err.Error())
+		if err := s.SendClientError(wcc, 9, err.Error()); err != nil {
+			return ErrSendingClientResponse(wcc.client.ClientID, err)
+		}
+		return nil
 	}
 
-	if err := s.SendClientResponse(wcc, result); err != nil {
+	if err := s.SendClientResponse(wcc, response); err != nil {
 		return ErrSendingClientResponse(wcc.client.ClientID, err)
 	}
-
-	s.logger.WithFields(logrus.Fields{
-		"service":   request.Service,
-		"operation": request.Operation,
-	}).Info("Request Complete")
-
-	segmentResponse.End()
 
 	return nil
 
@@ -203,6 +210,16 @@ func (s *Server) SendClientError(ctx *ClientContext, code int32, message string)
 
 	return nil
 
+}
+
+func (s *Server) SendClientResponseBytes(ctx *ClientContext, data []byte) error {
+	response := ctx.NewResponse(data)
+	message, err := proto.Marshal(response)
+	if err != nil {
+		return err
+	}
+	ctx.client.send <- message
+	return nil
 }
 
 func (s *Server) SendClientResponse(ctx *ClientContext, res ClientResponse) error {

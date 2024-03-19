@@ -4,13 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/justjack1521/mevium/pkg/relic"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"mevway/internal/app/web"
 	"mevway/internal/ports"
 )
 
 type Application struct {
-	NewRelic       *relic.NewRelic
+	NewRelic       *newrelic.Application
 	Engine         *gin.Engine
 	Clients        Clients
 	Routers        Routers

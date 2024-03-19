@@ -3,56 +3,77 @@ package service
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/justjack1521/mevium/pkg/relic"
+	"github.com/nats-io/nats.go"
 	"github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/sirupsen/logrus"
+	"github.com/wagslane/go-rabbitmq"
 	"mevway/internal/app"
 	"mevway/internal/app/handler"
 	"mevway/internal/app/web"
-	"mevway/internal/config"
 	"mevway/internal/ports"
 )
 
-func NewApplication(ctx context.Context, conf config.Application) app.Application {
+func NewApplication(ctx context.Context) app.Application {
 
 	application := app.Application{
 		EventPublisher: mevent.NewPublisher(),
 	}
 
-	newrelic := relic.NewRelicApplication(conf.NewRelic)
+	nrlc, err := mevconn.CreateNewRelicConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	relic, err := newrelic.NewApplication(
+		newrelic.ConfigAppName(nrlc.ApplicationName()),
+		newrelic.ConfigLicense(nrlc.LicenseKey()),
+	)
 
 	logger := logrus.New()
-	nrl := nrlogrus.NewFormatter(newrelic.Application, &logrus.TextFormatter{})
+	nrl := nrlogrus.NewFormatter(relic, &logrus.TextFormatter{})
 	logger.SetFormatter(nrl)
-	logger.AddHook(newrelic)
+	//logger.AddHook(relic)
 
-	mq, err := conf.RabbitMQ.NewRabbitMQConnection()
+	mqc, err := mevconn.CreateRabbitMQConfig()
+	if err != nil {
+		panic(err)
+	}
+	mq, err := rabbitmq.NewConn(mqc.Source(), rabbitmq.WithConnectionOptionsLogging)
+
+	natsc, err := mevconn.NewNATSConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	access, err := DialToAccessClient(conf)
+	nts, err := nats.Connect(natsc.URL(), nats.Token(natsc.Token()))
 	if err != nil {
 		panic(err)
 	}
 
-	game, err := DialToGameClient(conf)
+	access, err := DialToAccessClient()
 	if err != nil {
 		panic(err)
 	}
 
-	social, err := DialToSocialClient(conf)
+	game, err := DialToGameClient()
 	if err != nil {
 		panic(err)
 	}
 
-	rank, err := DialToRankClient(conf)
+	social, err := DialToSocialClient()
 	if err != nil {
 		panic(err)
 	}
 
-	multi, err := DialToLobbyClient(conf)
+	rank, err := DialToRankClient()
+	if err != nil {
+		panic(err)
+	}
+
+	multi, err := DialToLobbyClient()
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +81,7 @@ func NewApplication(ctx context.Context, conf config.Application) app.Applicatio
 	engine := gin.New()
 	engine.HandleMethodNotAllowed = false
 
-	svr := web.NewServer(logger, newrelic.Application).WithUpdatePublisher(mq).WithUpdateConsumer(mq)
+	svr := web.NewServer(logger, relic, nts).WithUpdatePublisher(mq).WithUpdateConsumer(mq)
 	svr.RegisterServiceClient(web.GameClientRouteKey, web.NewGameServiceClientRouter(game))
 	svr.RegisterServiceClient(web.SocialClientRouteKey, web.NewSocialServiceClientRouter(social))
 	svr.RegisterServiceClient(web.RankingClientRouteKey, web.NewRankServiceClientRouter(rank))
@@ -68,7 +89,7 @@ func NewApplication(ctx context.Context, conf config.Application) app.Applicatio
 
 	core := &ports.APIRouter{
 		Logger:             logger,
-		NewRelic:           newrelic.Application,
+		NewRelic:           relic,
 		ServerStatusHandle: handler.NewServerStatusHandler(),
 		TokenAuthHandle:    handler.NewTokenHandler(access),
 		UserRoleHandler:    handler.NewUserRoleHandler(access),
@@ -95,7 +116,7 @@ func NewApplication(ctx context.Context, conf config.Application) app.Applicatio
 	priv.ApplyRouterDecorations(engine)
 	pub.ApplyRouterDecorations(engine)
 
-	application.NewRelic = newrelic
+	application.NewRelic = relic
 	application.Engine = engine
 
 	application.WebServer = app.WebServer{
