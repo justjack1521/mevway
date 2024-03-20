@@ -3,13 +3,16 @@ on: [push]
 jobs:
   digital-ocean-deploy:
     runs-on: ubuntu-latest
-    name: Deploy App
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: DigitalOcean App Platform deployment
-      uses: digitalocean/app_action@main
-      with:
-        app_name: mevius-mevway
-        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
+      - name: Generate GITHUB_SHA
+        id: github-sha
+        shell: bash
+        run: |
+          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+          echo "::set-output name=sha::$SHORT_SHA"
+      - name: DigitalOcean App Platform deployment
+        uses: digitalocean/app_action@v1.1.5
+        with:
+            app_name: mevius-mevsocial
+            token: '${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}'
+            images: '[{"name": "mevway","image":{"registry_type": "DOCR","repository": "mevway","tag": "${{steps.github-sha.outputs.sha}}"}}]'
