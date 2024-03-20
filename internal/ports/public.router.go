@@ -40,6 +40,7 @@ func (a *PublicAPIRouter) HandleLoginUser(ctx *gin.Context) {
 	for key, value := range ctx.Request.Form {
 		fmt.Println("%s = %s\n", key, value)
 	}
+	fmt.Println(len(ctx.Request.Form))
 
 	request, err := resources.Binder[resources.UserLoginRequest](ctx, resources.UserLoginRequest{})
 	if err != nil {
