@@ -4,15 +4,16 @@ jobs:
   digital-ocean-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate GITHUB_SHA
-        id: github-sha
-        shell: bash
-        run: |
-          SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-          echo "::set-output name=sha::$SHORT_SHA"
-      - name: DigitalOcean App Platform deployment
-        uses: digitalocean/app_action@v1.1.5
+      - name: Checkout master
+        uses: actions/checkout@main
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
         with:
-            app_name: mevius-mevway
-            token: '${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}'
-            images: '[{"name": "mevway","image":{"registry_type": "DOCR","repository": "mevway","tag": "latest"}}]'
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Build container image
+        run: docker build -t $DIGITALOCEAN_REG_NAME/$DIGITALOCEAN_REPO_NAME:$(echo $GITHUB_SHA | head -c7) .
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 1200
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push ${{ secrets.REGISTRY_NAME }}/python-example:$(echo $GITHUB_SHA | head -c7)
+        
