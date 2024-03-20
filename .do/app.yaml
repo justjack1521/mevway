@@ -1,8 +1,6 @@
 name: mevius-mevway
 services:
-- dockerfile_path: Dockerfile
-  github:
+- name: mevway
+  git:
+    repo_clone_url: https://github.com/justjack1521/mevway.git
     branch: main
-    deploy_on_push: true
-    repo: mevius/mevway
-  name: mevius-mevway
