@@ -11,5 +11,5 @@ jobs:
         with:
             app_name: mevius-mevway
             token: '${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}'
-            images: '[{"name": "mevway","image":{"registry_type": "DOCR","repository": "mevway","tag": "latest"}}]'
+            images: '[{"name": "mevway","image":{"registry_type": "DOCR","repository": "mevway","tag": "a5cae3e"}}]'
 
