@@ -1,0 +1,11 @@
+name: DigitalOcean App Push
+on: [push]
+jobs:
+  digital-ocean-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: DigitalOcean App Platform deployment
+        uses: digitalocean/app_action@v1.1.5
+        with:
+            app_name: mevius-mevway
+            token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
