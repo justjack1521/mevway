@@ -33,7 +33,7 @@ func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
 
 func (a *PublicAPIRouter) HandleLoginUser(ctx *gin.Context) {
 
-	fmt.Println(ctx.Request.Form.Encode())
+	fmt.Println("Login FUCK!")
 
 	request, err := resources.Binder[resources.UserLoginRequest](ctx, resources.UserLoginRequest{})
 	if err != nil {
