@@ -4,10 +4,15 @@ jobs:
   digital-ocean-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Set short git commit SHA
+        id: vars
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
       - name: DigitalOcean App Platform deployment
         uses: digitalocean/app_action@v1.1.5
         with:
             app_name: mevius-mevway
             token: '${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}'
-            images: '[{"name": "mevway","image":{"registry_type": "DOCR","repository": "mevway","tag": $(git rev-parse --short "$GITHUB_SHA")}}]'
+            images: '[{"name": "mevway","image":{"registry_type": "DOCR","repository": "mevway","tag": ${{ env.COMMIT_SHORT_SHA }}}}]'
 
