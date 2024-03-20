@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/justjack1521/mevconn"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"google.golang.org/grpc"
@@ -25,7 +26,7 @@ func DialToAccessClient() (services.AccessServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewAccessServiceClient(conn), nil
 
 }
@@ -36,6 +37,7 @@ func DialToLobbyClient() (services.MeviusMultiServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusMultiServiceClient(conn), nil
 }
 
@@ -48,6 +50,7 @@ func DialToSocialClient() (services.MeviusSocialServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusSocialServiceClient(conn), nil
 }
 
@@ -60,8 +63,8 @@ func DialToGameClient() (services.MeviusGameServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusGameServiceClient(conn), nil
-
 }
 
 func DialToRankClient() (services.MeviusRankServiceClient, error) {
@@ -73,5 +76,6 @@ func DialToRankClient() (services.MeviusRankServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusRankServiceClient(conn), nil
 }
