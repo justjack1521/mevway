@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"github.com/justjack1521/mevium/pkg/server"
 	"mevway/internal/app"
@@ -13,8 +12,6 @@ import (
 func main() {
 
 	ctx := context.Background()
-
-	fmt.Println("teehee")
 
 	application := service.NewApplication(ctx)
 

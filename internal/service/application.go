@@ -59,7 +59,6 @@ func NewApplication(ctx context.Context) app.Application {
 		panic(err)
 	}
 
-	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.HandleMethodNotAllowed = false
 
