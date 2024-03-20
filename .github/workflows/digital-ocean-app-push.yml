@@ -13,6 +13,6 @@ jobs:
       - name: DigitalOcean App Platform deployment
         uses: digitalocean/app_action@v1.1.5
         with:
-            app_name: mevius-mevsocial
+            app_name: mevius-mevway
             token: '${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}'
             images: '[{"name": "mevway","image":{"registry_type": "DOCR","repository": "mevway","tag": "${{steps.github-sha.outputs.sha}}"}}]'
