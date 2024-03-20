@@ -5,7 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: commit
-      - name: Commit Hash
         uses: prompt/actions-commit-hash@v3.0.0
       - name: DigitalOcean App Platform deployment
         uses: digitalocean/app_action@v1.1.5
