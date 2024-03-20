@@ -15,5 +15,5 @@ jobs:
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
         run: doctl registry login --expiry-seconds 1200
       - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/python-example:$(echo $GITHUB_SHA | head -c7)
+        run: docker push $DIGITALOCEAN_REG_NAME/$DIGITALOCEAN_REPO_NAME:$(echo $GITHUB_SHA | head -c7)
         
