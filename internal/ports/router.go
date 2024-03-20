@@ -2,6 +2,7 @@ package ports
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/justjack1521/mevrelic"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/sirupsen/logrus"
 	"mevway/internal/app/handler"
@@ -11,7 +12,7 @@ type APIRouterDecoration func(router *gin.Engine)
 
 type APIRouter struct {
 	Logger             *logrus.Logger
-	NewRelic           *newrelic.Application
+	NewRelic           *mevrelic.NewRelic
 	ServerStatusHandle handler.ServerStatusHandler
 	TokenAuthHandle    handler.TokenAuthoriseHandler
 	UserRoleHandler    handler.UserRoleHandler
@@ -41,7 +42,7 @@ func (a *APIRouter) ApplyRouterDecorations(router *gin.Engine) {
 }
 
 func (a *APIRouter) NewRelicMiddleware(c *gin.Context) {
-	txn := a.NewRelic.StartTransaction(c.Request.RequestURI)
+	txn := a.NewRelic.Application.StartTransaction(c.Request.RequestURI)
 	c.Request = c.Request.Clone(newrelic.NewContext(c.Request.Context(), txn))
 	defer txn.End()
 	txn.SetWebRequestHTTP(c.Request)

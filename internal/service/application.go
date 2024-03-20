@@ -5,8 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus"
-	"github.com/newrelic/go-agent/v3/newrelic"
+	"github.com/justjack1521/mevrelic"
 	"github.com/sirupsen/logrus"
 	"github.com/wagslane/go-rabbitmq"
 	"mevway/internal/app"
@@ -21,20 +20,13 @@ func NewApplication(ctx context.Context) app.Application {
 		EventPublisher: mevent.NewPublisher(),
 	}
 
-	nrlc, err := mevconn.CreateNewRelicConfig()
+	logger := logrus.New()
+
+	relic, err := mevrelic.NewRelicApplication()
 	if err != nil {
 		panic(err)
 	}
-
-	relic, err := newrelic.NewApplication(
-		newrelic.ConfigAppName(nrlc.ApplicationName()),
-		newrelic.ConfigLicense(nrlc.LicenseKey()),
-	)
-
-	logger := logrus.New()
-	nrl := nrlogrus.NewFormatter(relic, &logrus.TextFormatter{})
-	logger.SetFormatter(nrl)
-	//logger.AddHook(relic)
+	relic.Attach(logger)
 
 	mqc, err := mevconn.CreateRabbitMQConfig()
 	if err != nil {
@@ -70,7 +62,7 @@ func NewApplication(ctx context.Context) app.Application {
 	engine := gin.New()
 	engine.HandleMethodNotAllowed = false
 
-	svr := web.NewServer(logger, relic).WithUpdatePublisher(mq).WithUpdateConsumer(mq)
+	svr := web.NewServer(logger, relic.Application).WithUpdatePublisher(mq).WithUpdateConsumer(mq)
 	svr.RegisterServiceClient(web.GameClientRouteKey, web.NewGameServiceClientRouter(game))
 	svr.RegisterServiceClient(web.SocialClientRouteKey, web.NewSocialServiceClientRouter(social))
 	svr.RegisterServiceClient(web.RankingClientRouteKey, web.NewRankServiceClientRouter(rank))
