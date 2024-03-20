@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	"mevway/internal/app/handler"
@@ -32,8 +33,15 @@ func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
 
 func (a *PublicAPIRouter) HandleLoginUser(ctx *gin.Context) {
 
-	request, err := resources.Binder[resources.UserLoginRequest](ctx, resources.UserLoginRequest{})
+	if err := ctx.Request.ParseForm(); err != nil {
+		httperr.BadRequest(err, "Bad request", ctx)
+		return
+	}
+	for key, value := range ctx.Request.Form {
+		fmt.Println("%s = %s\n", key, value)
+	}
 
+	request, err := resources.Binder[resources.UserLoginRequest](ctx, resources.UserLoginRequest{})
 	if err != nil {
 		httperr.BadRequest(err, "Bad request", ctx)
 		return
