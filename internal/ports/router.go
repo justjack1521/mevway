@@ -60,16 +60,14 @@ func (a *APIRouter) LoggerMiddleware(c *gin.Context) {
 		"method": c.Request.Method,
 		"addr":   c.Request.RemoteAddr,
 	})
-	entry.Info("Executing query")
+	entry.Info("Executing request")
 
 	c.Next()
 
-	entry.Debug("Query execution finished")
-
 	if len(c.Errors) == 0 {
-		entry.Info("Query executed successfully")
+		entry.Info("Request executed")
 	} else {
-		entry.WithError(c.Errors.Last()).Error("Failed to execute query")
+		entry.WithError(c.Errors.Last()).Error("Request failed")
 	}
 
 }

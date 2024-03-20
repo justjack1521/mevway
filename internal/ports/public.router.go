@@ -32,8 +32,6 @@ func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
 
 func (a *PublicAPIRouter) HandleLoginUser(ctx *gin.Context) {
 
-	panic(nil)
-
 	request, err := resources.Binder[resources.UserLoginRequest](ctx, resources.UserLoginRequest{})
 	if err != nil {
 		httperr.BadRequest(err, "Bad request", ctx)
@@ -83,7 +81,6 @@ func (a *PublicAPIRouter) HandlePlayerSearch(ctx *gin.Context) {
 func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 
 	pub := router.Group("/public")
-
 	pub.GET("/ws", a.HandleTokenAuthorise, a.HandlerAlphaTesterAuthorise, a.HandleSocket)
 
 	auth := pub.Group("/auth")
