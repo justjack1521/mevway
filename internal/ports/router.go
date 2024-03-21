@@ -35,9 +35,9 @@ func (a *APIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
 
 func (a *APIRouter) ApplyRouterDecorations(router *gin.Engine) {
 	router.Use(a.CORSMiddleware)
-	//router.Use(a.NewRelicMiddleware)
-	//router.Use(a.LoggerMiddleware)
-	//router.Use(a.ErrorLogMiddleware)
+	router.Use(a.NewRelicMiddleware)
+	router.Use(a.LoggerMiddleware)
+	router.Use(a.ErrorLogMiddleware)
 	router.GET("/status", a.HandleServerStatus)
 }
 
