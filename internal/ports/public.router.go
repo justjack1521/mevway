@@ -1,10 +1,8 @@
 package ports
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
-	"io/ioutil"
 	"mevway/internal/app/handler"
 	"mevway/internal/resources"
 )
@@ -34,16 +32,9 @@ func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
 
 func (a *PublicAPIRouter) HandleLoginUser(ctx *gin.Context) {
 
-	body, err := ioutil.ReadAll(ctx.Request.Body)
-	if err != nil {
-		httperr.BadRequest(err, "Bad request", ctx)
-		return
-	}
-	fmt.Println("Received request body:")
-	fmt.Println(string(body))
+	var request = &resources.UserLoginRequest{}
 
-	request, err := resources.Binder[resources.UserLoginRequest](ctx, resources.UserLoginRequest{})
-	if err != nil {
+	if err := ctx.BindJSON(request); err != nil {
 		httperr.BadRequest(err, "Bad request", ctx)
 		return
 	}
