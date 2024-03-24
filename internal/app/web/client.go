@@ -100,7 +100,7 @@ func (c *Client) Read() {
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				txn.NoticeError(err)
-				fmt.Println(ErrFailedReadClientRequest(ErrFailedReadMessage(err)))
+				txn.End()
 			}
 			break
 		}
@@ -108,12 +108,13 @@ func (c *Client) Read() {
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
 			txn.NoticeError(err)
-			fmt.Println(ErrFailedReadClientRequest(ErrFailedUnmarshalMessage(err)))
+			txn.End()
 			break
 		}
 
 		if err := c.server.RouteClientRequest(newrelic.NewContext(context.Background(), txn), c, request); err != nil {
 			txn.NoticeError(err)
+			txn.End()
 			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			break
 		}

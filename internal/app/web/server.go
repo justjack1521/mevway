@@ -135,28 +135,6 @@ func (s *Server) Run() {
 
 func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *protocommon.BaseRequest) (err error) {
 
-	defer func() {
-		if err != nil {
-			s.logger.WithFields(logrus.Fields{
-				"client":    wc.ClientID,
-				"service":   request.Service,
-				"operation": request.Operation,
-			}).WithError(err).Error("Error Routing Client Request")
-		} else {
-			s.logger.WithFields(logrus.Fields{
-				"client":    wc.ClientID,
-				"service":   request.Service,
-				"operation": request.Operation,
-			}).Info("Client Request Routed")
-		}
-	}()
-
-	s.logger.WithFields(logrus.Fields{
-		"client":    wc.ClientID,
-		"service":   request.Service,
-		"operation": request.Operation,
-	}).Info("Routing Client Request")
-
 	md := metadata.New(map[string]string{"X-API-CLIENT": wc.ClientID.String()})
 	wcc := wc.NewClientContext(metadata.NewOutgoingContext(ctx, md), request)
 
@@ -192,24 +170,13 @@ func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *pr
 }
 
 func (s *Server) SendClientError(ctx *ClientContext, code int32, message string) error {
-
-	s.logger.WithFields(logrus.Fields{
-		"service":   ctx.request.Service,
-		"operation": ctx.request.Operation,
-	}).Info("request Failed")
-
 	response := ctx.NewError(code, message)
-
 	msg, err := proto.Marshal(response)
-
 	if err != nil {
 		return err
 	}
-
 	ctx.client.send <- msg
-
 	return nil
-
 }
 
 func (s *Server) SendClientResponseBytes(ctx *ClientContext, data []byte) error {
@@ -223,23 +190,15 @@ func (s *Server) SendClientResponseBytes(ctx *ClientContext, data []byte) error 
 }
 
 func (s *Server) SendClientResponse(ctx *ClientContext, res ClientResponse) error {
-
 	bytes, err := res.MarshallBinary()
-
 	if err != nil {
 		return err
 	}
-
 	response := ctx.NewResponse(bytes)
-
 	message, err := proto.Marshal(response)
-
 	if err != nil {
 		return err
 	}
-
 	ctx.client.send <- message
-
 	return nil
-
 }
