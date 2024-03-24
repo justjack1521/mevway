@@ -1,9 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"github.com/justjack1521/mevconn"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
+	"github.com/newrelic/go-agent/v3/integrations/nrgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -22,22 +22,20 @@ func DialToAccessClient() (services.AccessServiceClient, error) {
 	//	RootCAs: pool,
 	//})
 	config, err := mevconn.CreateGrpcServiceConfig(mevconn.AUTHSERVICENAME)
-	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithUnaryInterceptor(nrgrpc.UnaryClientInterceptor), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewAccessServiceClient(conn), nil
 
 }
 
 func DialToLobbyClient() (services.MeviusMultiServiceClient, error) {
 	config, err := mevconn.CreateGrpcServiceConfig(mevconn.MULTISERVICENAME)
-	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithUnaryInterceptor(nrgrpc.UnaryClientInterceptor), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusMultiServiceClient(conn), nil
 }
 
@@ -46,11 +44,10 @@ func DialToSocialClient() (services.MeviusSocialServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithUnaryInterceptor(nrgrpc.UnaryClientInterceptor), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusSocialServiceClient(conn), nil
 }
 
@@ -59,11 +56,10 @@ func DialToGameClient() (services.MeviusGameServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithUnaryInterceptor(nrgrpc.UnaryClientInterceptor), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusGameServiceClient(conn), nil
 }
 
@@ -72,10 +68,9 @@ func DialToRankClient() (services.MeviusRankServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithInsecure())
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithUnaryInterceptor(nrgrpc.UnaryClientInterceptor), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("Connected to %s", config.ConnectionString()))
 	return services.NewMeviusRankServiceClient(conn), nil
 }
