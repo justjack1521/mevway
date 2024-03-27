@@ -98,7 +98,7 @@ func (s *Server) Run() {
 		//Unregister
 		case client := <-s.Unregister:
 			if _, ok := s.Clients[client]; ok {
-				s.publisher.Notify(ClientDisconnectedEvent{clientID: client.ClientID, remoteAddr: client.connection.RemoteAddr()})
+				s.publisher.Notify(NewClientDisconnectedEvent(context.Background(), client.ClientID, client.connection.RemoteAddr(), client.disconnectionSource))
 				delete(s.Clients, client)
 				close(client.send)
 			}

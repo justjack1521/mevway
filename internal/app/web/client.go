@@ -19,14 +19,20 @@ const (
 	heartBeatPeriod       = 15 * time.Minute
 )
 
+const (
+	disconnectionSourceRead  = "read_pump"
+	disconnectionSourceWrite = "write_pump"
+)
+
 type Client struct {
-	ClientID         uuid.UUID
-	ConnectionID     uuid.UUID
-	connection       *websocket.Conn
-	server           *Server
-	heartbeatStarted bool
-	closed           bool
-	send             chan []byte
+	ClientID            uuid.UUID
+	ConnectionID        uuid.UUID
+	connection          *websocket.Conn
+	server              *Server
+	heartbeatStarted    bool
+	closed              bool
+	send                chan []byte
+	disconnectionSource string
 }
 
 func NewClient(server *Server, connection *websocket.Conn) (client *Client) {
@@ -83,6 +89,7 @@ func (c *Client) Heartbeat() {
 func (c *Client) Read() {
 
 	defer func() {
+		c.disconnectionSource = disconnectionSourceRead
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
 			fmt.Println(ErrFailedCloseClientConnection(err))
@@ -140,8 +147,11 @@ func (c *Client) Write() {
 
 	defer func() {
 		ticker.Stop()
-		c.connection.Close()
+		c.disconnectionSource = disconnectionSourceWrite
 		c.server.Unregister <- c
+		if err := c.connection.Close(); err != nil {
+			fmt.Println(ErrFailedCloseClientConnection(err))
+		}
 	}()
 
 	for {

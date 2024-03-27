@@ -84,9 +84,14 @@ func (e ClientHeartbeatEvent) ToLogFields() logrus.Fields {
 }
 
 type ClientDisconnectedEvent struct {
-	clientID   uuid.UUID
 	ctx        context.Context
+	clientID   uuid.UUID
 	remoteAddr net.Addr
+	source     string
+}
+
+func NewClientDisconnectedEvent(ctx context.Context, client uuid.UUID, addr net.Addr, source string) ClientDisconnectedEvent {
+	return ClientDisconnectedEvent{ctx: ctx, clientID: client, remoteAddr: addr, source: source}
 }
 
 func (e ClientDisconnectedEvent) Context() context.Context {
@@ -101,12 +106,21 @@ func (e ClientDisconnectedEvent) RemoteAddress() net.Addr {
 	return e.remoteAddr
 }
 
+func (e ClientDisconnectedEvent) Source() string {
+	return e.source
+}
+
 func (e ClientDisconnectedEvent) Name() string {
 	return "event.client.disconnected"
 }
 
 func (e ClientDisconnectedEvent) ToLogFields() logrus.Fields {
-	return logrus.Fields{"event.name": e.Name(), "client.id": e.clientID.String(), "remote.address": e.remoteAddr.String()}
+	return logrus.Fields{
+		"event.name":     e.Name(),
+		"client.id":      e.clientID.String(),
+		"remote.address": e.remoteAddr.String(),
+		"source":         e.source,
+	}
 }
 
 type ClientMessageEvent interface {
