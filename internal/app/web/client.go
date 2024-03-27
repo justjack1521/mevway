@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
-	"github.com/newrelic/go-agent/v3/newrelic"
 	uuid "github.com/satori/go.uuid"
 	"log"
 	"time"
@@ -86,15 +85,14 @@ func (c *Client) Read() {
 
 	var txn = c.server.relic.StartTransaction("socket/read")
 
-	defer func(txn *newrelic.Transaction) {
+	defer func() {
 		c.disconnectionSource = disconnectionSourceRead
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
 			txn.NoticeError(err)
-			fmt.Println(ErrFailedCloseClientConnection(err))
 		}
 		txn.End()
-	}(txn)
+	}()
 
 	c.connection.SetReadLimit(maxMessageSize)
 	if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
@@ -158,6 +156,8 @@ var (
 
 func (c *Client) Write() {
 
+	var txn = c.server.relic.StartTransaction("socket/write")
+
 	ticker := time.NewTicker(pingPeriod)
 
 	defer func() {
@@ -165,58 +165,59 @@ func (c *Client) Write() {
 		c.disconnectionSource = disconnectionSourceWrite
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
-			fmt.Println(ErrFailedCloseClientConnection(err))
+			txn.NoticeError(err)
 		}
+		txn.End()
 	}()
 
 	for {
 		select {
 		case message, ok := <-c.send:
 
-			txn := c.server.relic.StartTransaction("socket/write")
+			mtx := c.server.relic.StartTransaction("socket/write/message")
 
 			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-				txn.NoticeError(err)
+				mtx.NoticeError(err)
 			}
 			if !ok {
 				if err := c.connection.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
-					txn.NoticeError(err)
-					txn.End()
+					mtx.NoticeError(err)
+					mtx.End()
 				}
-				return
+				break
 			}
 
 			writer, err := c.connection.NextWriter(websocket.BinaryMessage)
 			if err != nil {
-				txn.NoticeError(err)
-				txn.End()
-				return
+				mtx.NoticeError(err)
+				mtx.End()
+				break
 			}
 
 			_, err = writer.Write(message)
 			if err != nil {
-				txn.NoticeError(err)
-				txn.End()
-				return
+				mtx.NoticeError(err)
+				mtx.End()
+				break
 			}
 
 			if err := writer.Close(); err != nil {
-				txn.NoticeError(err)
-				txn.End()
-				return
+				mtx.NoticeError(err)
+				mtx.End()
+				break
 			}
 
 		case <-ticker.C:
 
-			txn := c.server.relic.StartTransaction("socket/ping")
+			ptx := c.server.relic.StartTransaction("socket/ping")
 
 			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-				txn.NoticeError(err)
+				ptx.NoticeError(err)
 			}
 			if err := c.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
-				txn.NoticeError(err)
-				txn.End()
-				return
+				ptx.NoticeError(err)
+				ptx.End()
+				break
 			}
 
 		}
