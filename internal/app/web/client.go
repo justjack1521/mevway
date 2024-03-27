@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/golang/protobuf/proto"
@@ -22,6 +23,11 @@ const (
 const (
 	disconnectionSourceRead  = "read_pump"
 	disconnectionSourceWrite = "write_pump"
+)
+
+var (
+	newline = []byte{'\n'}
+	space   = []byte{' '}
 )
 
 type Client struct {
@@ -94,17 +100,14 @@ func (c *Client) Read() {
 
 	c.connection.SetReadLimit(maxMessageSize)
 	c.connection.SetReadDeadline(time.Now().Add(pongWait))
-	c.connection.SetPongHandler(func(string) error { return c.connection.SetReadDeadline(time.Now().Add(pongWait)) })
+	c.connection.SetPongHandler(func(string) error { c.connection.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	for {
-
-		fmt.Println("Message received")
 
 		txn := c.server.relic.StartTransaction("socket/read")
 
 		_, message, err := c.connection.ReadMessage()
-
-		fmt.Println(fmt.Sprintf("Message length: %d", len(message)))
+		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
 		if err != nil {
 			txn.NoticeError(err)

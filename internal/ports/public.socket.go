@@ -7,7 +7,14 @@ import (
 )
 
 func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
+
+	//client, err := uuid.FromString(a.client(ctx))
+	//if err != nil {
+	//	httperr.BadRequest(err, err.Error(), ctx)
+	//	return
+	//}
+
 	a.WebsocketHandle.Handle(ctx, handler.WebSocketQuery{
-		ClientID: uuid.NewV4().String(), //a.client(ctx),
+		ClientID: uuid.NewV4(),
 	})
 }

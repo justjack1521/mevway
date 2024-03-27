@@ -22,7 +22,7 @@ var upgrader = websocket.Upgrader{
 }
 
 type WebSocketQuery struct {
-	ClientID string
+	ClientID uuid.UUID
 }
 
 type WebSocketHandler decorator.APIRouterHandler[WebSocketQuery]
@@ -45,14 +45,8 @@ func (w webSocketHandler) Handle(ctx *gin.Context, query WebSocketQuery) {
 		return
 	}
 
-	id, err := uuid.FromString(query.ClientID)
-	if err != nil {
-		httperr.BadRequest(err, "Failed to upgrade connection", ctx)
-		return
-	}
-
 	client := web.NewClient(w.server, conn)
-	client.ClientID = id
+	client.ClientID = query.ClientID
 	w.server.Register <- client
 
 	go client.Read()
