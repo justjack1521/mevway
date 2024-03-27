@@ -2,11 +2,12 @@ package ports
 
 import (
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/app/handler"
 )
 
 func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
 	a.WebsocketHandle.Handle(ctx, handler.WebSocketQuery{
-		ClientID: a.client(ctx),
+		ClientID: uuid.NewV4(), //a.client(ctx),
 	})
 }
