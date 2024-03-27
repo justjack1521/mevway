@@ -3,13 +3,10 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
-	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
 	"github.com/justjack1521/mevium/pkg/genproto/protosocial"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 	"mevway/internal/decorator"
 	"mevway/internal/resources"
 )
@@ -33,25 +30,16 @@ func NewPlayerSearchHandler(access services.AccessServiceClient, social services
 
 func (h playerSearchHandler) Handle(ctx *gin.Context, query PlayerSearch) {
 
-	md := metadata.New(map[string]string{"X-API-CLIENT": ctx.GetHeader("X-API-CLIENT")})
-	out := metadata.NewOutgoingContext(ctx, md)
 	user, err := h.cache.GetUserIDFromCustomerID(query.CustomerID)
-
 	if err != nil {
 		httperr.InternalError(err, err.Error(), ctx)
 	}
 
 	if user == uuid.Nil {
-		result, err := h.access.CustomerSearch(out, &protoaccess.CustomerSearchRequest{
-			Header:     &protocommon.RequestHeader{ClientId: query.UserID},
+		result, err := h.access.CustomerSearch(ctx, &protoaccess.CustomerSearchRequest{
 			CustomerId: query.CustomerID,
 		})
 		if err != nil {
-			st, ok := status.FromError(err)
-			if ok {
-				httperr.BadRequest(err, st.Message(), ctx)
-				return
-			}
 			httperr.BadRequest(err, err.Error(), ctx)
 			return
 		}
@@ -64,30 +52,14 @@ func (h playerSearchHandler) Handle(ctx *gin.Context, query PlayerSearch) {
 
 	_ = h.cache.AddCustomerIDForUser(query.CustomerID, user)
 
-	search, err := h.social.PlayerSearch(out, &protosocial.PlayerSearchRequest{UserId: user.String()})
-	if err != nil {
-		st, ok := status.FromError(err)
-		if ok {
-			httperr.BadRequest(err, st.Message(), ctx)
-			return
-		}
-		httperr.BadRequest(err, err.Error(), ctx)
-		return
-	}
-
-	if search.PlayerInfo == nil {
+	search, err := h.social.PlayerSearch(ctx, &protosocial.PlayerSearchRequest{UserId: user.String()})
+	if err != nil || search.PlayerInfo == nil || search.PlayerInfo.PlayerId == uuid.Nil.String() {
 		httperr.BadRequest(err, "player not found", ctx)
 		return
 	}
 
-	id, err := uuid.FromString(search.PlayerInfo.PlayerId)
-	if err != nil {
-		httperr.BadRequest(err, err.Error(), ctx)
-		return
-	}
-
 	var response = &resources.PlayerSearchResponse{
-		PlayerID:      id,
+		PlayerID:      uuid.FromStringOrNil(search.PlayerInfo.PlayerId),
 		PlayerName:    search.PlayerInfo.PlayerName,
 		PlayerLevel:   int(search.PlayerInfo.PlayerLevel),
 		PlayerComment: search.PlayerInfo.PlayerComment,

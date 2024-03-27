@@ -19,6 +19,8 @@ type APIRouter struct {
 }
 
 type BaseAPIRouter interface {
+	client(ctx *gin.Context) string
+	device(ctx *gin.Context) string
 	HandleTokenAuthorise(ctx *gin.Context)
 }
 
@@ -28,7 +30,7 @@ func (a *APIRouter) HandleServerStatus(ctx *gin.Context) {
 
 func (a *APIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   ctx.GetHeader("X-API-CLIENT"),
+		UserID:   a.client(ctx),
 		RoleName: "alpha_tester",
 	})
 }
@@ -90,12 +92,18 @@ func (a *APIRouter) GetTokenAuthHandle() handler.TokenAuthoriseHandler {
 
 func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
 
-	id := ctx.GetHeader("X-API-CLIENT")
-	bearer := ctx.GetHeader("Authorization")
-
 	a.TokenAuthHandle.Handle(ctx, handler.TokenAuthorise{
-		UserID: id,
-		Bearer: bearer,
+		UserID:   a.client(ctx),
+		Bearer:   ctx.GetHeader("Authorization"),
+		DeviceID: a.device(ctx),
 	})
 
+}
+
+func (a *APIRouter) client(ctx *gin.Context) string {
+	return ctx.GetHeader("X-API-CLIENT")
+}
+
+func (a *APIRouter) device(ctx *gin.Context) string {
+	return ctx.GetHeader("X-API-DEVICE")
 }

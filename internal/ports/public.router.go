@@ -2,9 +2,7 @@ package ports
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/justjack1521/mevium/pkg/server/httperr"
 	"mevway/internal/app/handler"
-	"mevway/internal/resources"
 )
 
 type PublicAPIRouter struct {
@@ -18,65 +16,9 @@ type PublicAPIRouter struct {
 
 func (a *PublicAPIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   ctx.GetHeader("X-API-CLIENT"),
+		UserID:   a.client(ctx),
 		RoleName: "alpha_tester",
 	})
-}
-
-func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
-
-	a.WebsocketHandle.Handle(ctx, handler.WebSocketQuery{
-		ClientID: ctx.GetHeader("X-API-CLIENT"),
-	})
-}
-
-func (a *PublicAPIRouter) HandleLoginUser(ctx *gin.Context) {
-
-	var request = &resources.UserLoginRequest{}
-
-	if err := ctx.BindJSON(request); err != nil {
-		httperr.BadRequest(err, "Bad request", ctx)
-		return
-	}
-
-	a.LoginUserHandle.Handle(ctx, handler.LoginUser{
-		Username:   request.Username,
-		Password:   request.Password,
-		RememberMe: request.RememberMe,
-	})
-
-}
-
-func (a *PublicAPIRouter) HandleRegisterUser(ctx *gin.Context) {
-
-	request, err := resources.Binder[resources.UserRegisterRequest](ctx, resources.UserRegisterRequest{})
-
-	if err != nil {
-		httperr.BadRequest(err, "Bad request", ctx)
-		return
-	}
-
-	a.RegisterUserHandle.Handle(ctx, handler.RegisterUser{
-		Username:        request.Username,
-		Password:        request.Password,
-		ConfirmPassword: request.ConfirmPassword,
-	})
-
-}
-
-func (a *PublicAPIRouter) HandlePlayerSearch(ctx *gin.Context) {
-
-	request, err := resources.Binder[resources.PlayerSearchRequest](ctx, resources.PlayerSearchRequest{})
-
-	request.CustomerID = ctx.Param("customer_id")
-
-	if err != nil || request.CustomerID == "" {
-		httperr.BadRequest(err, "Bad request", ctx)
-		return
-	}
-
-	a.PlayerSearchHandle.Handle(ctx, handler.PlayerSearch{CustomerID: request.CustomerID})
-
 }
 
 func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {

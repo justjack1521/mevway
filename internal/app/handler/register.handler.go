@@ -6,7 +6,6 @@ import (
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/grpc/status"
 	"mevway/internal/decorator"
 	"mevway/internal/resources"
 )
@@ -38,17 +37,10 @@ func (h registerUserHandler) Handle(ctx *gin.Context, query RegisterUser) {
 	})
 
 	if err != nil {
-		st, ok := status.FromError(err)
-		if ok {
-			httperr.BadRequest(err, st.Message(), ctx)
-			return
-		} else {
-			httperr.BadRequest(err, err.Error(), ctx)
-			return
-		}
+		httperr.BadRequest(err, err.Error(), ctx)
 	}
 
-	user, err := uuid.FromString(response.Header.ClientId)
+	user, err := uuid.FromString(response.UserId)
 	if err != nil {
 		httperr.InternalError(err, err.Error(), ctx)
 		return

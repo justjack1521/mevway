@@ -81,6 +81,7 @@ func (c *Client) Heartbeat() {
 }
 
 func (c *Client) Read() {
+
 	defer func() {
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {

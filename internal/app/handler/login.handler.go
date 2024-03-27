@@ -3,19 +3,17 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
-	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	uuid "github.com/satori/go.uuid"
-	"google.golang.org/grpc/status"
 	"mevway/internal/decorator"
 	"mevway/internal/resources"
 )
 
 type LoginUser struct {
-	Username   string
-	Password   string
-	RememberMe bool
+	Username string
+	Password string
+	DeviceID string
 }
 
 type CustomerIDCache interface {
@@ -40,28 +38,22 @@ func NewLoginHandler(clt services.AccessServiceClient, cache CustomerIDCache) Lo
 func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 
 	response, err := h.client.LoginUser(ctx, &protoaccess.LoginUserRequest{
-		Username:   query.Username,
-		Password:   query.Password,
-		RememberMe: query.RememberMe,
+		Username: query.Username,
+		Password: query.Password,
+		DeviceId: query.DeviceID,
 	})
-
 	if err != nil {
-		st, ok := status.FromError(err)
-		if ok {
-			httperr.BadRequest(err, st.Message(), ctx)
-		}
-		return
+		httperr.BadRequest(err, err.Error(), ctx)
 	}
 
-	user, err := uuid.FromString(response.Header.ClientId)
+	user, err := uuid.FromString(response.UserId)
 	if err != nil {
 		httperr.InternalError(err, err.Error(), ctx)
-		return
 	}
 
 	//TODO Remove when opening build
 	_, err = h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
-		Header: &protocommon.RequestHeader{ClientId: response.Header.ClientId},
+		UserId: response.UserId,
 		Role:   "alpha_tester",
 	})
 
@@ -75,11 +67,10 @@ func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 	}
 
 	ctx.JSON(200, resources.UserLoginResponse{
-		SysUser:      response.Header.ClientId,
+		SysUser:      response.UserId,
 		CustomerID:   response.CustomerId,
 		AccessToken:  response.AccessToken,
 		RefreshToken: response.RefreshToken,
-		RememberMe:   response.RememberMe,
 	})
 
 }

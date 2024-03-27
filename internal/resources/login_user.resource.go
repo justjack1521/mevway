@@ -11,5 +11,4 @@ type UserLoginResponse struct {
 	CustomerID   string `json:"CustomerID" form:"CustomerID" binding:"required"`
 	AccessToken  string `json:"AccessToken" form:"AccessToken" binding:"required"`
 	RefreshToken string `json:"RefreshToken" form:"RefreshToken" binding:"required"`
-	RememberMe   string `json:"RememberMe,omitempty" form:"RefreshToken"`
 }
