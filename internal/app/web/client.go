@@ -103,6 +103,9 @@ func (c *Client) Read() {
 		txn := c.server.relic.StartTransaction("socket/read")
 
 		_, message, err := c.connection.ReadMessage()
+
+		fmt.Println(fmt.Sprintf("Message length: %d", len(message)))
+
 		if err != nil {
 			txn.NoticeError(err)
 			txn.End()
