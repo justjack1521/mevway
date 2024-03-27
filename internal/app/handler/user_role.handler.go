@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
@@ -27,13 +28,18 @@ func NewUserRoleHandler(clt services.AccessServiceClient) UserRoleHandler {
 
 func (h userRoleHandler) Handle(ctx *gin.Context, query UserRole) {
 
-	_, err := h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
+	response, err := h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
 		UserId: query.UserID,
 		Role:   query.RoleName,
 	})
 
 	if err != nil {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
+		return
+	}
+
+	if response.HasRole == false {
+		httperr.UnauthorisedError(errors.New("unauthorised"), "unauthorised", ctx)
 		return
 	}
 

@@ -102,7 +102,7 @@ func (c *Client) Read() {
 
 	for {
 
-		txn := c.server.newRelicApplication.StartTransaction("socket/read")
+		txn := c.server.relic.StartTransaction("socket/read")
 
 		_, message, err := c.connection.ReadMessage()
 		if err != nil {
@@ -123,13 +123,14 @@ func (c *Client) Read() {
 		if err := c.server.RouteClientRequest(newrelic.NewContext(context.Background(), txn), c, request); err != nil {
 			txn.NoticeError(err)
 			txn.End()
-			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr(), err: err})
+			c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
 			break
 		}
 
 		txn.End()
 
 	}
+
 }
 
 var (

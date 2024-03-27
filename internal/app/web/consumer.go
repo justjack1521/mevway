@@ -26,7 +26,7 @@ func NewServerUpdateConsumer(server *Server, connection *rabbitmq.Conn) (*Server
 		rabbitmv.ClientNotification,
 		rabbitmv.Client,
 		rabbitmv.ConsumeLoggerMiddleWare(server.logger, service.consume),
-	).WithNewRelic(server.newRelicApplication)
+	).WithNewRelic(server.relic)
 
 	service.consumer = consumer
 

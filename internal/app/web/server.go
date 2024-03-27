@@ -20,29 +20,29 @@ type ClientNotification struct {
 }
 
 type Server struct {
-	logger              *logrus.Logger
-	Register            chan *Client
-	Unregister          chan *Client
-	Clients             map[*Client]bool
-	Broadcast           chan []byte
-	NotifyClient        chan *ClientNotification
-	Services            map[RoutingKey]ServiceClientRouter
-	publisher           *mevent.Publisher
-	updateConsumer      *ServerUpdateConsumer
-	updatePublisher     *ServerUpdatePublisher
-	newRelicApplication *newrelic.Application
+	logger          *logrus.Logger
+	Register        chan *Client
+	Unregister      chan *Client
+	Clients         map[*Client]bool
+	Broadcast       chan []byte
+	NotifyClient    chan *ClientNotification
+	Services        map[RoutingKey]ServiceClientRouter
+	publisher       *mevent.Publisher
+	updateConsumer  *ServerUpdateConsumer
+	updatePublisher *ServerUpdatePublisher
+	relic           *newrelic.Application
 }
 
 func NewServer(logger *logrus.Logger, relic *newrelic.Application) *Server {
 	svr := &Server{
-		logger:              logger,
-		newRelicApplication: relic,
-		Register:            make(chan *Client),
-		Unregister:          make(chan *Client),
-		Clients:             make(map[*Client]bool),
-		Broadcast:           make(chan []byte),
-		NotifyClient:        make(chan *ClientNotification),
-		Services:            make(map[RoutingKey]ServiceClientRouter),
+		logger:       logger,
+		relic:        relic,
+		Register:     make(chan *Client),
+		Unregister:   make(chan *Client),
+		Clients:      make(map[*Client]bool),
+		Broadcast:    make(chan []byte),
+		NotifyClient: make(chan *ClientNotification),
+		Services:     make(map[RoutingKey]ServiceClientRouter),
 	}
 	return svr.WithEventBus(mevent.PublisherWithLogger(logger))
 }

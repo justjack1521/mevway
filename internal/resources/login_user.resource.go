@@ -1,9 +1,8 @@
 package resources
 
 type UserLoginRequest struct {
-	Username   string `json:"Username" form:"Username" binding:"required"`
-	Password   string `json:"Password" form:"Password" binding:"required"`
-	RememberMe bool   `json:"RememberMe" form:"RememberMe"`
+	Username string `json:"Username" form:"Username" binding:"required"`
+	Password string `json:"Password" form:"Password" binding:"required"`
 }
 
 type UserLoginResponse struct {

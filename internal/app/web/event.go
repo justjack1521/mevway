@@ -131,17 +131,12 @@ type ClientMessageEvent interface {
 type ClientMessageErrorEvent struct {
 	clientID   uuid.UUID
 	remoteAddr net.Addr
-	ctx        context.Context
 	err        error
 }
 
-func NewClientMessageErrorEvent(client uuid.UUID, addr net.Addr, ctx context.Context, err error) *ClientMessageErrorEvent {
+func NewClientMessageErrorEvent(client uuid.UUID, addr net.Addr, err error) *ClientMessageErrorEvent {
 	fmt.Println(err)
-	return &ClientMessageErrorEvent{clientID: client, remoteAddr: addr, ctx: ctx, err: err}
-}
-
-func (e ClientMessageErrorEvent) Context() context.Context {
-	return e.ctx
+	return &ClientMessageErrorEvent{clientID: client, remoteAddr: addr, err: err}
 }
 
 func (e ClientMessageErrorEvent) ClientID() uuid.UUID {
