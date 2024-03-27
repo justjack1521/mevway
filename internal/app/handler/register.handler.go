@@ -38,6 +38,7 @@ func (h registerUserHandler) Handle(ctx *gin.Context, query RegisterUser) {
 
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)
+		return
 	}
 
 	user, err := uuid.FromString(response.UserId)

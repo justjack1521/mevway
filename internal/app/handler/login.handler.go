@@ -44,11 +44,13 @@ func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 	})
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)
+		return
 	}
 
 	user, err := uuid.FromString(response.UserId)
 	if err != nil {
 		httperr.InternalError(err, err.Error(), ctx)
+		return
 	}
 
 	//TODO Remove when opening build
@@ -59,6 +61,7 @@ func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 
 	if err != nil {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
+		return
 	}
 
 	if err := h.cache.AddCustomerIDForUser(response.CustomerId, user); err != nil {

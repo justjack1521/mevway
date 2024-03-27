@@ -34,6 +34,7 @@ func (h userRoleHandler) Handle(ctx *gin.Context, query UserRole) {
 
 	if err != nil {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
+		return
 	}
 
 	ctx.JSON(200, gin.H{

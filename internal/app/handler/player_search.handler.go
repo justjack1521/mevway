@@ -33,6 +33,7 @@ func (h playerSearchHandler) Handle(ctx *gin.Context, query PlayerSearch) {
 	user, err := h.cache.GetUserIDFromCustomerID(query.CustomerID)
 	if err != nil {
 		httperr.InternalError(err, err.Error(), ctx)
+		return
 	}
 
 	if user == uuid.Nil {
