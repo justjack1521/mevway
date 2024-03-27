@@ -116,14 +116,12 @@ func (c *Client) Read() {
 
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
-			fmt.Println(err)
 			txn.NoticeError(err)
 			txn.End()
 			break
 		}
 
 		if err := c.server.RouteClientRequest(newrelic.NewContext(context.Background(), txn), c, request); err != nil {
-			fmt.Println(err)
 			txn.NoticeError(err)
 			txn.End()
 			c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
