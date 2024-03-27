@@ -13,7 +13,7 @@ FROM build-stage AS run-test-stage
 
 RUN go test -v ./...
 
-FROM gcr.io/distroless/base-debian11 AS build-release-stage
+FROM ubuntu:18.04 AS build-release-stage
 
 WORKDIR /
 
