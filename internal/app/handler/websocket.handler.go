@@ -8,6 +8,7 @@ import (
 	"mevway/internal/app/web"
 	"mevway/internal/decorator"
 	"net/http"
+	"time"
 )
 
 const (
@@ -16,9 +17,10 @@ const (
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  readBufferSize,
-	WriteBufferSize: writeBufferSize,
-	CheckOrigin:     func(r *http.Request) bool { return true },
+	ReadBufferSize:   readBufferSize,
+	WriteBufferSize:  writeBufferSize,
+	HandshakeTimeout: time.Second * 10,
+	CheckOrigin:      func(r *http.Request) bool { return true },
 }
 
 type WebSocketQuery struct {
