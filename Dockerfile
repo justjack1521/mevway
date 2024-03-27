@@ -7,13 +7,13 @@ COPY . .
 
 RUN go mod download
 
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -race -o mevway cmd/mevway/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o mevway cmd/mevway/main.go
 
 FROM build-stage AS run-test-stage
 
 RUN go test -v ./...
 
-FROM ubuntu:18.04 AS build-release-stage
+FROM gcr.io/distroless/base-debian11 AS build-release-stage
 
 WORKDIR /
 
