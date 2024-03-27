@@ -8,6 +8,6 @@ import (
 
 func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
 	a.WebsocketHandle.Handle(ctx, handler.WebSocketQuery{
-		ClientID: uuid.NewV4(), //a.client(ctx),
+		ClientID: uuid.NewV4().String(), //a.client(ctx),
 	})
 }
