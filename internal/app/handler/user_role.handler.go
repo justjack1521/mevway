@@ -27,7 +27,7 @@ func NewUserRoleHandler(clt services.AccessServiceClient) UserRoleHandler {
 
 func (h userRoleHandler) Handle(ctx *gin.Context, query UserRole) {
 
-	response, err := h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
+	_, err := h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
 		UserId: query.UserID,
 		Role:   query.RoleName,
 	})
@@ -36,9 +36,5 @@ func (h userRoleHandler) Handle(ctx *gin.Context, query UserRole) {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
 		return
 	}
-
-	ctx.JSON(200, gin.H{
-		"HasRole": response.HasRole,
-	})
 
 }
