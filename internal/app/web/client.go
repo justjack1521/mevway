@@ -3,10 +3,11 @@ package web
 import (
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	uuid "github.com/satori/go.uuid"
-	"log"
 	"time"
 )
 
@@ -106,41 +107,32 @@ func (c *Client) Read() {
 	})
 
 	for {
+
+		mxn := c.server.relic.StartTransaction("socket/read/message")
+
 		_, message, err := c.connection.ReadMessage()
+
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
-			}
-			log.Printf("error: %v", err)
+			mxn.NoticeError(err)
+			mxn.End()
 			break
 		}
-		fmt.Println(len(message))
-		//txn := c.server.relic.StartTransaction("socket/read")
-		//
-		//_, message, err := c.connection.ReadMessage()
-		//
-		//if err != nil {
-		//	txn.NoticeError(err)
-		//	txn.End()
-		//	break
-		//}
-		//
-		//request := &protocommon.BaseRequest{}
-		//if err := proto.Unmarshal(message, request); err != nil {
-		//	txn.NoticeError(err)
-		//	txn.End()
-		//	break
-		//}
-		//
-		//if err := c.server.RouteClientRequest(newrelic.NewContext(context.Background(), txn), c, request); err != nil {
-		//	txn.NoticeError(err)
-		//	txn.End()
-		//	c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
-		//	break
-		//}
-		//
-		//txn.End()
 
+		request := &protocommon.BaseRequest{}
+		if err := proto.Unmarshal(message, request); err != nil {
+			mxn.NoticeError(err)
+			mxn.End()
+			break
+		}
+
+		if err := c.server.RouteClientRequest(newrelic.NewContext(context.Background(), mxn), c, request); err != nil {
+			mxn.NoticeError(err)
+			mxn.End()
+			c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
+			break
+		}
+
+		mxn.End()
 	}
 
 }
