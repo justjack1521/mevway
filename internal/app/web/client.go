@@ -106,11 +106,6 @@ func (c *Client) Read() {
 
 		_, message, err := c.connection.ReadMessage()
 		if err != nil {
-			fmt.Println(err)
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				txn.NoticeError(err)
-				txn.End()
-			}
 			txn.NoticeError(err)
 			txn.End()
 			break
