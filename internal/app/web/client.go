@@ -111,6 +111,8 @@ func (c *Client) Read() {
 				txn.NoticeError(err)
 				txn.End()
 			}
+			txn.NoticeError(err)
+			txn.End()
 			break
 		}
 

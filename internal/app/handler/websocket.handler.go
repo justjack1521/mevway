@@ -55,8 +55,8 @@ func (w webSocketHandler) Handle(ctx *gin.Context, query WebSocketQuery) {
 	client.ClientID = id
 	w.server.Register <- client
 
-	go client.Write()
 	go client.Read()
+	go client.Write()
 	go client.Heartbeat()
 
 }

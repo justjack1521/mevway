@@ -86,18 +86,12 @@ func (a *APIRouter) CORSMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("", "")
 }
 
-func (a *APIRouter) GetTokenAuthHandle() handler.TokenAuthoriseHandler {
-	return a.TokenAuthHandle
-}
-
 func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
-
 	a.TokenAuthHandle.Handle(ctx, handler.TokenAuthorise{
 		UserID:   a.client(ctx),
 		Bearer:   ctx.GetHeader("Authorization"),
 		DeviceID: a.device(ctx),
 	})
-
 }
 
 func (a *APIRouter) client(ctx *gin.Context) string {
