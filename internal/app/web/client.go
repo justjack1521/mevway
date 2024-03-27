@@ -46,12 +46,8 @@ func NewClient(server *Server, connection *websocket.Conn) (client *Client) {
 	return client
 }
 
-func (c *Client) NewClientContext(ctx context.Context, req *protocommon.BaseRequest) *ClientContext {
-	return &ClientContext{
-		client:  c,
-		context: ctx,
-		request: req,
-	}
+func (c *Client) NewClientContext(ctx context.Context, request *protocommon.BaseRequest) *ClientContext {
+	return &ClientContext{client: c, context: ctx, request: request}
 }
 
 var (
@@ -101,6 +97,8 @@ func (c *Client) Read() {
 	c.connection.SetPongHandler(func(string) error { return c.connection.SetReadDeadline(time.Now().Add(pongWait)) })
 
 	for {
+
+		fmt.Println("Message received")
 
 		txn := c.server.relic.StartTransaction("socket/read")
 

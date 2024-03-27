@@ -25,8 +25,7 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 
 	pub := router.Group("/public")
 
-	//pub.GET("/ws", a.HandleTokenAuthorise, a.HandlerAlphaTesterAuthorise, a.HandleSocket)
-	pub.GET("/ws", a.HandleSocket)
+	pub.GET("/ws", a.HandleTokenAuthorise, a.HandlerAlphaTesterAuthorise, a.HandleSocket)
 
 	auth := pub.Group("/auth")
 	auth.POST("/login", a.HandleLoginUser)
