@@ -110,7 +110,7 @@ func (c *Client) Read() {
 				txn.NoticeError(err)
 				txn.End()
 			}
-			break
+			return
 		}
 
 		request := &protocommon.BaseRequest{}
