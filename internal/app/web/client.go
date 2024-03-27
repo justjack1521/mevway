@@ -3,11 +3,10 @@ package web
 import (
 	"context"
 	"fmt"
-	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
-	"github.com/newrelic/go-agent/v3/newrelic"
 	uuid "github.com/satori/go.uuid"
+	"log"
 	"time"
 )
 
@@ -97,32 +96,39 @@ func (c *Client) Read() {
 	c.connection.SetPongHandler(func(string) error { c.connection.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 
 	for {
-
-		txn := c.server.relic.StartTransaction("socket/read")
-
 		_, message, err := c.connection.ReadMessage()
-
 		if err != nil {
-			txn.NoticeError(err)
-			txn.End()
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
 			break
 		}
-
-		request := &protocommon.BaseRequest{}
-		if err := proto.Unmarshal(message, request); err != nil {
-			txn.NoticeError(err)
-			txn.End()
-			break
-		}
-
-		if err := c.server.RouteClientRequest(newrelic.NewContext(context.Background(), txn), c, request); err != nil {
-			txn.NoticeError(err)
-			txn.End()
-			c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
-			break
-		}
-
-		txn.End()
+		fmt.Println(len(message))
+		//txn := c.server.relic.StartTransaction("socket/read")
+		//
+		//_, message, err := c.connection.ReadMessage()
+		//
+		//if err != nil {
+		//	txn.NoticeError(err)
+		//	txn.End()
+		//	break
+		//}
+		//
+		//request := &protocommon.BaseRequest{}
+		//if err := proto.Unmarshal(message, request); err != nil {
+		//	txn.NoticeError(err)
+		//	txn.End()
+		//	break
+		//}
+		//
+		//if err := c.server.RouteClientRequest(newrelic.NewContext(context.Background(), txn), c, request); err != nil {
+		//	txn.NoticeError(err)
+		//	txn.End()
+		//	c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
+		//	break
+		//}
+		//
+		//txn.End()
 
 	}
 
