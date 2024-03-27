@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	uuid "github.com/satori/go.uuid"
 	"log"
 	"time"
@@ -83,17 +84,28 @@ func (c *Client) Heartbeat() {
 
 func (c *Client) Read() {
 
-	defer func() {
+	var txn = c.server.relic.StartTransaction("socket/read")
+
+	defer func(txn *newrelic.Transaction) {
 		c.disconnectionSource = disconnectionSourceRead
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
+			txn.NoticeError(err)
 			fmt.Println(ErrFailedCloseClientConnection(err))
 		}
-	}()
+		txn.End()
+	}(txn)
 
 	c.connection.SetReadLimit(maxMessageSize)
-	c.connection.SetReadDeadline(time.Now().Add(pongWait))
-	c.connection.SetPongHandler(func(string) error { c.connection.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		txn.NoticeError(err)
+	}
+	c.connection.SetPongHandler(func(string) error {
+		if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			txn.NoticeError(err)
+		}
+		return nil
+	})
 
 	for {
 		_, message, err := c.connection.ReadMessage()
@@ -101,6 +113,7 @@ func (c *Client) Read() {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
+			log.Printf("error: %v", err)
 			break
 		}
 		fmt.Println(len(message))
