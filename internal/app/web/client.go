@@ -1,7 +1,6 @@
 package web
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/golang/protobuf/proto"
@@ -23,11 +22,6 @@ const (
 const (
 	disconnectionSourceRead  = "read_pump"
 	disconnectionSourceWrite = "write_pump"
-)
-
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
 )
 
 type Client struct {
@@ -107,7 +101,6 @@ func (c *Client) Read() {
 		txn := c.server.relic.StartTransaction("socket/read")
 
 		_, message, err := c.connection.ReadMessage()
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
 		if err != nil {
 			txn.NoticeError(err)
@@ -161,31 +154,52 @@ func (c *Client) Write() {
 		select {
 		case message, ok := <-c.send:
 
-			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
+			txn := c.server.relic.StartTransaction("socket/write")
+
+			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				txn.NoticeError(err)
+			}
 			if !ok {
-				c.connection.WriteMessage(websocket.CloseMessage, []byte{})
+				if err := c.connection.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
+					txn.NoticeError(err)
+					txn.End()
+				}
 				return
 			}
 
 			writer, err := c.connection.NextWriter(websocket.BinaryMessage)
 			if err != nil {
+				txn.NoticeError(err)
+				txn.End()
 				return
 			}
 
 			_, err = writer.Write(message)
 			if err != nil {
+				txn.NoticeError(err)
+				txn.End()
 				return
 			}
 
 			if err := writer.Close(); err != nil {
+				txn.NoticeError(err)
+				txn.End()
 				return
 			}
 
 		case <-ticker.C:
-			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
+
+			txn := c.server.relic.StartTransaction("socket/ping")
+
+			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				txn.NoticeError(err)
+			}
 			if err := c.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
+				txn.NoticeError(err)
+				txn.End()
 				return
 			}
+
 		}
 	}
 
