@@ -87,16 +87,17 @@ func (c *Client) Read() {
 		c.disconnectionSource = disconnectionSourceRead
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
+			fmt.Println(ErrFailedCloseClientConnection(err))
 		}
 	}()
 
 	c.connection.SetReadLimit(maxMessageSize)
 	if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
-		fmt.Println(err)
+		fmt.Println(ErrFailedReadMessage(err))
 	}
 	c.connection.SetPongHandler(func(string) error {
 		if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
-			fmt.Println(err)
+			fmt.Println(ErrFailedReadMessage(err))
 		}
 		return nil
 	})
@@ -106,18 +107,18 @@ func (c *Client) Read() {
 		_, message, err := c.connection.ReadMessage()
 
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(ErrFailedReadMessage(err))
 			break
 		}
 
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
-			fmt.Println(err)
+			fmt.Println(ErrFailedReadMessage(err))
 			break
 		}
 
 		if err := c.server.RouteClientRequest(context.Background(), c, request); err != nil {
-			fmt.Println(err)
+			fmt.Println(ErrFailedReadMessage(err))
 			c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
 			break
 		}
@@ -143,6 +144,7 @@ func (c *Client) Write() {
 		c.disconnectionSource = disconnectionSourceWrite
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
+			fmt.Println(ErrFailedCloseClientConnection(err))
 		}
 	}()
 
@@ -151,39 +153,40 @@ func (c *Client) Write() {
 		case message, ok := <-c.send:
 
 			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-				fmt.Println(err)
+				fmt.Println(ErrFailedWriteClientMessage(err))
 			}
+
 			if !ok {
 				if err := c.connection.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
-					fmt.Println(err)
+					fmt.Println(ErrFailedWriteClientMessage(err))
 				}
 				break
 			}
 
 			writer, err := c.connection.NextWriter(websocket.BinaryMessage)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println(ErrFailedWriteClientMessage(err))
 				break
 			}
 
 			_, err = writer.Write(message)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println(ErrFailedWriteClientMessage(err))
 				break
 			}
 
 			if err := writer.Close(); err != nil {
-				fmt.Println(err)
+				fmt.Println(ErrFailedWriteClientMessage(err))
 				break
 			}
 
 		case <-ticker.C:
 
 			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-				fmt.Println(err)
+				fmt.Println(ErrFailedWriteClientMessage(err))
 			}
 			if err := c.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
-				fmt.Println(err)
+				fmt.Println(ErrFailedWriteClientMessage(err))
 				break
 			}
 
