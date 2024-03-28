@@ -53,6 +53,6 @@ func (w webSocketHandler) Handle(ctx *gin.Context, query WebSocketQuery) {
 
 	go client.Read()
 	go client.Write()
-	//go client.Heartbeat()
+	go client.Heartbeat()
 
 }
