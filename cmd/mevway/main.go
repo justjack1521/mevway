@@ -9,7 +9,9 @@ import (
 	"mevway/internal/service"
 	"net/http"
 	"os"
+	"os/signal"
 	"runtime/pprof"
+	"syscall"
 )
 
 func main() {
@@ -25,7 +27,14 @@ func main() {
 		log.Fatal(err)
 	}
 	pprof.StartCPUProfile(f)
-	defer pprof.StopCPUProfile()
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		pprof.StopCPUProfile()
+		os.Exit(1)
+	}()
 
 	go application.WebServer.Server.Run()
 
