@@ -83,10 +83,9 @@ func (c *Client) Heartbeat() {
 
 func (c *Client) Read() {
 	defer func() {
+		c.disconnectionSource = disconnectionSourceRead
 		c.server.Unregister <- c
-		if err := c.connection.Close(); err != nil {
-			fmt.Println(ErrFailedCloseClientConnection(err))
-		}
+		c.connection.Close()
 	}()
 
 	c.connection.SetReadLimit(maxMessageSize)
@@ -131,9 +130,9 @@ func (c *Client) Write() {
 	ticker := time.NewTicker(pingPeriod)
 
 	defer func() {
+		c.disconnectionSource = disconnectionSourceWrite
 		ticker.Stop()
 		c.connection.Close()
-		c.server.Unregister <- c
 	}()
 
 	for {

@@ -41,7 +41,7 @@ func NewWebSocketHandler(srv *web.Server) WebSocketHandler {
 
 func (w webSocketHandler) Handle(ctx *gin.Context, query WebSocketQuery) {
 
-	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, ctx.Writer.Header())
+	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		httperr.BadRequest(err, "Failed to upgrade connection", ctx)
 		return
@@ -53,6 +53,6 @@ func (w webSocketHandler) Handle(ctx *gin.Context, query WebSocketQuery) {
 
 	go client.Read()
 	go client.Write()
-	go client.Heartbeat()
+	//go client.Heartbeat()
 
 }
