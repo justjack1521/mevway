@@ -142,7 +142,6 @@ func (c *Client) Write() {
 	defer func() {
 		ticker.Stop()
 		c.disconnectionSource = disconnectionSourceWrite
-		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
 			fmt.Println(ErrFailedCloseClientConnection(err))
 		}
@@ -152,44 +151,31 @@ func (c *Client) Write() {
 		select {
 		case message, ok := <-c.send:
 
-			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-				fmt.Println(ErrFailedWriteClientMessage(err))
-			}
-
+			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				if err := c.connection.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
-					fmt.Println(ErrFailedWriteClientMessage(err))
-				}
-				break
+				c.connection.WriteMessage(websocket.CloseMessage, []byte{})
+				return
 			}
 
 			writer, err := c.connection.NextWriter(websocket.BinaryMessage)
 			if err != nil {
-				fmt.Println(ErrFailedWriteClientMessage(err))
-				break
+				return
 			}
 
 			_, err = writer.Write(message)
 			if err != nil {
-				fmt.Println(ErrFailedWriteClientMessage(err))
-				break
+				return
 			}
 
 			if err := writer.Close(); err != nil {
-				fmt.Println(ErrFailedWriteClientMessage(err))
-				break
+				return
 			}
 
 		case <-ticker.C:
-
-			if err := c.connection.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-				fmt.Println(ErrFailedWriteClientMessage(err))
-			}
+			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
-				fmt.Println(ErrFailedWriteClientMessage(err))
-				break
+				return
 			}
-
 		}
 	}
 
