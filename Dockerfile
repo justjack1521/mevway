@@ -17,6 +17,8 @@ FROM gcr.io/distroless/base-debian11 AS build-release-stage
 
 WORKDIR /
 
+ADD mevway.prof .
+
 COPY --from=build-stage /go/src/github.com/justjack1521/mevway/mevway mevway
 
 EXPOSE 8080
