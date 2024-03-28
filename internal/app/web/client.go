@@ -82,9 +82,7 @@ func (c *Client) Heartbeat() {
 }
 
 func (c *Client) Read() {
-
 	defer func() {
-		c.disconnectionSource = disconnectionSourceRead
 		c.server.Unregister <- c
 		if err := c.connection.Close(); err != nil {
 			fmt.Println(ErrFailedCloseClientConnection(err))
@@ -92,38 +90,31 @@ func (c *Client) Read() {
 	}()
 
 	c.connection.SetReadLimit(maxMessageSize)
-	if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
-		fmt.Println(ErrFailedReadMessage(err))
-	}
-	c.connection.SetPongHandler(func(string) error {
-		if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
-			fmt.Println(ErrFailedReadMessage(err))
-		}
-		return nil
-	})
+	c.connection.SetReadDeadline(time.Now().Add(pongWait))
+	c.connection.SetPongHandler(func(string) error { return c.connection.SetReadDeadline(time.Now().Add(pongWait)) })
 
 	for {
 
 		_, message, err := c.connection.ReadMessage()
-
 		if err != nil {
-			fmt.Println(ErrFailedReadMessage(err))
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				fmt.Println(ErrFailedReadClientRequest(ErrFailedReadMessage(err)))
+			}
 			break
 		}
 
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
-			fmt.Println(ErrFailedReadMessage(err))
+			fmt.Println(ErrFailedReadClientRequest(ErrFailedUnmarshalMessage(err)))
 			break
 		}
 
 		if err := c.server.RouteClientRequest(context.Background(), c, request); err != nil {
-			fmt.Println(ErrFailedReadMessage(err))
-			c.server.publisher.Notify(NewClientMessageErrorEvent(c.ClientID, c.connection.RemoteAddr(), err))
+			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			break
 		}
-	}
 
+	}
 }
 
 var (
@@ -141,10 +132,8 @@ func (c *Client) Write() {
 
 	defer func() {
 		ticker.Stop()
-		c.disconnectionSource = disconnectionSourceWrite
-		if err := c.connection.Close(); err != nil {
-			fmt.Println(ErrFailedCloseClientConnection(err))
-		}
+		c.connection.Close()
+		c.server.Unregister <- c
 	}()
 
 	for {

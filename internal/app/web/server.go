@@ -93,14 +93,14 @@ func (s *Server) Run() {
 		select {
 		//Register
 		case client := <-s.Register:
-			s.Clients[client] = true
 			s.publisher.Notify(ClientConnectedEvent{clientID: client.ClientID, remoteAddr: client.connection.RemoteAddr()})
+			s.Clients[client] = true
 		//Unregister
 		case client := <-s.Unregister:
 			if _, ok := s.Clients[client]; ok {
+				s.publisher.Notify(ClientDisconnectedEvent{clientID: client.ClientID, remoteAddr: client.connection.RemoteAddr()})
 				delete(s.Clients, client)
 				close(client.send)
-				s.publisher.Notify(NewClientDisconnectedEvent(context.Background(), client.ClientID, client.connection.RemoteAddr(), client.disconnectionSource))
 			}
 		//Broadcast
 		case message := <-s.Broadcast:
@@ -110,7 +110,6 @@ func (s *Server) Run() {
 				default:
 					delete(s.Clients, client)
 					close(client.send)
-					s.publisher.Notify(NewClientDisconnectedEvent(context.Background(), client.ClientID, client.connection.RemoteAddr(), client.disconnectionSource))
 				}
 			}
 		//Notify
@@ -126,7 +125,6 @@ func (s *Server) Run() {
 					default:
 						delete(s.Clients, client)
 						close(client.send)
-						s.publisher.Notify(NewClientDisconnectedEvent(context.Background(), client.ClientID, client.connection.RemoteAddr(), client.disconnectionSource))
 					}
 					break
 				}
