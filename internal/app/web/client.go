@@ -99,19 +99,29 @@ func (c *Client) Read() {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				fmt.Println(ErrFailedReadClientRequest(ErrFailedReadMessage(err)))
 			}
-			break
+			return
 		}
+
+		var txn = c.server.relic.StartTransaction("socket/read")
 
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
-			fmt.Println(ErrFailedReadClientRequest(ErrFailedUnmarshalMessage(err)))
+			err = ErrFailedReadClientRequest(ErrFailedUnmarshalMessage(err))
+			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr(), err: err})
+			txn.NoticeError(err)
+			txn.End()
 			break
 		}
 
 		if err := c.server.RouteClientRequest(context.Background(), c, request); err != nil {
+			err = ErrFailedReadClientRequest(ErrFailedRoutingClientRequest(err))
 			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr(), err: err})
+			txn.NoticeError(err)
+			txn.End()
 			break
 		}
+
+		txn.End()
 
 	}
 }
@@ -145,19 +155,29 @@ func (c *Client) Write() {
 				return
 			}
 
+			var txn = c.server.relic.StartTransaction("socket/write")
+
 			writer, err := c.connection.NextWriter(websocket.BinaryMessage)
 			if err != nil {
+				txn.NoticeError(err)
+				txn.End()
 				return
 			}
 
 			_, err = writer.Write(message)
 			if err != nil {
+				txn.NoticeError(err)
+				txn.End()
 				return
 			}
 
 			if err := writer.Close(); err != nil {
+				txn.NoticeError(err)
+				txn.End()
 				return
 			}
+
+			txn.End()
 
 		case <-ticker.C:
 			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
