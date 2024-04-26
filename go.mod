@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
 	github.com/justjack1521/mevconn v0.0.0-20240319123519-20904c083749
-	github.com/justjack1521/mevium v0.0.0-20240327035001-bfea2080fa83
+	github.com/justjack1521/mevium v0.0.0-20240426154020-8e10f6082c24
 	github.com/newrelic/go-agent/v3 v3.30.0
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus v1.0.0
 	github.com/satori/go.uuid v1.2.0

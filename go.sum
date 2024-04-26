@@ -42,6 +42,10 @@ github.com/justjack1521/mevium v0.0.0-20240327033539-74bddc789af5 h1:3niDWAE+17G
 github.com/justjack1521/mevium v0.0.0-20240327033539-74bddc789af5/go.mod h1:k13hr6Gx5QFZHTE5gUPIKCDmTWx9mQ800W4C5mEMBBI=
 github.com/justjack1521/mevium v0.0.0-20240327035001-bfea2080fa83 h1:lm36dMV26jkEuth43d1yeYLEvfPPpyE65O66IzkpQYE=
 github.com/justjack1521/mevium v0.0.0-20240327035001-bfea2080fa83/go.mod h1:k13hr6Gx5QFZHTE5gUPIKCDmTWx9mQ800W4C5mEMBBI=
+github.com/justjack1521/mevium v0.0.0-20240423113456-4b18b577436d h1:iZ912gVbu187Ew05jIMx0sKHBkhE46f7WiCo8VFJkFk=
+github.com/justjack1521/mevium v0.0.0-20240423113456-4b18b577436d/go.mod h1:k13hr6Gx5QFZHTE5gUPIKCDmTWx9mQ800W4C5mEMBBI=
+github.com/justjack1521/mevium v0.0.0-20240426154020-8e10f6082c24 h1:fkIcBilTQEAx/yJFDBa8s1pZ8h1PT75pElPD3r16O74=
+github.com/justjack1521/mevium v0.0.0-20240426154020-8e10f6082c24/go.mod h1:k13hr6Gx5QFZHTE5gUPIKCDmTWx9mQ800W4C5mEMBBI=
 github.com/justjack1521/mevrelic v0.0.0-20240320064304-c021c0beed52 h1:QBDWSBasroBUtYFjjm0podJRTIUATnT8kZjYKDTgawQ=
 github.com/justjack1521/mevrelic v0.0.0-20240320064304-c021c0beed52/go.mod h1:o3KUYid+5n5Fn9ue/VfAF2kMdIidr7rdbTwLUcU38YQ=
 github.com/klauspost/cpuid/v2 v2.0.9 h1:lgaqFMSdTdQYdZ04uHyN2d/eKdOMyi2YLSvlQIBFYa4=

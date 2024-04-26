@@ -42,6 +42,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) Servic
 	router.routes[protogame.GameRequestType_CARD_AUGMENT] = router.CardAugmentRoute
 	router.routes[protogame.GameRequestType_CLAIM_DAILY_MISSION] = router.ClaimDailyMissionRoute
 	router.routes[protogame.GameRequestType_COMPLETE_REGION_MAP] = router.CompleteRegionMapRoute
+	router.routes[protogame.GameRequestType_SUMMON_ABILITY_CARD] = router.SummonAbilityCardRoute
 	return router
 }
 
@@ -466,6 +467,20 @@ func (r *GameServiceClientRouter) CompleteRegionMapRoute(ctx *ClientContext, byt
 	}
 
 	result, err := r.service.CompleteRegion(ctx.context, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) SummonAbilityCardRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
+	request, err := protogame.NewAbilityCardSummonRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.AbilityCardSummon(ctx.context, request)
 	if err != nil {
 		return nil, err
 	}
