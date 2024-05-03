@@ -16,7 +16,7 @@ type PrivateAPIRouter struct {
 func (a *PrivateAPIRouter) HandleAdminRoleAuthorise(ctx *gin.Context) {
 
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   a.client(ctx),
+		UserID:   a.session(ctx),
 		RoleName: "admin",
 	})
 
@@ -43,7 +43,7 @@ func (a *PrivateAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 	private.Use(a.HandleTokenAuthorise)
 	private.Use(a.HandleAdminRoleAuthorise)
 
-	auth := private.Group("/user")
+	auth := private.Group("/session")
 	auth.POST("/ban", a.HandleBanUser)
 
 }

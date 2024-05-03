@@ -42,14 +42,9 @@ func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 		Password: query.Password,
 		DeviceId: query.DeviceID,
 	})
+
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)
-		return
-	}
-
-	user, err := uuid.FromString(response.UserId)
-	if err != nil {
-		httperr.InternalError(err, err.Error(), ctx)
 		return
 	}
 
@@ -64,13 +59,8 @@ func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 		return
 	}
 
-	if err := h.cache.AddCustomerIDForUser(response.CustomerId, user); err != nil {
-		httperr.InternalError(err, err.Error(), ctx)
-		return
-	}
-
 	ctx.JSON(200, resources.UserLoginResponse{
-		SysUser:      response.UserId,
+		SessionID:    response.SessionId,
 		CustomerID:   response.CustomerId,
 		AccessToken:  response.AccessToken,
 		RefreshToken: response.RefreshToken,

@@ -1,9 +1,11 @@
 package ports
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevrelic"
 	"github.com/newrelic/go-agent/v3/newrelic"
+	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"mevway/internal/app/handler"
 )
@@ -19,7 +21,9 @@ type APIRouter struct {
 }
 
 type BaseAPIRouter interface {
-	client(ctx *gin.Context) string
+	session(ctx *gin.Context) (uuid.UUID, error)
+	user(ctx *gin.Context) (uuid.UUID, error)
+	player(ctx *gin.Context) (uuid.UUID, error)
 	device(ctx *gin.Context) string
 	HandleTokenAuthorise(ctx *gin.Context)
 }
@@ -30,7 +34,7 @@ func (a *APIRouter) HandleServerStatus(ctx *gin.Context) {
 
 func (a *APIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   a.client(ctx),
+		UserID:   a.session(ctx),
 		RoleName: "alpha_tester",
 	})
 }
@@ -88,14 +92,46 @@ func (a *APIRouter) CORSMiddleware(c *gin.Context) {
 
 func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
 	a.TokenAuthHandle.Handle(ctx, handler.TokenAuthorise{
-		UserID:   a.client(ctx),
-		Bearer:   ctx.GetHeader("Authorization"),
-		DeviceID: a.device(ctx),
+		SessionID: a.session(ctx),
+		Bearer:    ctx.GetHeader("Authorization"),
+		DeviceID:  a.device(ctx),
 	})
 }
 
-func (a *APIRouter) client(ctx *gin.Context) string {
-	return ctx.GetHeader("X-API-CLIENT")
+func (a *APIRouter) user(ctx *gin.Context) (uuid.UUID, error) {
+	var value = ctx.GetString(handler.UserIDContextKey)
+	if value == "" {
+		return uuid.Nil, errors.New("context missing user id")
+	}
+	result, err := uuid.FromString(value)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return result, nil
+}
+
+func (a *APIRouter) player(ctx *gin.Context) (uuid.UUID, error) {
+	var value = ctx.GetString(handler.PlayerIDContextKey)
+	if value == "" {
+		return uuid.Nil, errors.New("context missing player id")
+	}
+	result, err := uuid.FromString(value)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return result, nil
+}
+
+func (a *APIRouter) session(ctx *gin.Context) (uuid.UUID, error) {
+	var value = ctx.GetHeader("X-API-SESSION")
+	if value == "" {
+		return uuid.Nil, errors.New("context missing session id")
+	}
+	result, err := uuid.FromString(value)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return result, nil
 }
 
 func (a *APIRouter) device(ctx *gin.Context) string {

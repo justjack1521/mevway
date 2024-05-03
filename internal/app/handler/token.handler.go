@@ -8,10 +8,15 @@ import (
 	"mevway/internal/decorator"
 )
 
+const (
+	UserIDContextKey   string = "UserIDContextKey"
+	PlayerIDContextKey string = "PlayerIDContextKey"
+)
+
 type TokenAuthorise struct {
-	UserID   string
-	Bearer   string
-	DeviceID string
+	SessionID string
+	Bearer    string
+	DeviceID  string
 }
 
 type TokenAuthoriseHandler decorator.APIRouterHandler[TokenAuthorise]
@@ -28,15 +33,18 @@ func NewTokenHandler(clt services.AccessServiceClient) TokenAuthoriseHandler {
 
 func (h tokenAuthoriseHandler) Handle(ctx *gin.Context, query TokenAuthorise) {
 
-	_, err := h.client.AuthenticateToken(ctx, &protoaccess.AuthenticateTokenRequest{
-		UserId:   query.UserID,
-		Bearer:   query.Bearer,
-		DeviceId: query.DeviceID,
+	response, err := h.client.AuthenticateToken(ctx, &protoaccess.AuthenticateTokenRequest{
+		SessionId: query.SessionID,
+		Bearer:    query.Bearer,
+		DeviceId:  query.DeviceID,
 	})
 
 	if err != nil {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
 		return
 	}
+
+	ctx.Set(UserIDContextKey, response.UserId)
+	ctx.Set(PlayerIDContextKey, response.PlayerId)
 
 }

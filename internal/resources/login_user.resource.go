@@ -6,7 +6,7 @@ type UserLoginRequest struct {
 }
 
 type UserLoginResponse struct {
-	SysUser      string `json:"SysUser" form:"SysUser" binding:"required"`
+	SessionID    string `json:"SessionID" form:"SessionID" binding:"required"`
 	CustomerID   string `json:"CustomerID" form:"CustomerID" binding:"required"`
 	AccessToken  string `json:"AccessToken" form:"AccessToken" binding:"required"`
 	RefreshToken string `json:"RefreshToken" form:"RefreshToken" binding:"required"`

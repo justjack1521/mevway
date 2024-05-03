@@ -6,6 +6,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	uuid "github.com/satori/go.uuid"
 	"time"
 )
@@ -24,7 +25,8 @@ const (
 )
 
 type Client struct {
-	ClientID            uuid.UUID
+	UserID              uuid.UUID
+	PlayerID            uuid.UUID
 	ConnectionID        uuid.UUID
 	connection          *websocket.Conn
 	server              *Server
@@ -35,6 +37,7 @@ type Client struct {
 }
 
 func NewClient(server *Server, connection *websocket.Conn) (client *Client) {
+
 	client = &Client{
 		ConnectionID: uuid.NewV4(),
 		connection:   connection,
@@ -75,7 +78,7 @@ func (c *Client) Heartbeat() {
 			if c.closed {
 				return
 			}
-			c.server.publisher.Notify(ClientHeartbeatEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr()})
+			c.server.publisher.Notify(ClientHeartbeatEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr()})
 		}
 	}
 
@@ -103,19 +106,20 @@ func (c *Client) Read() {
 		}
 
 		var txn = c.server.relic.StartTransaction("socket/read")
+		var ctx = newrelic.NewContext(context.Background(), txn)
 
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
 			err = ErrFailedReadClientRequest(ErrFailedUnmarshalMessage(err))
-			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr(), err: err})
+			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			txn.NoticeError(err)
 			txn.End()
 			break
 		}
 
-		if err := c.server.RouteClientRequest(context.Background(), c, request); err != nil {
+		if err := c.server.RouteClientRequest(ctx, c, request); err != nil {
 			err = ErrFailedReadClientRequest(ErrFailedRoutingClientRequest(err))
-			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.ClientID, remoteAddr: c.connection.RemoteAddr(), err: err})
+			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			txn.NoticeError(err)
 			txn.End()
 			break

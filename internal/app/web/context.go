@@ -23,7 +23,7 @@ type ClientContext struct {
 func (c *ClientContext) NewResponse(data []byte) *protocommon.Response {
 	return &protocommon.Response{
 		Header: &protocommon.ResponseHeader{
-			ClientId:     c.client.ClientID.String(),
+			ClientId:     c.client.UserID.String(),
 			ConnectionId: c.client.ConnectionID.String(),
 			CommandId:    c.request.Header.CommandId,
 			Service:      c.request.Service,
@@ -36,7 +36,7 @@ func (c *ClientContext) NewResponse(data []byte) *protocommon.Response {
 func (c *ClientContext) NewError(code int32, slug string) *protocommon.Response {
 	return &protocommon.Response{
 		Header: &protocommon.ResponseHeader{
-			ClientId:     c.client.ClientID.String(),
+			ClientId:     c.client.UserID.String(),
 			ConnectionId: c.client.ConnectionID.String(),
 			CommandId:    c.request.Header.CommandId,
 			Service:      c.request.Service,

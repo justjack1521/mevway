@@ -24,7 +24,8 @@ var upgrader = websocket.Upgrader{
 }
 
 type WebSocketQuery struct {
-	ClientID uuid.UUID
+	UserID   uuid.UUID
+	PlayerID uuid.UUID
 }
 
 type WebSocketHandler decorator.APIRouterHandler[WebSocketQuery]
@@ -48,7 +49,8 @@ func (w webSocketHandler) Handle(ctx *gin.Context, query WebSocketQuery) {
 	}
 
 	client := web.NewClient(w.server, conn)
-	client.ClientID = query.ClientID
+	client.UserID = query.UserID
+	client.PlayerID = query.PlayerID
 	w.server.Register <- client
 
 	go client.Read()

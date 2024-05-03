@@ -16,7 +16,7 @@ type PublicAPIRouter struct {
 
 func (a *PublicAPIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   a.client(ctx),
+		UserID:   a.session(ctx),
 		RoleName: "alpha_tester",
 	})
 }

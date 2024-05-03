@@ -93,12 +93,12 @@ func (s *Server) Run() {
 		select {
 		//Register
 		case client := <-s.Register:
-			s.publisher.Notify(ClientConnectedEvent{clientID: client.ClientID, remoteAddr: client.connection.RemoteAddr()})
+			s.publisher.Notify(ClientConnectedEvent{clientID: client.UserID, remoteAddr: client.connection.RemoteAddr()})
 			s.Clients[client] = true
 		//Unregister
 		case client := <-s.Unregister:
 			if _, ok := s.Clients[client]; ok {
-				s.publisher.Notify(ClientDisconnectedEvent{clientID: client.ClientID, remoteAddr: client.connection.RemoteAddr()})
+				s.publisher.Notify(ClientDisconnectedEvent{clientID: client.UserID, remoteAddr: client.connection.RemoteAddr()})
 				delete(s.Clients, client)
 				close(client.send)
 			}
@@ -119,7 +119,7 @@ func (s *Server) Run() {
 				s.publisher.Notify(ClientMessageErrorEvent{clientID: notification.ClientID, err: err})
 			}
 			for client := range s.Clients {
-				if client.ClientID == notification.ClientID {
+				if client.UserID == notification.ClientID {
 					select {
 					case client.send <- bytes:
 					default:
@@ -135,8 +135,10 @@ func (s *Server) Run() {
 
 func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *protocommon.BaseRequest) (err error) {
 
-	md := metadata.New(map[string]string{"X-API-CLIENT": wc.ClientID.String()})
-	wcc := wc.NewClientContext(metadata.NewOutgoingContext(ctx, md), request)
+	wcc := wc.NewClientContext(metadata.NewOutgoingContext(ctx, metadata.New(map[string]string{
+		"X-API-USER":    wc.UserID.String(),
+		"X-API-PROFILE": wc.PlayerID.String(),
+	})), request)
 
 	service, exists := s.Services[RoutingKey(request.Service)]
 	if exists == false {
@@ -150,19 +152,19 @@ func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *pr
 			switch t := detail.(type) {
 			case *protocommon.ApplicationError:
 				if err = s.SendClientError(wcc, t.ErrorCode, t.ErrorMessage); err != nil {
-					return ErrSendingClientResponse(wcc.client.ClientID, err)
+					return ErrSendingClientResponse(wcc.client.UserID, err)
 				}
 				return nil
 			}
 		}
 		if err := s.SendClientError(wcc, 9, err.Error()); err != nil {
-			return ErrSendingClientResponse(wcc.client.ClientID, err)
+			return ErrSendingClientResponse(wcc.client.UserID, err)
 		}
 		return nil
 	}
 
 	if err := s.SendClientResponse(wcc, response); err != nil {
-		return ErrSendingClientResponse(wcc.client.ClientID, err)
+		return ErrSendingClientResponse(wcc.client.UserID, err)
 	}
 
 	return nil

@@ -13,7 +13,7 @@ func (a *PublicAPIRouter) HandlePlayerSearch(ctx *gin.Context) {
 	}
 
 	a.PlayerSearchHandle.Handle(ctx, handler.PlayerSearch{
-		UserID:     a.client(ctx),
+		UserID:     a.session(ctx),
 		CustomerID: request.CustomerID,
 	})
 

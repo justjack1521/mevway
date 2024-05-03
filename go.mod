@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
 	github.com/justjack1521/mevconn v0.0.0-20240319123519-20904c083749
-	github.com/justjack1521/mevium v0.0.0-20240426154020-8e10f6082c24
+	github.com/justjack1521/mevium v0.0.0-20240502165949-bb2fdb946c6f
 	github.com/newrelic/go-agent/v3 v3.30.0
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus v1.0.0
 	github.com/satori/go.uuid v1.2.0
@@ -25,7 +25,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/justjack1521/mevrelic v0.0.0-20240320064304-c021c0beed52 // indirect
+	github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
