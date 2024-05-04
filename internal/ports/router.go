@@ -97,7 +97,7 @@ func (a *APIRouter) CORSMiddleware(c *gin.Context) {
 }
 
 func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
-	session, err := a.user(ctx)
+	session, err := a.session(ctx)
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)
 		return
