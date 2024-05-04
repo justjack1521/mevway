@@ -136,8 +136,8 @@ func (s *Server) Run() {
 func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *protocommon.BaseRequest) (err error) {
 
 	wcc := wc.NewClientContext(metadata.NewOutgoingContext(ctx, metadata.New(map[string]string{
-		"X-API-USER":    wc.UserID.String(),
-		"X-API-PROFILE": wc.PlayerID.String(),
+		"X-API-USER":   wc.UserID.String(),
+		"X-API-PLAYER": wc.PlayerID.String(),
 	})), request)
 
 	service, exists := s.Services[RoutingKey(request.Service)]

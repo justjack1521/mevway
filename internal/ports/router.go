@@ -33,14 +33,27 @@ func (a *APIRouter) HandleServerStatus(ctx *gin.Context) {
 	a.ServerStatusHandle.Handle(ctx, handler.ServerStatus{})
 }
 
+func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
+	session, err := a.session(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
+	a.TokenAuthHandle.Handle(ctx, handler.TokenAuthorise{
+		SessionID: session,
+		Bearer:    ctx.GetHeader("Authorization"),
+		DeviceID:  a.device(ctx),
+	})
+}
+
 func (a *APIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
-	session, err := a.user(ctx)
+	user, err := a.user(ctx)
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)
 		return
 	}
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   session,
+		UserID:   user,
 		RoleName: "alpha_tester",
 	})
 }
@@ -94,19 +107,6 @@ func (a *APIRouter) ErrorLogMiddleware(c *gin.Context) {
 
 func (a *APIRouter) CORSMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("", "")
-}
-
-func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
-	session, err := a.session(ctx)
-	if err != nil {
-		httperr.BadRequest(err, err.Error(), ctx)
-		return
-	}
-	a.TokenAuthHandle.Handle(ctx, handler.TokenAuthorise{
-		SessionID: session,
-		Bearer:    ctx.GetHeader("Authorization"),
-		DeviceID:  a.device(ctx),
-	})
 }
 
 func (a *APIRouter) user(ctx *gin.Context) (uuid.UUID, error) {
