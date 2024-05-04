@@ -34,8 +34,13 @@ func (a *APIRouter) HandleServerStatus(ctx *gin.Context) {
 }
 
 func (a *APIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
+	session, err := a.user(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   a.session(ctx),
+		UserID:   session,
 		RoleName: "alpha_tester",
 	})
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/decorator"
 )
 
@@ -14,7 +15,7 @@ const (
 )
 
 type TokenAuthorise struct {
-	SessionID string
+	SessionID uuid.UUID
 	Bearer    string
 	DeviceID  string
 }
@@ -34,7 +35,7 @@ func NewTokenHandler(clt services.AccessServiceClient) TokenAuthoriseHandler {
 func (h tokenAuthoriseHandler) Handle(ctx *gin.Context, query TokenAuthorise) {
 
 	response, err := h.client.AuthenticateToken(ctx, &protoaccess.AuthenticateTokenRequest{
-		SessionId: query.SessionID,
+		SessionId: query.SessionID.String(),
 		Bearer:    query.Bearer,
 		DeviceId:  query.DeviceID,
 	})

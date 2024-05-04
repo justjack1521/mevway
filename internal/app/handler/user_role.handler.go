@@ -6,11 +6,12 @@ import (
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/decorator"
 )
 
 type UserRole struct {
-	UserID   string
+	UserID   uuid.UUID
 	RoleName string
 }
 
@@ -29,7 +30,7 @@ func NewUserRoleHandler(clt services.AccessServiceClient) UserRoleHandler {
 func (h userRoleHandler) Handle(ctx *gin.Context, query UserRole) {
 
 	response, err := h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
-		UserId: query.UserID,
+		UserId: query.UserID.String(),
 		Role:   query.RoleName,
 	})
 

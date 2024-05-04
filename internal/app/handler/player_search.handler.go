@@ -12,7 +12,7 @@ import (
 )
 
 type PlayerSearch struct {
-	UserID     string
+	UserID     uuid.UUID
 	CustomerID string
 }
 
