@@ -8,7 +8,7 @@ import (
 
 func (a *PublicAPIRouter) HandleSocket(ctx *gin.Context) {
 
-	user, err := a.session(ctx)
+	user, err := a.user(ctx)
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)
 		return

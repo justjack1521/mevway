@@ -15,8 +15,14 @@ type PrivateAPIRouter struct {
 
 func (a *PrivateAPIRouter) HandleAdminRoleAuthorise(ctx *gin.Context) {
 
+	user, err := a.user(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
+
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   a.session(ctx),
+		UserID:   user,
 		RoleName: "admin",
 	})
 

@@ -2,6 +2,7 @@ package ports
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/justjack1521/mevium/pkg/server/httperr"
 	"mevway/internal/app/handler"
 )
 
@@ -15,8 +16,15 @@ type PublicAPIRouter struct {
 }
 
 func (a *PublicAPIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
+
+	user, err := a.user(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
+
 	a.UserRoleHandler.Handle(ctx, handler.UserRole{
-		UserID:   a.session(ctx),
+		UserID:   user,
 		RoleName: "alpha_tester",
 	})
 }
@@ -32,6 +40,6 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 	auth.POST("/register", a.HandleRegisterUser)
 
 	search := pub.Group("/player_search", a.HandlerAlphaTesterAuthorise, a.HandleTokenAuthorise)
-	search.GET("/:customer_id", a.HandlePlayerSearch)
+	search.GET("/:customer_id", a.HandleTokenAuthorise, a.HandlePlayerSearch)
 
 }

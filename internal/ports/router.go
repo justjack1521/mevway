@@ -3,6 +3,7 @@ package ports
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/justjack1521/mevium/pkg/server/httperr"
 	"github.com/justjack1521/mevrelic"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	uuid "github.com/satori/go.uuid"
@@ -91,8 +92,13 @@ func (a *APIRouter) CORSMiddleware(c *gin.Context) {
 }
 
 func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
+	session, err := a.user(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
 	a.TokenAuthHandle.Handle(ctx, handler.TokenAuthorise{
-		SessionID: a.session(ctx),
+		SessionID: session,
 		Bearer:    ctx.GetHeader("Authorization"),
 		DeviceID:  a.device(ctx),
 	})
