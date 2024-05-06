@@ -107,7 +107,6 @@ func (c *Client) Read() {
 		}
 
 		var txn = c.server.relic.StartTransaction("socket/read")
-		var ctx = newrelic.NewContext(c.context, txn)
 
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
@@ -118,7 +117,7 @@ func (c *Client) Read() {
 			break
 		}
 
-		if err := c.server.RouteClientRequest(context.Background(), c, request); err != nil {
+		if err := c.server.RouteClientRequest(newrelic.NewContext(c.context, txn), c, request); err != nil {
 			err = ErrFailedReadClientRequest(ErrFailedRoutingClientRequest(err))
 			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			txn.NoticeError(err)
