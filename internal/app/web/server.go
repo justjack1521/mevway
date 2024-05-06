@@ -6,11 +6,11 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
 	"github.com/justjack1521/mevium/pkg/mevent"
+	"github.com/justjack1521/mevrpc"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/wagslane/go-rabbitmq"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -135,13 +135,7 @@ func (s *Server) Run() {
 
 func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *protocommon.BaseRequest) (err error) {
 
-	fmt.Println(wc.UserID.String())
-	fmt.Println(wc.PlayerID.String())
-
-	wcc := wc.NewClientContext(metadata.NewOutgoingContext(ctx, metadata.New(map[string]string{
-		"X-API-USER":   wc.UserID.String(),
-		"X-API-PLAYER": wc.PlayerID.String(),
-	})), request)
+	wcc := wc.NewClientContext(mevrpc.NewOutgoingContext(ctx, wc.UserID, wc.PlayerID), request)
 
 	service, exists := s.Services[RoutingKey(request.Service)]
 	if exists == false {
@@ -155,7 +149,7 @@ func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *pr
 			switch t := detail.(type) {
 			case *protocommon.ApplicationError:
 				if err = s.SendClientError(wcc, t.ErrorCode, t.ErrorMessage); err != nil {
-					return ErrSendingClientResponse(wcc.client.UserID, err)
+					return ErrSendingClientResponse(wc.UserID, err)
 				}
 				return nil
 			}
