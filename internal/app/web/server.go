@@ -135,6 +135,9 @@ func (s *Server) Run() {
 
 func (s *Server) RouteClientRequest(ctx context.Context, wc *Client, request *protocommon.BaseRequest) (err error) {
 
+	fmt.Println(wc.UserID.String())
+	fmt.Println(wc.PlayerID.String())
+
 	wcc := wc.NewClientContext(metadata.NewOutgoingContext(ctx, metadata.New(map[string]string{
 		"X-API-USER":   wc.UserID.String(),
 		"X-API-PLAYER": wc.PlayerID.String(),

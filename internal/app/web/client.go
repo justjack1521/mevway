@@ -25,6 +25,7 @@ const (
 )
 
 type Client struct {
+	context             context.Context
 	UserID              uuid.UUID
 	PlayerID            uuid.UUID
 	ConnectionID        uuid.UUID
@@ -36,9 +37,9 @@ type Client struct {
 	disconnectionSource string
 }
 
-func NewClient(server *Server, connection *websocket.Conn) (client *Client) {
-
+func NewClient(ctx context.Context, server *Server, connection *websocket.Conn) (client *Client) {
 	client = &Client{
+		context:      ctx,
 		ConnectionID: uuid.NewV4(),
 		connection:   connection,
 		server:       server,
@@ -106,7 +107,7 @@ func (c *Client) Read() {
 		}
 
 		var txn = c.server.relic.StartTransaction("socket/read")
-		var ctx = newrelic.NewContext(context.Background(), txn)
+		var ctx = newrelic.NewContext(c.context, txn)
 
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
@@ -117,7 +118,7 @@ func (c *Client) Read() {
 			break
 		}
 
-		if err := c.server.RouteClientRequest(ctx, c, request); err != nil {
+		if err := c.server.RouteClientRequest(context.Background(), c, request); err != nil {
 			err = ErrFailedReadClientRequest(ErrFailedRoutingClientRequest(err))
 			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			txn.NoticeError(err)

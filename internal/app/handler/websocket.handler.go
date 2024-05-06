@@ -48,7 +48,7 @@ func (w webSocketHandler) Handle(ctx *gin.Context, query WebSocketQuery) {
 		return
 	}
 
-	client := web.NewClient(w.server, conn)
+	client := web.NewClient(ctx, w.server, conn)
 	client.UserID = query.UserID
 	client.PlayerID = query.PlayerID
 	w.server.Register <- client
