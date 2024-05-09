@@ -79,7 +79,7 @@ func (c *Client) Heartbeat() {
 			if c.closed {
 				return
 			}
-			c.server.publisher.Notify(ClientHeartbeatEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr()})
+			c.server.publisher.Notify(ClientHeartbeatEvent{userID: c.UserID, remoteAddr: c.connection.RemoteAddr()})
 		}
 	}
 
@@ -111,7 +111,7 @@ func (c *Client) Read() {
 		request := &protocommon.BaseRequest{}
 		if err := proto.Unmarshal(message, request); err != nil {
 			err = ErrFailedReadClientRequest(ErrFailedUnmarshalMessage(err))
-			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
+			c.server.publisher.Notify(ClientMessageErrorEvent{userID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			txn.NoticeError(err)
 			txn.End()
 			break
@@ -119,7 +119,7 @@ func (c *Client) Read() {
 
 		if err := c.server.RouteClientRequest(newrelic.NewContext(c.context, txn), c, request); err != nil {
 			err = ErrFailedReadClientRequest(ErrFailedRoutingClientRequest(err))
-			c.server.publisher.Notify(ClientMessageErrorEvent{clientID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
+			c.server.publisher.Notify(ClientMessageErrorEvent{userID: c.UserID, remoteAddr: c.connection.RemoteAddr(), err: err})
 			txn.NoticeError(err)
 			txn.End()
 			break

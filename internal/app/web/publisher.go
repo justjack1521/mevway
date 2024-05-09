@@ -25,36 +25,36 @@ func NewServerUpdatePublisher(server *Server, connection *rabbitmq.Conn) (*Serve
 }
 
 func (s *ServerUpdatePublisher) publishClientConnected(ctx context.Context, evt ClientConnectedEvent) error {
-	request := &protocommon.ClientConnected{RemoteAddress: evt.RemoteAddress().String()}
-	bytes, err := request.MarshallBinary()
+	var message = &protocommon.ClientConnected{RemoteAddress: evt.RemoteAddress().String()}
+	bytes, err := message.MarshallBinary()
 	if err != nil {
 		return err
 	}
-	if err := s.publisher.PublishWithContext(ctx, bytes, evt.ClientID(), rabbitmv.ClientConnected); err != nil {
+	if err := s.publisher.PublishWithContext(ctx, bytes, evt.UserID(), evt.PlayerID(), rabbitmv.ClientConnected); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *ServerUpdatePublisher) publishClientHeartbeat(ctx context.Context, evt ClientHeartbeatEvent) error {
-	request := &protocommon.ClientHeartbeat{RemoteAddress: evt.RemoteAddress().String()}
-	bytes, err := request.MarshallBinary()
+	var message = &protocommon.ClientHeartbeat{RemoteAddress: evt.RemoteAddress().String()}
+	bytes, err := message.MarshallBinary()
 	if err != nil {
 		return err
 	}
-	if err := s.publisher.PublishWithContext(ctx, bytes, evt.ClientID(), rabbitmv.ClientHeartbeat); err != nil {
+	if err := s.publisher.PublishWithContext(ctx, bytes, evt.UserID(), evt.PlayerID(), rabbitmv.ClientHeartbeat); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *ServerUpdatePublisher) publishClientDisconnected(ctx context.Context, evt ClientDisconnectedEvent) error {
-	request := &protocommon.ClientDisconnected{RemoteAddress: evt.RemoteAddress().String()}
-	bytes, err := request.MarshallBinary()
+	var message = &protocommon.ClientDisconnected{RemoteAddress: evt.RemoteAddress().String()}
+	bytes, err := message.MarshallBinary()
 	if err != nil {
 		return err
 	}
-	if err := s.publisher.PublishWithContext(ctx, bytes, evt.ClientID(), rabbitmv.ClientDisconnected); err != nil {
+	if err := s.publisher.PublishWithContext(ctx, bytes, evt.UserID(), evt.PlayerID(), rabbitmv.ClientDisconnected); err != nil {
 		return err
 	}
 	return nil

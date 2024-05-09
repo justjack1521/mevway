@@ -40,12 +40,12 @@ func (s *ServerUpdateConsumer) consume(ctx *rabbitmv.ConsumerContext) (action ra
 		return rabbitmq.NackDiscard, err
 	}
 	s.server.logger.WithFields(logrus.Fields{
-		"client.id":            ctx.ClientID.String(),
+		"client.id":            ctx.UserID.String(),
 		"notification.service": notification.Service,
 		"notification.type":    notification.Type,
 		"notification.length":  len(notification.Data),
 	}).Info("client Notification Received")
-	s.server.NotifyClient <- &ClientNotification{ClientID: ctx.ClientID, Notification: notification}
+	s.server.NotifyClient <- &ClientNotification{ClientID: ctx.UserID, Notification: notification}
 	return rabbitmq.Ack, nil
 }
 

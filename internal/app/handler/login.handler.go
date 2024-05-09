@@ -6,7 +6,6 @@ import (
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/decorator"
 	"mevway/internal/resources"
 )
@@ -17,22 +16,15 @@ type LoginUser struct {
 	DeviceID string
 }
 
-type CustomerIDCache interface {
-	GetUserIDFromCustomerID(customer string) (uuid.UUID, error)
-	AddCustomerIDForUser(customer string, user uuid.UUID) error
-}
-
 type LoginUserHandler decorator.APIRouterHandler[LoginUser]
 
 type loginUserHandler struct {
 	client services.AccessServiceClient
-	cache  CustomerIDCache
 }
 
-func NewLoginHandler(clt services.AccessServiceClient, cache CustomerIDCache) LoginUserHandler {
+func NewLoginHandler(clt services.AccessServiceClient) LoginUserHandler {
 	return loginUserHandler{
 		client: clt,
-		cache:  cache,
 	}
 }
 

@@ -22,14 +22,14 @@ func NewCustomerIDMemoryCache() *CustomerIDMemoryCache {
 	return cache
 }
 
-func (c *CustomerIDMemoryCache) GetUserIDFromCustomerID(customer string) (uuid.UUID, error) {
+func (c *CustomerIDMemoryCache) Get(ctx interface{}, customer string) (uuid.UUID, error) {
 	if cached := c.get(customer); cached != uuid.Nil {
 		return cached, nil
 	}
 	return uuid.Nil, nil
 }
 
-func (c *CustomerIDMemoryCache) AddCustomerIDForUser(customer string, user uuid.UUID) error {
+func (c *CustomerIDMemoryCache) Add(customer string, user uuid.UUID) error {
 	if user == uuid.Nil {
 		return nil
 	}

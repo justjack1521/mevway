@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
 	"github.com/justjack1521/mevium/pkg/genproto/protosocial"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
@@ -19,41 +18,23 @@ type PlayerSearch struct {
 type PlayerSearchHandler decorator.APIRouterHandler[PlayerSearch]
 
 type playerSearchHandler struct {
-	access services.AccessServiceClient
 	social services.MeviusSocialServiceClient
-	cache  CustomerIDCache
+	cache  CustomerPlayerIDReadRepository
 }
 
-func NewPlayerSearchHandler(access services.AccessServiceClient, social services.MeviusSocialServiceClient, cache CustomerIDCache) PlayerSearchHandler {
-	return playerSearchHandler{access: access, social: social, cache: cache}
+func NewPlayerSearchHandler(social services.MeviusSocialServiceClient, cache CustomerPlayerIDReadRepository) PlayerSearchHandler {
+	return playerSearchHandler{social: social, cache: cache}
 }
 
 func (h playerSearchHandler) Handle(ctx *gin.Context, query PlayerSearch) {
 
-	user, err := h.cache.GetUserIDFromCustomerID(query.CustomerID)
+	player, err := h.cache.Get(ctx, query.CustomerID)
 	if err != nil {
-		httperr.InternalError(err, err.Error(), ctx)
+		httperr.BadRequest(err, err.Error(), ctx)
 		return
 	}
 
-	if user == uuid.Nil {
-		result, err := h.access.CustomerSearch(ctx, &protoaccess.CustomerSearchRequest{
-			CustomerId: query.CustomerID,
-		})
-		if err != nil {
-			httperr.BadRequest(err, err.Error(), ctx)
-			return
-		}
-		user, err = uuid.FromString(result.UserId)
-		if err != nil {
-			httperr.BadRequest(err, err.Error(), ctx)
-			return
-		}
-	}
-
-	_ = h.cache.AddCustomerIDForUser(query.CustomerID, user)
-
-	search, err := h.social.PlayerSearch(ctx, &protosocial.PlayerSearchRequest{UserId: user.String()})
+	search, err := h.social.PlayerSearch(ctx, &protosocial.PlayerSearchRequest{PlayerId: player.String()})
 	if err != nil || search.PlayerInfo == nil || search.PlayerInfo.PlayerId == uuid.Nil.String() {
 		httperr.BadRequest(err, "player not found", ctx)
 		return

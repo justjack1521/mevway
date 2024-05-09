@@ -93,12 +93,12 @@ func (s *Server) Run() {
 		select {
 		//Register
 		case client := <-s.Register:
-			s.publisher.Notify(ClientConnectedEvent{clientID: client.UserID, remoteAddr: client.connection.RemoteAddr()})
+			s.publisher.Notify(NewClientConnectedEvent(client.context, client.UserID, client.PlayerID, client.connection.RemoteAddr()))
 			s.Clients[client] = true
 		//Unregister
 		case client := <-s.Unregister:
 			if _, ok := s.Clients[client]; ok {
-				s.publisher.Notify(ClientDisconnectedEvent{clientID: client.UserID, remoteAddr: client.connection.RemoteAddr()})
+				s.publisher.Notify(NewClientDisconnectedEvent(client.context, client.UserID, client.PlayerID, client.connection.RemoteAddr(), client.disconnectionSource))
 				delete(s.Clients, client)
 				close(client.send)
 			}
@@ -116,7 +116,7 @@ func (s *Server) Run() {
 		case notification := <-s.NotifyClient:
 			bytes, err := notification.Notification.MarshallBinary()
 			if err != nil {
-				s.publisher.Notify(ClientMessageErrorEvent{clientID: notification.ClientID, err: err})
+				s.publisher.Notify(ClientMessageErrorEvent{userID: notification.ClientID, err: err})
 			}
 			for client := range s.Clients {
 				if client.UserID == notification.ClientID {

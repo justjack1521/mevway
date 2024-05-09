@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"fmt"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
@@ -27,22 +26,31 @@ func (e ServerStartEvent) ToLogFields() logrus.Fields {
 type ClientEvent interface {
 	mevent.ClientEvent
 	mevent.ContextEvent
-	ClientID() uuid.UUID
+	UserID() uuid.UUID
 	RemoteAddress() net.Addr
 }
 
 type ClientConnectedEvent struct {
-	clientID   uuid.UUID
-	remoteAddr net.Addr
 	ctx        context.Context
+	userID     uuid.UUID
+	playerID   uuid.UUID
+	remoteAddr net.Addr
+}
+
+func NewClientConnectedEvent(ctx context.Context, user uuid.UUID, player uuid.UUID, addr net.Addr) ClientConnectedEvent {
+	return ClientConnectedEvent{ctx: ctx, userID: user, playerID: player, remoteAddr: addr}
 }
 
 func (e ClientConnectedEvent) Context() context.Context {
 	return e.ctx
 }
 
-func (e ClientConnectedEvent) ClientID() uuid.UUID {
-	return e.clientID
+func (e ClientConnectedEvent) UserID() uuid.UUID {
+	return e.userID
+}
+
+func (e ClientConnectedEvent) PlayerID() uuid.UUID {
+	return e.playerID
 }
 
 func (e ClientConnectedEvent) RemoteAddress() net.Addr {
@@ -54,11 +62,12 @@ func (e ClientConnectedEvent) Name() string {
 }
 
 func (e ClientConnectedEvent) ToLogFields() logrus.Fields {
-	return logrus.Fields{"event.name": e.Name(), "client.id": e.clientID.String(), "remote.address": e.remoteAddr.String()}
+	return logrus.Fields{"event.name": e.Name(), "client.id": e.userID.String(), "remote.address": e.remoteAddr.String()}
 }
 
 type ClientHeartbeatEvent struct {
-	clientID   uuid.UUID
+	userID     uuid.UUID
+	playerID   uuid.UUID
 	remoteAddr net.Addr
 	ctx        context.Context
 }
@@ -67,8 +76,12 @@ func (e ClientHeartbeatEvent) Context() context.Context {
 	return e.ctx
 }
 
-func (e ClientHeartbeatEvent) ClientID() uuid.UUID {
-	return e.clientID
+func (e ClientHeartbeatEvent) UserID() uuid.UUID {
+	return e.userID
+}
+
+func (e ClientHeartbeatEvent) PlayerID() uuid.UUID {
+	return e.playerID
 }
 
 func (e ClientHeartbeatEvent) RemoteAddress() net.Addr {
@@ -80,26 +93,31 @@ func (e ClientHeartbeatEvent) Name() string {
 }
 
 func (e ClientHeartbeatEvent) ToLogFields() logrus.Fields {
-	return logrus.Fields{"event.name": e.Name(), "client.id": e.clientID.String(), "remote.address": e.remoteAddr.String()}
+	return logrus.Fields{"event.name": e.Name(), "client.id": e.userID.String(), "remote.address": e.remoteAddr.String()}
 }
 
 type ClientDisconnectedEvent struct {
 	ctx        context.Context
-	clientID   uuid.UUID
+	userID     uuid.UUID
+	playerID   uuid.UUID
 	remoteAddr net.Addr
 	source     string
 }
 
-func NewClientDisconnectedEvent(ctx context.Context, client uuid.UUID, addr net.Addr, source string) ClientDisconnectedEvent {
-	return ClientDisconnectedEvent{ctx: ctx, clientID: client, remoteAddr: addr, source: source}
+func NewClientDisconnectedEvent(ctx context.Context, user, player uuid.UUID, addr net.Addr, source string) ClientDisconnectedEvent {
+	return ClientDisconnectedEvent{ctx: ctx, userID: user, playerID: player, remoteAddr: addr, source: source}
 }
 
 func (e ClientDisconnectedEvent) Context() context.Context {
 	return e.ctx
 }
 
-func (e ClientDisconnectedEvent) ClientID() uuid.UUID {
-	return e.clientID
+func (e ClientDisconnectedEvent) UserID() uuid.UUID {
+	return e.userID
+}
+
+func (e ClientDisconnectedEvent) PlayerID() uuid.UUID {
+	return e.playerID
 }
 
 func (e ClientDisconnectedEvent) RemoteAddress() net.Addr {
@@ -117,7 +135,7 @@ func (e ClientDisconnectedEvent) Name() string {
 func (e ClientDisconnectedEvent) ToLogFields() logrus.Fields {
 	return logrus.Fields{
 		"event.name":     e.Name(),
-		"client.id":      e.clientID.String(),
+		"client.id":      e.userID.String(),
 		"remote.address": e.remoteAddr.String(),
 		"source":         e.source,
 	}
@@ -129,18 +147,17 @@ type ClientMessageEvent interface {
 }
 
 type ClientMessageErrorEvent struct {
-	clientID   uuid.UUID
+	userID     uuid.UUID
 	remoteAddr net.Addr
 	err        error
 }
 
-func NewClientMessageErrorEvent(client uuid.UUID, addr net.Addr, err error) *ClientMessageErrorEvent {
-	fmt.Println(err)
-	return &ClientMessageErrorEvent{clientID: client, remoteAddr: addr, err: err}
+func NewClientMessageErrorEvent(user uuid.UUID, addr net.Addr, err error) ClientMessageErrorEvent {
+	return ClientMessageErrorEvent{userID: user, remoteAddr: addr, err: err}
 }
 
-func (e ClientMessageErrorEvent) ClientID() uuid.UUID {
-	return e.clientID
+func (e ClientMessageErrorEvent) UserID() uuid.UUID {
+	return e.userID
 }
 
 func (e ClientMessageErrorEvent) RemoteAddress() net.Addr {
@@ -156,5 +173,5 @@ func (e ClientMessageErrorEvent) Name() string {
 }
 
 func (e ClientMessageErrorEvent) ToLogFields() logrus.Fields {
-	return logrus.Fields{"event.name": e.Name(), "client.id": e.clientID.String(), "remote.address": e.remoteAddr.String(), "error": e.err.Error()}
+	return logrus.Fields{"event.name": e.Name(), "client.id": e.userID.String(), "remote.address": e.remoteAddr.String(), "error": e.err.Error()}
 }

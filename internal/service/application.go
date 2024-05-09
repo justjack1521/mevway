@@ -8,6 +8,9 @@ import (
 	"github.com/justjack1521/mevrelic"
 	"github.com/sirupsen/logrus"
 	"github.com/wagslane/go-rabbitmq"
+	"mevway/internal/adapter/cache"
+	"mevway/internal/adapter/external"
+	"mevway/internal/adapter/memory"
 	"mevway/internal/app"
 	"mevway/internal/app/handler"
 	"mevway/internal/app/web"
@@ -21,6 +24,11 @@ func NewApplication(ctx context.Context) app.Application {
 	}
 
 	logger := logrus.New()
+
+	client, err := memory.NewRedisConnection(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	relic, err := mevrelic.NewRelicApplication()
 	if err != nil {
@@ -82,14 +90,14 @@ func NewApplication(ctx context.Context) app.Application {
 		UserRoleHandler: handler.NewUserRoleHandler(access),
 	}
 
-	cache := app.NewCustomerIDMemoryCache()
+	var players = cache.NewCustomerPlayerIDRepository(external.NewCustomerPlayerIDRepository(access), memory.NewCustomerPlayerCache(client))
 
 	public := &ports.PublicAPIRouter{
 		BaseAPIRouter:      core,
-		LoginUserHandle:    handler.NewLoginHandler(access, cache),
+		LoginUserHandle:    handler.NewLoginHandler(access),
 		RegisterUserHandle: handler.NewRegisterUserHandler(access),
 		WebsocketHandle:    handler.NewWebSocketHandler(svr),
-		PlayerSearchHandle: handler.NewPlayerSearchHandler(access, social, cache),
+		PlayerSearchHandle: handler.NewPlayerSearchHandler(social, players),
 		UserRoleHandler:    handler.NewUserRoleHandler(access),
 	}
 
