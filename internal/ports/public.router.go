@@ -33,13 +33,13 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 
 	pub := router.Group("/public")
 
-	pub.GET("/ws", a.HandleTokenAuthorise, a.HandlerAlphaTesterAuthorise, a.HandleSocket)
+	pub.GET("/ws", a.HandleTokenAuthorise, a.HandleSocket)
 
 	auth := pub.Group("/auth")
 	auth.POST("/login", a.HandleLoginUser)
 	auth.POST("/register", a.HandleRegisterUser)
 
-	search := pub.Group("/player_search", a.HandlerAlphaTesterAuthorise, a.HandleTokenAuthorise)
+	search := pub.Group("/player_search", a.HandleTokenAuthorise)
 	search.GET("/:customer_id", a.HandleTokenAuthorise, a.HandlePlayerSearch)
 
 }
