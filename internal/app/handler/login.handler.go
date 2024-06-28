@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
@@ -41,20 +40,20 @@ func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 	}
 
 	//TODO Remove when opening build
-	role, err := h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
-		UserId: login.UserId,
-		Role:   "alpha_tester",
-	})
-	if err != nil {
-		httperr.UnauthorisedError(err, err.Error(), ctx)
-		return
-	}
-
-	if role.HasRole == false {
-		err := errors.New("unauthorised")
-		httperr.UnauthorisedError(err, err.Error(), ctx)
-		return
-	}
+	//role, err := h.client.UserHasRole(ctx, &protoaccess.UserHasRoleRequest{
+	//	UserId: login.UserId,
+	//	Role:   "alpha_tester",
+	//})
+	//if err != nil {
+	//	httperr.UnauthorisedError(err, err.Error(), ctx)
+	//	return
+	//}
+	//
+	//if role.HasRole == false {
+	//	err := errors.New("unauthorised")
+	//	httperr.UnauthorisedError(err, err.Error(), ctx)
+	//	return
+	//}
 
 	ctx.JSON(200, resources.UserLoginResponse{
 		SessionID:    login.SessionId,
