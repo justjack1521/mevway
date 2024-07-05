@@ -13,6 +13,7 @@ require (
 	github.com/justjack1521/mevrpc v0.0.0-20240506141248-edf429b4403e
 	github.com/newrelic/go-agent/v3 v3.30.0
 	github.com/newrelic/go-agent/v3/integrations/nrgrpc v1.4.2
+	github.com/newrelic/go-agent/v3/integrations/nrpq v1.1.1
 	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.3
@@ -41,6 +42,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/lib/pq v1.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect

@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"github.com/justjack1521/mevconn"
+	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
