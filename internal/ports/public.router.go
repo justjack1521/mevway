@@ -13,6 +13,11 @@ type PublicAPIRouter struct {
 	WebsocketHandle    handler.WebSocketHandler
 	PlayerSearchHandle handler.PlayerSearchHandler
 	UserRoleHandler    handler.UserRoleHandler
+	PatchListHandler   handler.PatchListHandler
+}
+
+func (a *PublicAPIRouter) HandlePatchList(ctx *gin.Context) {
+	a.PatchListHandler.Handle(ctx, handler.PatchList{Limit: 5})
 }
 
 func (a *PublicAPIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {
@@ -41,5 +46,8 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 
 	search := pub.Group("/player_search", a.HandleTokenAuthorise)
 	search.GET("/:customer_id", a.HandleTokenAuthorise, a.HandlePlayerSearch)
+
+	system := pub.Group("/system")
+	system.GET("/recent", a.HandlePatchList)
 
 }

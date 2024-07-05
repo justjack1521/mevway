@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/wagslane/go-rabbitmq"
 	"mevway/internal/adapter/cache"
+	"mevway/internal/adapter/database"
 	"mevway/internal/adapter/external"
 	"mevway/internal/adapter/memory"
 	"mevway/internal/app"
@@ -26,6 +27,11 @@ func NewApplication(ctx context.Context) app.Application {
 	logger := logrus.New()
 
 	client, err := memory.NewRedisConnection(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := database.NewPostgresConnection()
 	if err != nil {
 		panic(err)
 	}
@@ -91,6 +97,7 @@ func NewApplication(ctx context.Context) app.Application {
 	}
 
 	var players = cache.NewCustomerPlayerIDRepository(external.NewCustomerPlayerIDRepository(access), memory.NewCustomerPlayerCache(client))
+	var patches = database.NewPatchRepository(db)
 
 	public := &ports.PublicAPIRouter{
 		BaseAPIRouter:      core,
@@ -99,6 +106,7 @@ func NewApplication(ctx context.Context) app.Application {
 		WebsocketHandle:    handler.NewWebSocketHandler(svr),
 		PlayerSearchHandle: handler.NewPlayerSearchHandler(social, players),
 		UserRoleHandler:    handler.NewUserRoleHandler(access),
+		PatchListHandler:   handler.NewPatchListHandler(patches),
 	}
 
 	core.ApplyRouterDecorations(engine)
