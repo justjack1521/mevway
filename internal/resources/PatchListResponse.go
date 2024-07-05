@@ -6,23 +6,23 @@ import (
 )
 
 type PatchListResponse struct {
-	Patches []Patch `json:"patches"`
+	Patches []Patch `json:"Patches"`
 }
 
 type Patch struct {
-	SysID       uuid.UUID      `json:"sys_id"`
-	ReleaseDate time.Time      `json:"release_date"`
-	Description string         `json:"description"`
-	Features    []PatchFeature `json:"features"`
-	Fixes       []PatchFix     `json:"fixes"`
+	SysID       uuid.UUID      `json:"SysID"`
+	ReleaseDate time.Time      `json:"ReleaseDate"`
+	Description string         `json:"Description"`
+	Features    []PatchFeature `json:"Features"`
+	Fixes       []PatchFix     `json:"Fixes"`
 }
 
 type PatchFeature struct {
-	Text  string `json:"text"`
-	Order int    `json:"order"`
+	Text  string `json:"Text"`
+	Order int    `json:"Order"`
 }
 
 type PatchFix struct {
-	Text  string `json:"text"`
-	Order int    `json:"order"`
+	Text  string `json:"Text"`
+	Order int    `json:"Order"`
 }
