@@ -48,6 +48,8 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 	search.GET("/:customer_id", a.HandleTokenAuthorise, a.HandlePlayerSearch)
 
 	system := pub.Group("/system")
-	system.GET("/recent", a.HandlePatchList)
+
+	patch := system.Group("/patch")
+	patch.GET("/recent", a.HandlePatchList)
 
 }
