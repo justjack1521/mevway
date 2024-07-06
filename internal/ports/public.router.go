@@ -8,12 +8,17 @@ import (
 
 type PublicAPIRouter struct {
 	BaseAPIRouter
-	LoginUserHandle    handler.LoginUserHandler
-	RegisterUserHandle handler.RegisterUserHandler
-	WebsocketHandle    handler.WebSocketHandler
-	PlayerSearchHandle handler.PlayerSearchHandler
-	UserRoleHandler    handler.UserRoleHandler
-	PatchListHandler   handler.PatchListHandler
+	LoginUserHandle     handler.LoginUserHandler
+	RegisterUserHandle  handler.RegisterUserHandler
+	WebsocketHandle     handler.WebSocketHandler
+	PlayerSearchHandle  handler.PlayerSearchHandler
+	UserRoleHandler     handler.UserRoleHandler
+	PatchListHandler    handler.PatchListHandler
+	PatchCurrentHandler handler.PatchCurrentHandler
+}
+
+func (a *PublicAPIRouter) HandlePatchCurrent(ctx *gin.Context) {
+	a.PatchCurrentHandler.Handle(ctx, handler.PatchCurrent{})
 }
 
 func (a *PublicAPIRouter) HandlePatchList(ctx *gin.Context) {
@@ -51,5 +56,6 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 
 	patch := system.Group("/patch")
 	patch.GET("/recent", a.HandlePatchList)
+	patch.GET("/current", a.HandlePatchCurrent)
 
 }

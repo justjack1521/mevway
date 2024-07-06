@@ -100,13 +100,14 @@ func NewApplication(ctx context.Context) app.Application {
 	var patches = database.NewPatchRepository(db)
 
 	public := &ports.PublicAPIRouter{
-		BaseAPIRouter:      core,
-		LoginUserHandle:    handler.NewLoginHandler(access),
-		RegisterUserHandle: handler.NewRegisterUserHandler(access),
-		WebsocketHandle:    handler.NewWebSocketHandler(svr),
-		PlayerSearchHandle: handler.NewPlayerSearchHandler(social, players),
-		UserRoleHandler:    handler.NewUserRoleHandler(access),
-		PatchListHandler:   handler.NewPatchListHandler(patches),
+		BaseAPIRouter:       core,
+		LoginUserHandle:     handler.NewLoginHandler(access),
+		RegisterUserHandle:  handler.NewRegisterUserHandler(access),
+		WebsocketHandle:     handler.NewWebSocketHandler(svr),
+		PlayerSearchHandle:  handler.NewPlayerSearchHandler(social, players),
+		UserRoleHandler:     handler.NewUserRoleHandler(access),
+		PatchListHandler:    handler.NewPatchListHandler(patches),
+		PatchCurrentHandler: handler.NewPatchCurrentHandler(patches),
 	}
 
 	core.ApplyRouterDecorations(engine)

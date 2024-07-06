@@ -17,7 +17,7 @@ func NewPatchRepository(db *gorm.DB) *PatchRepository {
 }
 
 func (r *PatchRepository) Get(ctx context.Context, limit int) ([]patch.Patch, error) {
-	var cond dto.PatchGorm
+	var cond = &dto.PatchGorm{}
 	var res []dto.PatchGorm
 	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Limit(limit).Order("release_date").Find(&res, cond).Error; err != nil {
 		return nil, err
@@ -28,5 +28,18 @@ func (r *PatchRepository) Get(ctx context.Context, limit int) ([]patch.Patch, er
 		dest[i] = v.ToEntity()
 	}
 	return dest, nil
+
+}
+
+func (r *PatchRepository) Current(ctx context.Context) (patch.Patch, error) {
+
+	var cond = &dto.PatchGorm{}
+	var res = &dto.PatchGorm{}
+
+	if err := r.database.WithContext(ctx).Model(cond).Limit(1).Order("release_date").First(res, cond).Error; err != nil {
+		return patch.Patch{}, err
+	}
+
+	return res.ToEntity(), nil
 
 }
