@@ -35,28 +35,28 @@ func (h playerSearchHandler) Handle(ctx *gin.Context, query PlayerSearch) {
 	}
 
 	search, err := h.social.PlayerSearch(ctx, &protosocial.PlayerSearchRequest{PlayerId: player.String()})
-	if err != nil || search.PlayerInfo == nil || search.PlayerInfo.PlayerId == uuid.Nil.String() {
+	if err != nil || search.PlayerInfo == nil || search.PlayerInfo.PlayerInfo.PlayerId == uuid.Nil.String() {
 		httperr.BadRequest(err, "player not found", ctx)
 		return
 	}
 
 	var response = &resources.PlayerSearchResponse{
-		PlayerID:      uuid.FromStringOrNil(search.PlayerInfo.PlayerId),
-		PlayerName:    search.PlayerInfo.PlayerName,
-		PlayerLevel:   int(search.PlayerInfo.PlayerLevel),
-		PlayerComment: search.PlayerInfo.PlayerComment,
-		CompanionID:   uuid.FromStringOrNil(search.PlayerInfo.CompanionId),
-		JobCardID:     uuid.FromStringOrNil(search.PlayerInfo.JobCardId),
-		SubJobIndex:   int(search.PlayerInfo.SubJobIndex),
+		PlayerID:      uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.PlayerId),
+		PlayerName:    search.PlayerInfo.PlayerInfo.PlayerName,
+		PlayerLevel:   int(search.PlayerInfo.PlayerInfo.PlayerLevel),
+		PlayerComment: search.PlayerInfo.PlayerInfo.PlayerComment,
+		CompanionID:   uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.CompanionId),
+		JobCardID:     uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.CompanionId),
+		SubJobIndex:   int(search.PlayerInfo.PlayerInfo.SubJobIndex),
 	}
 
-	if search.PlayerInfo.RentalCard != nil {
+	if search.PlayerInfo.PlayerInfo.RentalCard != nil {
 		response.RentalCard = &resources.PlayerSearchResponseRentalCard{
-			AbilityCardID:    uuid.FromStringOrNil(search.PlayerInfo.RentalCard.AbilityCardId),
-			AbilityCardLevel: int(search.PlayerInfo.RentalCard.AbilityCardLevel),
-			AbilityLevel:     int(search.PlayerInfo.RentalCard.AbilityLevel),
-			ExtraSkillUnlock: int(search.PlayerInfo.RentalCard.ExtraSkillUnlock),
-			OverBoostLevel:   int(search.PlayerInfo.RentalCard.OverBoostLevel),
+			AbilityCardID:    uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.RentalCard.AbilityCardId),
+			AbilityCardLevel: int(search.PlayerInfo.PlayerInfo.RentalCard.AbilityCardLevel),
+			AbilityLevel:     int(search.PlayerInfo.PlayerInfo.RentalCard.AbilityLevel),
+			ExtraSkillUnlock: int(search.PlayerInfo.PlayerInfo.RentalCard.ExtraSkillUnlock),
+			OverBoostLevel:   int(search.PlayerInfo.PlayerInfo.RentalCard.OverBoostLevel),
 		}
 	}
 
