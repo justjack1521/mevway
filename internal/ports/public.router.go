@@ -9,6 +9,7 @@ import (
 type PublicAPIRouter struct {
 	BaseAPIRouter
 	LoginUserHandle     handler.LoginUserHandler
+	RememberUserHandler handler.RememberUserHandler
 	RegisterUserHandle  handler.RegisterUserHandler
 	WebsocketHandle     handler.WebSocketHandler
 	PlayerSearchHandle  handler.PlayerSearchHandler
@@ -48,6 +49,7 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 	auth := pub.Group("/auth")
 	auth.POST("/login", a.HandleLoginUser)
 	auth.POST("/register", a.HandleRegisterUser)
+	auth.POST("/remember", a.HandleRememberUser)
 
 	search := pub.Group("/player_search", a.HandleTokenAuthorise)
 	search.GET("/:customer_id", a.HandleTokenAuthorise, a.HandlePlayerSearch)
