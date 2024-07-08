@@ -10,9 +10,10 @@ import (
 )
 
 type LoginUser struct {
-	Username string
-	Password string
-	DeviceID string
+	Username   string
+	Password   string
+	DeviceID   string
+	RememberMe bool
 }
 
 type LoginUserHandler decorator.APIRouterHandler[LoginUser]
@@ -30,9 +31,10 @@ func NewLoginHandler(clt services.AccessServiceClient) LoginUserHandler {
 func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 
 	login, err := h.client.LoginUser(ctx, &protoaccess.LoginUserRequest{
-		Username: query.Username,
-		Password: query.Password,
-		DeviceId: query.DeviceID,
+		Username:   query.Username,
+		Password:   query.Password,
+		DeviceId:   query.DeviceID,
+		RememberMe: query.RememberMe,
 	})
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)

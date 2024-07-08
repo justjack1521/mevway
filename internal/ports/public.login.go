@@ -17,9 +17,10 @@ func (a *PublicAPIRouter) HandleLoginUser(ctx *gin.Context) {
 	}
 
 	a.LoginUserHandle.Handle(ctx, handler.LoginUser{
-		Username: request.Username,
-		Password: request.Password,
-		DeviceID: a.device(ctx),
+		Username:   request.Username,
+		Password:   request.Password,
+		DeviceID:   a.device(ctx),
+		RememberMe: request.RememberMe,
 	})
 
 }
