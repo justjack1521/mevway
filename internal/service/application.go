@@ -103,6 +103,7 @@ func NewApplication(ctx context.Context) app.Application {
 		BaseAPIRouter:       core,
 		LoginUserHandle:     handler.NewLoginHandler(access),
 		RegisterUserHandle:  handler.NewRegisterUserHandler(access),
+		RememberUserHandler: handler.NewRememberUserHandler(access),
 		WebsocketHandle:     handler.NewWebSocketHandler(svr),
 		PlayerSearchHandle:  handler.NewPlayerSearchHandler(social, players),
 		UserRoleHandler:     handler.NewUserRoleHandler(access),
