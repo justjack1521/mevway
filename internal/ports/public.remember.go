@@ -16,7 +16,8 @@ func (a *PublicAPIRouter) HandleRememberUser(ctx *gin.Context) {
 	}
 
 	a.RememberUserHandler.Handle(ctx, handler.RememberUser{
-		Token: request.Token,
+		Token:    request.Token,
+		DeviceID: a.device(ctx),
 	})
 
 }

@@ -28,7 +28,10 @@ func NewRememberUserHandler(clt services.AccessServiceClient) RememberUserHandle
 
 func (h rememberUserHandler) Handle(ctx *gin.Context, query RememberUser) {
 
-	rmb, err := h.client.RememberUser(ctx, &protoaccess.RememberUserRequest{RememberToken: query.Token})
+	rmb, err := h.client.RememberUser(ctx, &protoaccess.RememberUserRequest{
+		RememberToken: query.Token,
+		DeviceId:      query.DeviceID,
+	})
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)
 		return
