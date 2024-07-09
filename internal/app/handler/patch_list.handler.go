@@ -3,14 +3,16 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/decorator"
 	"mevway/internal/domain/patch"
 	"mevway/internal/resources"
 )
 
 type PatchList struct {
-	Limit  int
-	Offset int
+	Environment uuid.UUID
+	Limit       int
+	Offset      int
 }
 
 type PatchListHandler decorator.APIRouterHandler[PatchList]
@@ -25,7 +27,7 @@ func NewPatchListHandler(repository patch.ReadRepository) PatchListHandler {
 
 func (h patchListHandler) Handle(ctx *gin.Context, query PatchList) {
 
-	patches, err := h.repository.Get(ctx, query.Limit)
+	patches, err := h.repository.Get(ctx, query.Environment, query.Limit)
 
 	if err != nil {
 		httperr.InternalError(err, err.Error(), ctx)

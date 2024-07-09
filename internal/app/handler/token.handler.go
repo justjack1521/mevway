@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
@@ -13,6 +12,7 @@ import (
 const (
 	UserIDContextKey   string = "UserIDContextKey"
 	PlayerIDContextKey string = "PlayerIDContextKey"
+	UserEnvironmentKey string = "UserEnvironmentKey"
 )
 
 type TokenAuthorise struct {
@@ -46,13 +46,8 @@ func (h tokenAuthoriseHandler) Handle(ctx *gin.Context, query TokenAuthorise) {
 		return
 	}
 
-	fmt.Println("User ID", response.UserId)
-	fmt.Println("Player ID", response.PlayerId)
-
 	ctx.Set(UserIDContextKey, response.UserId)
 	ctx.Set(PlayerIDContextKey, response.PlayerId)
-
-	fmt.Println(ctx.GetString(UserIDContextKey))
-	fmt.Println(ctx.GetString(PlayerIDContextKey))
+	ctx.Set(UserEnvironmentKey, response.Environment)
 
 }

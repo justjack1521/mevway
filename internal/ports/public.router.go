@@ -19,11 +19,28 @@ type PublicAPIRouter struct {
 }
 
 func (a *PublicAPIRouter) HandlePatchCurrent(ctx *gin.Context) {
-	a.PatchCurrentHandler.Handle(ctx, handler.PatchCurrent{})
+	env, err := a.environment(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
+	a.PatchCurrentHandler.Handle(ctx, handler.PatchCurrent{
+		Environment: env,
+	})
 }
 
 func (a *PublicAPIRouter) HandlePatchList(ctx *gin.Context) {
-	a.PatchListHandler.Handle(ctx, handler.PatchList{Limit: 5})
+
+	env, err := a.environment(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
+
+	a.PatchListHandler.Handle(ctx, handler.PatchList{
+		Environment: env,
+		Limit:       5,
+	})
 }
 
 func (a *PublicAPIRouter) HandlerAlphaTesterAuthorise(ctx *gin.Context) {

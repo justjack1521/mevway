@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"mevway/internal/adapter/database/dto"
@@ -16,8 +17,10 @@ func NewPatchRepository(db *gorm.DB) *PatchRepository {
 	return &PatchRepository{database: db}
 }
 
-func (r *PatchRepository) Get(ctx context.Context, limit int) ([]patch.Patch, error) {
-	var cond = &dto.PatchGorm{}
+func (r *PatchRepository) Get(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {
+	var cond = &dto.PatchGorm{
+		Released: true,
+	}
 	var res []dto.PatchGorm
 	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Limit(limit).Order("release_date DESC").Find(&res, cond).Error; err != nil {
 		return nil, err
@@ -31,9 +34,11 @@ func (r *PatchRepository) Get(ctx context.Context, limit int) ([]patch.Patch, er
 
 }
 
-func (r *PatchRepository) Current(ctx context.Context) (patch.Patch, error) {
+func (r *PatchRepository) Current(ctx context.Context, environment uuid.UUID) (patch.Patch, error) {
 
-	var cond = &dto.PatchGorm{}
+	var cond = &dto.PatchGorm{
+		Released: true,
+	}
 	var res = &dto.PatchGorm{}
 
 	if err := r.database.WithContext(ctx).Model(cond).Limit(1).Order("release_date DESC").First(res, cond).Error; err != nil {

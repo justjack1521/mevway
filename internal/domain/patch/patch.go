@@ -9,6 +9,8 @@ type Patch struct {
 	SysID       uuid.UUID
 	ReleaseDate time.Time
 	Description string
+	Environment uuid.UUID
+	Released    bool
 	Features    []Feature
 	Fixes       []Fix
 }

@@ -10,6 +10,8 @@ type PatchGorm struct {
 	SysID       uuid.UUID           `gorm:"primaryKey;column:sys_id"`
 	ReleaseDate time.Time           `gorm:"column:release_date"`
 	Description string              `gorm:"column:description"`
+	Released    bool                `gorm:"column:released"`
+	Environment uuid.UUID           `gorm:"column:environment"`
 	Features    []*PatchFeatureGorm `gorm:"foreignKey:Patch"`
 	Fixes       []*PatchFixGorm     `gorm:"foreignKey:Patch"`
 }
@@ -23,6 +25,8 @@ func (x *PatchGorm) ToEntity() patch.Patch {
 		SysID:       x.SysID,
 		ReleaseDate: x.ReleaseDate,
 		Description: x.Description,
+		Released:    x.Released,
+		Environment: x.Environment,
 	}
 
 	if x.Features != nil {

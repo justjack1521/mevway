@@ -25,6 +25,7 @@ type BaseAPIRouter interface {
 	session(ctx *gin.Context) (uuid.UUID, error)
 	user(ctx *gin.Context) (uuid.UUID, error)
 	player(ctx *gin.Context) (uuid.UUID, error)
+	environment(ctx *gin.Context) (uuid.UUID, error)
 	device(ctx *gin.Context) string
 	HandleTokenAuthorise(ctx *gin.Context)
 }
@@ -113,6 +114,18 @@ func (a *APIRouter) user(ctx *gin.Context) (uuid.UUID, error) {
 	var value = ctx.GetString(handler.UserIDContextKey)
 	if value == "" {
 		return uuid.Nil, errors.New("context missing user id")
+	}
+	result, err := uuid.FromString(value)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return result, nil
+}
+
+func (a *APIRouter) environment(ctx *gin.Context) (uuid.UUID, error) {
+	var value = ctx.GetString(handler.UserEnvironmentKey)
+	if value == "" {
+		return uuid.Nil, errors.New("context missing environment id")
 	}
 	result, err := uuid.FromString(value)
 	if err != nil {

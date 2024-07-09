@@ -1,10 +1,13 @@
 package patch
 
-import "context"
+import (
+	"context"
+	uuid "github.com/satori/go.uuid"
+)
 
 type ReadRepository interface {
-	Current(ctx context.Context) (Patch, error)
-	Get(ctx context.Context, limit int) ([]Patch, error)
+	Current(ctx context.Context, environment uuid.UUID) (Patch, error)
+	Get(ctx context.Context, environment uuid.UUID, limit int) ([]Patch, error)
 }
 
 type Repository interface {
