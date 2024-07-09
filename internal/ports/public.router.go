@@ -74,7 +74,7 @@ func (a *PublicAPIRouter) ApplyRouterDecorations(router *gin.Engine) {
 	system := pub.Group("/system")
 
 	patch := system.Group("/patch")
-	patch.GET("/recent", a.HandlePatchList)
-	patch.GET("/current", a.HandlePatchCurrent)
+	patch.GET("/recent", a.HandleTokenAuthorise, a.HandlePatchList)
+	patch.GET("/current", a.HandleTokenAuthorise, a.HandlePatchCurrent)
 
 }
