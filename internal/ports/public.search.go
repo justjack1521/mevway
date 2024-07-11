@@ -19,8 +19,15 @@ func (a *PublicAPIRouter) HandlePlayerSearch(ctx *gin.Context) {
 		return
 	}
 
+	player, err := a.player(ctx)
+	if err != nil {
+		httperr.BadRequest(err, err.Error(), ctx)
+		return
+	}
+
 	a.PlayerSearchHandle.Handle(ctx, handler.PlayerSearch{
 		UserID:     user,
+		PlayerID:   player,
 		CustomerID: request.CustomerID,
 	})
 

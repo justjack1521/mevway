@@ -5,6 +5,7 @@ import (
 	"github.com/justjack1521/mevium/pkg/genproto/protosocial"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
+	"github.com/justjack1521/mevrpc"
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/decorator"
 	"mevway/internal/resources"
@@ -12,6 +13,7 @@ import (
 
 type PlayerSearch struct {
 	UserID     uuid.UUID
+	PlayerID   uuid.UUID
 	CustomerID string
 }
 
@@ -34,7 +36,7 @@ func (h playerSearchHandler) Handle(ctx *gin.Context, query PlayerSearch) {
 		return
 	}
 
-	search, err := h.social.PlayerSearch(ctx, &protosocial.PlayerSearchRequest{PlayerId: player.String()})
+	search, err := h.social.PlayerSearch(mevrpc.NewOutgoingContext(ctx, query.UserID, query.PlayerID), &protosocial.PlayerSearchRequest{PlayerId: player.String()})
 	if err != nil || search.PlayerInfo == nil || search.PlayerInfo.PlayerInfo.PlayerId == uuid.Nil.String() {
 		httperr.BadRequest(err, "player not found", ctx)
 		return
