@@ -66,10 +66,14 @@ func (e ClientConnectedEvent) ToLogFields() logrus.Fields {
 }
 
 type ClientHeartbeatEvent struct {
+	ctx        context.Context
 	userID     uuid.UUID
 	playerID   uuid.UUID
 	remoteAddr net.Addr
-	ctx        context.Context
+}
+
+func NewClientHeartbeatEvent(ctx context.Context, user uuid.UUID, player uuid.UUID, addr net.Addr) ClientHeartbeatEvent {
+	return ClientHeartbeatEvent{ctx: ctx, userID: user, playerID: player, remoteAddr: addr}
 }
 
 func (e ClientHeartbeatEvent) Context() context.Context {

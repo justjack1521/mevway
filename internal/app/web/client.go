@@ -73,13 +73,15 @@ func (c *Client) Heartbeat() {
 		ticker.Stop()
 	}()
 
+	c.server.publisher.Notify(NewClientHeartbeatEvent(c.context, c.UserID, c.PlayerID, c.connection.RemoteAddr()))
+
 	for {
 		select {
 		case <-ticker.C:
 			if c.closed {
 				return
 			}
-			c.server.publisher.Notify(ClientHeartbeatEvent{userID: c.UserID, remoteAddr: c.connection.RemoteAddr()})
+			c.server.publisher.Notify(NewClientHeartbeatEvent(c.context, c.UserID, c.PlayerID, c.connection.RemoteAddr()))
 		}
 	}
 
