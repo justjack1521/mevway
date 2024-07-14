@@ -23,6 +23,7 @@ func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *Mul
 	router.routes[protomulti.MultiRequestType_READY_LOBBY] = router.ReadyLobbyRoute
 	//router.routes[protomulti.MultiRequestType_SEARCH_PLAYER] = router.SearchPlayerRoute
 	router.routes[protomulti.MultiRequestType_SEND_STAMP] = router.SendStampRoute
+	router.routes[protomulti.MultiRequestType_START_LOBBY] = router.StartLobbyRoute
 	return router
 }
 
@@ -89,6 +90,20 @@ func (r *MultiServiceClientRouter) SearchLobbyRoute(ctx *ClientContext, bytes []
 //
 //	return result, nil
 //}
+
+func (r *MultiServiceClientRouter) StartLobbyRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
+	request, err := protomulti.NewStartLobbyRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.StartLobby(ctx.context, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
 
 func (r *MultiServiceClientRouter) WatchLobbyRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
 	request, err := protomulti.NewWatchLobbyRequest(bytes)
