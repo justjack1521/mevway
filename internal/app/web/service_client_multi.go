@@ -18,12 +18,11 @@ func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *Mul
 	router.routes[protomulti.MultiRequestType_CANCEL_LOBBY] = router.CancelLobbyRoute
 	router.routes[protomulti.MultiRequestType_SEARCH_LOBBY] = router.SearchLobbyRoute
 	router.routes[protomulti.MultiRequestType_WATCH_LOBBY] = router.WatchLobbyRoute
-	//router.routes[protomulti.MultiRequestType_DISCARD_LOBBY] = router.DiscardLobbyRoute
 	router.routes[protomulti.MultiRequestType_JOIN_LOBBY] = router.JoinLobbyRoute
 	router.routes[protomulti.MultiRequestType_READY_LOBBY] = router.ReadyLobbyRoute
-	//router.routes[protomulti.MultiRequestType_SEARCH_PLAYER] = router.SearchPlayerRoute
 	router.routes[protomulti.MultiRequestType_SEND_STAMP] = router.SendStampRoute
 	router.routes[protomulti.MultiRequestType_START_LOBBY] = router.StartLobbyRoute
+	router.routes[protomulti.MultiRequestType_GET_GAME] = router.GetGameRoute
 	return router
 }
 
@@ -33,6 +32,20 @@ func (r *MultiServiceClientRouter) Route(ctx *ClientContext, operation int, byte
 		return nil, ErrFailedRoutingClientRequest(ErrMalformedRequest)
 	}
 	return route(ctx, bytes)
+}
+
+func (r *MultiServiceClientRouter) GetGameRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
+	request, err := protomulti.NewGetGameRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.GetGame(ctx.context, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (r *MultiServiceClientRouter) CreateSessionRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
