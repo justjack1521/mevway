@@ -23,6 +23,10 @@ func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *Mul
 	router.routes[protomulti.MultiRequestType_SEND_STAMP] = router.SendStampRoute
 	router.routes[protomulti.MultiRequestType_START_LOBBY] = router.StartLobbyRoute
 	router.routes[protomulti.MultiRequestType_GET_GAME] = router.GetGameRoute
+	router.routes[protomulti.MultiRequestType_GAME_READY_PLAYER] = router.GameReadyPlayerRoute
+	router.routes[protomulti.MultiRequestType_GAME_ENQUEUE_ACTION] = router.GameEnqueueActionRoute
+	router.routes[protomulti.MultiRequestType_GAME_DEQUEUE_ACTION] = router.GameDequeueActionRoute
+	router.routes[protomulti.MultiRequestType_GAME_LOCK_ACTIONS] = router.GameLockActionRoute
 	return router
 }
 
@@ -32,6 +36,62 @@ func (r *MultiServiceClientRouter) Route(ctx *ClientContext, operation int, byte
 		return nil, ErrFailedRoutingClientRequest(ErrMalformedRequest)
 	}
 	return route(ctx, bytes)
+}
+
+func (r *MultiServiceClientRouter) GameReadyPlayerRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
+	request, err := protomulti.NewGameReadyPlayerRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ReadyPlayer(ctx.context, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GameEnqueueActionRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
+	request, err := protomulti.NewGameEnqueueAbilityRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.EnqueueAction(ctx.context, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GameDequeueActionRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
+	request, err := protomulti.NewGameDequeueAbilityRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.DequeueAction(ctx.context, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GameLockActionRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
+	request, err := protomulti.NewGameLockActionRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.LockAction(ctx.context, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (r *MultiServiceClientRouter) GetGameRoute(ctx *ClientContext, bytes []byte) (ClientResponse, error) {
