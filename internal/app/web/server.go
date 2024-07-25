@@ -12,7 +12,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/wagslane/go-rabbitmq"
 	"google.golang.org/grpc/status"
+	"time"
 )
+
+const ServerClientReapCheckPeriod = time.Minute * 5
+const ServerClientReapPeriod = time.Minute * 15
 
 type ClientNotification struct {
 	ClientID     uuid.UUID
@@ -88,9 +92,26 @@ func (s *Server) Notify(event mevent.Event) {
 }
 
 func (s *Server) Run() {
+
 	s.publisher.Notify(ServerStartEvent{})
+
+	var ticker = time.NewTicker(ServerClientReapCheckPeriod)
+
+	defer func() {
+		ticker.Stop()
+	}()
+
 	for {
 		select {
+		case c := <-ticker.C:
+			{
+				for client := range s.Clients {
+					var sub = client.lastMessageSent.Sub(c)
+					if sub > ServerClientReapPeriod {
+						s.Unregister <- client
+					}
+				}
+			}
 		//Register
 		case client := <-s.Register:
 			s.publisher.Notify(NewClientConnectedEvent(client.context, client.UserID, client.PlayerID, client.connection.RemoteAddr()))

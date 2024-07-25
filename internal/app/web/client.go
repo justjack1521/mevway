@@ -35,6 +35,7 @@ type Client struct {
 	closed              bool
 	send                chan []byte
 	disconnectionSource string
+	lastMessageSent     time.Time
 }
 
 func NewClient(ctx context.Context, server *Server, connection *websocket.Conn) (client *Client) {
@@ -88,6 +89,7 @@ func (c *Client) Heartbeat() {
 }
 
 func (c *Client) Read() {
+
 	defer func() {
 		c.disconnectionSource = disconnectionSourceRead
 		c.server.Unregister <- c
@@ -126,6 +128,8 @@ func (c *Client) Read() {
 			txn.End()
 			break
 		}
+
+		c.lastMessageSent = time.Now().UTC()
 
 		txn.End()
 
