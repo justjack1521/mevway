@@ -28,7 +28,7 @@ type Client struct {
 	context             context.Context
 	UserID              uuid.UUID
 	PlayerID            uuid.UUID
-	ConnectionID        uuid.UUID
+	SessionID           uuid.UUID
 	connection          *websocket.Conn
 	server              *Server
 	heartbeatStarted    bool
@@ -40,11 +40,10 @@ type Client struct {
 
 func NewClient(ctx context.Context, server *Server, connection *websocket.Conn) (client *Client) {
 	client = &Client{
-		context:      ctx,
-		ConnectionID: uuid.NewV4(),
-		connection:   connection,
-		server:       server,
-		send:         make(chan []byte),
+		context:    ctx,
+		connection: connection,
+		server:     server,
+		send:       make(chan []byte),
 	}
 	client.connection.SetCloseHandler(func(code int, text string) error { client.closed = true; return nil })
 	return client

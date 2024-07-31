@@ -24,7 +24,7 @@ func (c *ClientContext) NewResponse(data []byte) *protocommon.Response {
 	return &protocommon.Response{
 		Header: &protocommon.ResponseHeader{
 			ClientId:     c.client.UserID.String(),
-			ConnectionId: c.client.ConnectionID.String(),
+			ConnectionId: c.client.SessionID.String(),
 			CommandId:    c.request.Header.CommandId,
 			Service:      c.request.Service,
 			Operation:    c.request.Operation,
@@ -37,7 +37,7 @@ func (c *ClientContext) NewError(code int32, slug string) *protocommon.Response 
 	return &protocommon.Response{
 		Header: &protocommon.ResponseHeader{
 			ClientId:     c.client.UserID.String(),
-			ConnectionId: c.client.ConnectionID.String(),
+			ConnectionId: c.client.SessionID.String(),
 			CommandId:    c.request.Header.CommandId,
 			Service:      c.request.Service,
 			Operation:    c.request.Operation,

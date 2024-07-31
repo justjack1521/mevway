@@ -104,12 +104,13 @@ type ClientDisconnectedEvent struct {
 	ctx        context.Context
 	userID     uuid.UUID
 	playerID   uuid.UUID
+	sessionID  uuid.UUID
 	remoteAddr net.Addr
 	source     string
 }
 
-func NewClientDisconnectedEvent(ctx context.Context, user, player uuid.UUID, addr net.Addr, source string) ClientDisconnectedEvent {
-	return ClientDisconnectedEvent{ctx: ctx, userID: user, playerID: player, remoteAddr: addr, source: source}
+func NewClientDisconnectedEvent(ctx context.Context, user, player, session uuid.UUID, addr net.Addr, source string) ClientDisconnectedEvent {
+	return ClientDisconnectedEvent{ctx: ctx, userID: user, playerID: player, sessionID: session, remoteAddr: addr, source: source}
 }
 
 func (e ClientDisconnectedEvent) Context() context.Context {
@@ -122,6 +123,10 @@ func (e ClientDisconnectedEvent) UserID() uuid.UUID {
 
 func (e ClientDisconnectedEvent) PlayerID() uuid.UUID {
 	return e.playerID
+}
+
+func (e ClientDisconnectedEvent) SessionID() uuid.UUID {
+	return e.sessionID
 }
 
 func (e ClientDisconnectedEvent) RemoteAddress() net.Addr {

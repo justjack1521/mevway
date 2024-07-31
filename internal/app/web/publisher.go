@@ -37,7 +37,9 @@ func (s *ServerUpdatePublisher) publishClientConnected(ctx context.Context, evt 
 }
 
 func (s *ServerUpdatePublisher) publishClientHeartbeat(ctx context.Context, evt ClientHeartbeatEvent) error {
-	var message = &protocommon.ClientHeartbeat{RemoteAddress: evt.RemoteAddress().String()}
+	var message = &protocommon.ClientHeartbeat{
+		RemoteAddress: evt.RemoteAddress().String(),
+	}
 	bytes, err := message.MarshallBinary()
 	if err != nil {
 		return err
@@ -49,7 +51,10 @@ func (s *ServerUpdatePublisher) publishClientHeartbeat(ctx context.Context, evt 
 }
 
 func (s *ServerUpdatePublisher) publishClientDisconnected(ctx context.Context, evt ClientDisconnectedEvent) error {
-	var message = &protocommon.ClientDisconnected{RemoteAddress: evt.RemoteAddress().String()}
+	var message = &protocommon.ClientDisconnected{
+		SessionId:     evt.SessionID().String(),
+		RemoteAddress: evt.RemoteAddress().String(),
+	}
 	bytes, err := message.MarshallBinary()
 	if err != nil {
 		return err
