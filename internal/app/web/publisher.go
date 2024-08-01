@@ -24,6 +24,21 @@ func NewServerUpdatePublisher(server *Server, connection *rabbitmq.Conn) (*Serve
 
 }
 
+func (s *ServerUpdatePublisher) Notify(evt mevent.Event) {
+	var err error
+	switch actual := evt.(type) {
+	case ClientConnectedEvent:
+		err = s.publishClientConnected(actual.Context(), actual)
+	case ClientDisconnectedEvent:
+		err = s.publishClientDisconnected(actual.Context(), actual)
+	case ClientHeartbeatEvent:
+		err = s.publishClientHeartbeat(actual.Context(), actual)
+	}
+	if err != nil {
+		s.logger.WithFields(evt.ToLogFields()).WithError(err).Error("Server Update Publisher Failed Processing client Event")
+	}
+}
+
 func (s *ServerUpdatePublisher) publishClientConnected(ctx context.Context, evt ClientConnectedEvent) error {
 	var message = &protocommon.ClientConnected{RemoteAddress: evt.RemoteAddress().String()}
 	bytes, err := message.MarshallBinary()
@@ -63,19 +78,4 @@ func (s *ServerUpdatePublisher) publishClientDisconnected(ctx context.Context, e
 		return err
 	}
 	return nil
-}
-
-func (s *ServerUpdatePublisher) Notify(evt mevent.Event) {
-	var err error
-	switch actual := evt.(type) {
-	case ClientConnectedEvent:
-		err = s.publishClientConnected(actual.Context(), actual)
-	case ClientDisconnectedEvent:
-		err = s.publishClientDisconnected(actual.Context(), actual)
-	case ClientHeartbeatEvent:
-		err = s.publishClientHeartbeat(actual.Context(), actual)
-	}
-	if err != nil {
-		s.logger.WithFields(evt.ToLogFields()).WithError(err).Error("Server Update Publisher Failed Processing client Event")
-	}
 }
