@@ -3,48 +3,37 @@ package web
 import (
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
 	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/justjack1521/mevium/pkg/rabbitmv"
-	"github.com/sirupsen/logrus"
+	"github.com/justjack1521/mevrabbit"
 	"github.com/wagslane/go-rabbitmq"
 )
 
 type ServerUpdateConsumer struct {
 	closed   bool
 	server   *Server
-	consumer *rabbitmv.StandardConsumer
+	consumer *mevrabbit.StandardConsumer
 }
 
-func NewServerUpdateConsumer(server *Server, connection *rabbitmq.Conn) (*ServerUpdateConsumer, error) {
+func NewServerUpdateConsumer(server *Server, conn *rabbitmq.Conn) (*ServerUpdateConsumer, error) {
 
 	service := &ServerUpdateConsumer{
 		server: server,
 	}
 
-	consumer := rabbitmv.NewStandardConsumer(
-		connection,
-		rabbitmv.ClientUpdate,
-		rabbitmv.ClientNotification,
-		rabbitmv.Client,
-		service.consume,
-	)
-
+	consumer, err := mevrabbit.NewStandardConsumer(conn, mevrabbit.ClientUpdate, mevrabbit.ClientNotification, mevrabbit.Client, service.consume)
+	if err != nil {
+		panic(err)
+	}
 	service.consumer = consumer
 
 	return service, nil
 
 }
 
-func (s *ServerUpdateConsumer) consume(ctx *rabbitmv.ConsumerContext) (action rabbitmq.Action, err error) {
+func (s *ServerUpdateConsumer) consume(ctx *mevrabbit.ConsumerContext) (action rabbitmq.Action, err error) {
 	notification, err := protocommon.NewNotification(ctx.Delivery.Body)
 	if err != nil {
 		return rabbitmq.NackDiscard, err
 	}
-	s.server.logger.WithFields(logrus.Fields{
-		"client.id":            ctx.UserID().String(),
-		"notification.service": notification.Service,
-		"notification.type":    notification.Type,
-		"notification.length":  len(notification.Data),
-	}).Info("client Notification Received")
 	s.server.NotifyClient <- &ClientNotification{ClientID: ctx.UserID(), Notification: notification}
 	return rabbitmq.Ack, nil
 }

@@ -8,7 +8,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
 	github.com/justjack1521/mevconn v0.0.0-20240724034951-1028ae2f3b3a
-	github.com/justjack1521/mevium v0.0.0-20240731075154-cfa20c48b08a
+	github.com/justjack1521/mevium v0.0.0-20240801055827-2bbe61862b50
 	github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4
 	github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83
 	github.com/newrelic/go-agent/v3 v3.33.1
