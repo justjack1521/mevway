@@ -1,6 +1,6 @@
 module mevway
 
-go 1.18
+go 1.22.3
 
 require (
 	github.com/gin-gonic/gin v1.9.0
@@ -10,14 +10,14 @@ require (
 	github.com/justjack1521/mevconn v0.0.0-20240724034951-1028ae2f3b3a
 	github.com/justjack1521/mevium v0.0.0-20240731075154-cfa20c48b08a
 	github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4
-	github.com/justjack1521/mevrpc v0.0.0-20240506141248-edf429b4403e
-	github.com/newrelic/go-agent/v3 v3.30.0
+	github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83
+	github.com/newrelic/go-agent/v3 v3.33.1
 	github.com/newrelic/go-agent/v3/integrations/nrgrpc v1.4.2
 	github.com/newrelic/go-agent/v3/integrations/nrpq v1.1.1
 	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/wagslane/go-rabbitmq v0.12.3
+	github.com/wagslane/go-rabbitmq v0.14.2
 	google.golang.org/grpc v1.62.1
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.10
@@ -40,6 +40,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/justjack1521/mevrabbit v0.0.0-20240802062551-0f44cbe9de64 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.1.0 // indirect
@@ -49,7 +50,7 @@ require (
 	github.com/newrelic/csec-go-agent v1.2.0 // indirect
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus v1.0.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
-	github.com/rabbitmq/amqp091-go v1.7.0 // indirect
+	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect

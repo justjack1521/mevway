@@ -4,38 +4,31 @@ import (
 	"context"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
 	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/justjack1521/mevium/pkg/rabbitmv"
-	"github.com/sirupsen/logrus"
+	"github.com/justjack1521/mevrabbit"
 	"github.com/wagslane/go-rabbitmq"
 )
 
 type ServerUpdatePublisher struct {
-	logger    *logrus.Logger
-	publisher *rabbitmv.StandardPublisher
+	publisher *mevrabbit.StandardPublisher
 }
 
 func NewServerUpdatePublisher(server *Server, connection *rabbitmq.Conn) (*ServerUpdatePublisher, error) {
 	service := &ServerUpdatePublisher{
-		logger: server.logger,
+		publisher: mevrabbit.NewClientPublisher(connection),
 	}
 	server.publisher.Subscribe(service, ClientConnectedEvent{}, ClientHeartbeatEvent{}, ClientDisconnectedEvent{})
-	service.publisher = rabbitmv.NewClientPublisher(connection)
 	return service, nil
 
 }
 
 func (s *ServerUpdatePublisher) Notify(evt mevent.Event) {
-	var err error
 	switch actual := evt.(type) {
 	case ClientConnectedEvent:
-		err = s.publishClientConnected(actual.Context(), actual)
+		_ = s.publishClientConnected(actual.Context(), actual)
 	case ClientDisconnectedEvent:
-		err = s.publishClientDisconnected(actual.Context(), actual)
+		_ = s.publishClientDisconnected(actual.Context(), actual)
 	case ClientHeartbeatEvent:
-		err = s.publishClientHeartbeat(actual.Context(), actual)
-	}
-	if err != nil {
-		s.logger.WithFields(evt.ToLogFields()).WithError(err).Error("Server Update Publisher Failed Processing client Event")
+		_ = s.publishClientHeartbeat(actual.Context(), actual)
 	}
 }
 
@@ -45,7 +38,7 @@ func (s *ServerUpdatePublisher) publishClientConnected(ctx context.Context, evt 
 	if err != nil {
 		return err
 	}
-	if err := s.publisher.PublishWithContext(ctx, bytes, evt.UserID(), evt.PlayerID(), rabbitmv.ClientConnected); err != nil {
+	if err := s.publisher.Publish(ctx, bytes, evt.UserID(), evt.PlayerID(), mevrabbit.ClientConnected); err != nil {
 		return err
 	}
 	return nil
@@ -59,7 +52,7 @@ func (s *ServerUpdatePublisher) publishClientHeartbeat(ctx context.Context, evt 
 	if err != nil {
 		return err
 	}
-	if err := s.publisher.PublishWithContext(ctx, bytes, evt.UserID(), evt.PlayerID(), rabbitmv.ClientHeartbeat); err != nil {
+	if err := s.publisher.Publish(ctx, bytes, evt.UserID(), evt.PlayerID(), mevrabbit.ClientHeartbeat); err != nil {
 		return err
 	}
 	return nil
@@ -74,7 +67,7 @@ func (s *ServerUpdatePublisher) publishClientDisconnected(ctx context.Context, e
 	if err != nil {
 		return err
 	}
-	if err := s.publisher.PublishWithContext(ctx, bytes, evt.UserID(), evt.PlayerID(), rabbitmv.ClientDisconnected); err != nil {
+	if err := s.publisher.Publish(ctx, bytes, evt.UserID(), evt.PlayerID(), mevrabbit.ClientDisconnected); err != nil {
 		return err
 	}
 	return nil
