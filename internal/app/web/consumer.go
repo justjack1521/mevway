@@ -14,19 +14,15 @@ type ServerUpdateConsumer struct {
 }
 
 func NewServerUpdateConsumer(server *Server, conn *rabbitmq.Conn) (*ServerUpdateConsumer, error) {
-
 	service := &ServerUpdateConsumer{
 		server: server,
 	}
-
 	consumer, err := mevrabbit.NewStandardConsumer(conn, mevrabbit.ClientUpdate, mevrabbit.ClientNotification, mevrabbit.Client, service.consume)
 	if err != nil {
 		panic(err)
 	}
 	service.consumer = consumer
-
 	return service, nil
-
 }
 
 func (s *ServerUpdateConsumer) consume(ctx *mevrabbit.ConsumerContext) (action rabbitmq.Action, err error) {

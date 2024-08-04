@@ -40,7 +40,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/justjack1521/mevrabbit v0.0.0-20240804045747-901dd207ed48 // indirect
+	github.com/justjack1521/mevrabbit v0.0.0-20240804051039-2cab5b6fcac6 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.1.0 // indirect
