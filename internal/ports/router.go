@@ -119,6 +119,9 @@ func (a *APIRouter) user(ctx *gin.Context) (uuid.UUID, error) {
 	if err != nil {
 		return uuid.Nil, err
 	}
+	if result == uuid.Nil {
+		return uuid.Nil, errors.New("context missing user id")
+	}
 	return result, nil
 }
 
@@ -143,6 +146,9 @@ func (a *APIRouter) player(ctx *gin.Context) (uuid.UUID, error) {
 	if err != nil {
 		return uuid.Nil, err
 	}
+	if result == uuid.Nil {
+		return uuid.Nil, errors.New("context missing player id")
+	}
 	return result, nil
 }
 
@@ -154,6 +160,9 @@ func (a *APIRouter) session(ctx *gin.Context) (uuid.UUID, error) {
 	result, err := uuid.FromString(value)
 	if err != nil {
 		return uuid.Nil, err
+	}
+	if result == uuid.Nil {
+		return uuid.Nil, errors.New("context missing session id")
 	}
 	return result, nil
 }
