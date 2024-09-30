@@ -21,24 +21,20 @@ var (
 )
 
 type Client struct {
-	gocloak      *gocloak.GoCloak
-	clientID     string
-	clientSecret string
-	realm        string
+	gocloak *gocloak.GoCloak
+	config  mevconn.KeyCloakConfig
 }
 
 func NewClient(config mevconn.KeyCloakConfig) *Client {
 	return &Client{
-		gocloak:      gocloak.NewClient(config.Hostname()),
-		clientID:     config.ClientID(),
-		clientSecret: config.ClientSecret(),
-		realm:        config.Realm(),
+		gocloak: gocloak.NewClient(config.Hostname()),
+		config:  config,
 	}
 }
 
 func (c *Client) Login(ctx context.Context, request auth.LoginRequest) (auth.LoginResponse, error) {
 
-	jwt, err := c.gocloak.Login(ctx, c.clientID, c.clientSecret, c.realm, request.Username, request.Password)
+	jwt, err := c.gocloak.Login(ctx, c.config.ClientID(), c.config.ClientSecret(), c.config.Realm(), request.Username, request.Password)
 	if err != nil {
 		return auth.LoginResponse{}, err
 	}
@@ -59,7 +55,9 @@ var (
 
 func (c *Client) Register(ctx context.Context, username string, password string) (uuid.UUID, error) {
 
-	jwt, err := c.gocloak.LoginAdmin(ctx, "admin", "admin", "master")
+	admin, creds := c.config.AdminCredentials()
+
+	jwt, err := c.gocloak.LoginAdmin(ctx, admin, creds, "master")
 	if err != nil {
 		return uuid.Nil, errFailedToRegisterUser(err)
 	}
@@ -75,7 +73,7 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 		"default-roles-mevius",
 	}
 
-	id, err := c.gocloak.CreateUser(ctx, jwt.AccessToken, c.realm, gocloak.User{
+	id, err := c.gocloak.CreateUser(ctx, jwt.AccessToken, c.config.Realm(), gocloak.User{
 		Username:    gocloak.StringP(username),
 		Enabled:     gocloak.BoolP(true),
 		Credentials: &credentials,
@@ -91,7 +89,7 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 
 func (c *Client) ExtractToken(ctx context.Context, token string) (auth.TokenClaims, error) {
 
-	_, claims, err := c.gocloak.DecodeAccessToken(ctx, token, c.realm)
+	_, claims, err := c.gocloak.DecodeAccessToken(ctx, token, c.config.ClientID())
 
 	if err != nil {
 		return auth.TokenClaims{}, errTokenExtractionFailed(err)
@@ -116,7 +114,7 @@ func (c *Client) ExtractToken(ctx context.Context, token string) (auth.TokenClai
 
 func (c *Client) AuthoriseToken(ctx context.Context, token string) error {
 
-	result, err := c.gocloak.RetrospectToken(ctx, token, c.clientID, c.clientSecret, c.realm)
+	result, err := c.gocloak.RetrospectToken(ctx, token, c.config.ClientID(), c.config.ClientSecret(), c.config.Realm())
 	if err != nil {
 		return errTokenAuthoriseFailed(err)
 	}

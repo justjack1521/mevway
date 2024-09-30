@@ -62,6 +62,8 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/justjack1521/mevconn v0.0.0-20240930070050-a53b1d2aab5f h1:N5jHJoxk6R4g0OLOLWLe7EkdqxT4VLO0Imh9ak6U8ZQ=
 github.com/justjack1521/mevconn v0.0.0-20240930070050-a53b1d2aab5f/go.mod h1:G4gKWe7Q6DwT8YeBcwtowwIAjjQXBXiHe4IoHYiOYQY=
+github.com/justjack1521/mevconn v0.0.0-20240930091432-610652e91304 h1:YOks4w3PvN1Hz5TK8Y41wKYPc0YnJGRcl7iHP2sciNA=
+github.com/justjack1521/mevconn v0.0.0-20240930091432-610652e91304/go.mod h1:G4gKWe7Q6DwT8YeBcwtowwIAjjQXBXiHe4IoHYiOYQY=
 github.com/justjack1521/mevium v0.0.0-20240827035831-9fab37d4e99d h1:GK+EguAI1ewr8bIe5r1cIdCYG/OqFVz9mhG5kS8Hxvk=
 github.com/justjack1521/mevium v0.0.0-20240827035831-9fab37d4e99d/go.mod h1:YjKt+hYlCNh3vDPhS9cL1QvAoDwMTJiUcYMDtErtjY0=
 github.com/justjack1521/mevrabbit v0.0.0-20240804051039-2cab5b6fcac6 h1:D/IE9LK3M66r83P1qtIbEsNGTw9xbD7KGBmTsuymlmk=

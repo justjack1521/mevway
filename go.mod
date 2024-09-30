@@ -8,7 +8,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
-	github.com/justjack1521/mevconn v0.0.0-20240930070050-a53b1d2aab5f
+	github.com/justjack1521/mevconn v0.0.0-20240930091432-610652e91304
 	github.com/justjack1521/mevium v0.0.0-20240827035831-9fab37d4e99d
 	github.com/justjack1521/mevrabbit v0.0.0-20240804051039-2cab5b6fcac6
 	github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4
