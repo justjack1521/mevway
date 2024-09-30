@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/justjack1521/mevium/pkg/genproto/protoaccess"
-	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/decorator"
+	"mevway/internal/domain/auth"
 )
 
 const (
@@ -21,13 +21,18 @@ type TokenAuthorise struct {
 	DeviceID  string
 }
 
+type TokenAuthorisationClient interface {
+	AuthoriseToken(ctx context.Context, token string) error
+	ExtractToken(ctx context.Context, token string) (auth.TokenClaims, error)
+}
+
 type TokenAuthoriseHandler decorator.APIRouterHandler[TokenAuthorise]
 
 type tokenAuthoriseHandler struct {
-	client services.AccessServiceClient
+	client TokenAuthorisationClient
 }
 
-func NewTokenHandler(clt services.AccessServiceClient) TokenAuthoriseHandler {
+func NewTokenHandler(clt TokenAuthorisationClient) TokenAuthoriseHandler {
 	return tokenAuthoriseHandler{
 		client: clt,
 	}
@@ -35,19 +40,19 @@ func NewTokenHandler(clt services.AccessServiceClient) TokenAuthoriseHandler {
 
 func (h tokenAuthoriseHandler) Handle(ctx *gin.Context, query TokenAuthorise) {
 
-	response, err := h.client.AuthenticateToken(ctx, &protoaccess.AuthenticateTokenRequest{
-		SessionId: query.SessionID.String(),
-		Bearer:    query.Bearer,
-		DeviceId:  query.DeviceID,
-	})
+	if err := h.client.AuthoriseToken(ctx, query.Bearer); err != nil {
+		httperr.UnauthorisedError(err, err.Error(), ctx)
+		return
+	}
 
+	claims, err := h.client.ExtractToken(ctx, query.Bearer)
 	if err != nil {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
 		return
 	}
 
-	ctx.Set(UserIDContextKey, response.UserId)
-	ctx.Set(PlayerIDContextKey, response.PlayerId)
-	ctx.Set(UserEnvironmentKey, response.Environment)
+	ctx.Set(UserIDContextKey, claims.UserID)
+	ctx.Set(PlayerIDContextKey, claims.PlayerID)
+	ctx.Set(UserEnvironmentKey, claims.Environment)
 
 }

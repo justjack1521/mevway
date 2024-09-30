@@ -93,7 +93,7 @@ func NewApplication(ctx context.Context) app.Application {
 		Logger:             logger,
 		NewRelic:           relic,
 		ServerStatusHandle: handler.NewServerStatusHandler(),
-		TokenAuthHandle:    handler.NewTokenHandler(access),
+		TokenAuthHandle:    handler.NewTokenHandler(cloak),
 		UserRoleHandler:    handler.NewUserRoleHandler(access),
 	}
 
@@ -109,7 +109,7 @@ func NewApplication(ctx context.Context) app.Application {
 	public := &ports.PublicAPIRouter{
 		BaseAPIRouter:       core,
 		LoginUserHandle:     handler.NewLoginHandler(cloak),
-		RegisterUserHandle:  handler.NewRegisterUserHandler(access),
+		RegisterUserHandle:  handler.NewRegisterUserHandler(cloak),
 		RememberUserHandler: handler.NewRememberUserHandler(access),
 		WebsocketHandle:     handler.NewWebSocketHandler(svr),
 		PlayerSearchHandle:  handler.NewPlayerSearchHandler(social, players),
