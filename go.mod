@@ -3,12 +3,14 @@ module mevway
 go 1.22.3
 
 require (
+	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
 	github.com/justjack1521/mevconn v0.0.0-20240930070050-a53b1d2aab5f
 	github.com/justjack1521/mevium v0.0.0-20240827035831-9fab37d4e99d
+	github.com/justjack1521/mevrabbit v0.0.0-20240804051039-2cab5b6fcac6
 	github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4
 	github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83
 	github.com/newrelic/go-agent/v3 v3.33.1
@@ -24,17 +26,17 @@ require (
 )
 
 require (
-	github.com/Nerzal/gocloak v1.0.0 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
+	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.5 // indirect
@@ -42,7 +44,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/justjack1521/mevrabbit v0.0.0-20240804051039-2cab5b6fcac6 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.1.0 // indirect
@@ -51,8 +52,11 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/newrelic/csec-go-agent v1.2.0 // indirect
 	github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus v1.0.0 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
+	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
@@ -63,6 +67,5 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
-	gopkg.in/resty.v1 v1.10.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
