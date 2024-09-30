@@ -11,6 +11,7 @@ import (
 	"mevway/internal/adapter/cache"
 	"mevway/internal/adapter/database"
 	"mevway/internal/adapter/external"
+	"mevway/internal/adapter/keycloak"
 	"mevway/internal/adapter/memory"
 	"mevway/internal/app"
 	"mevway/internal/app/handler"
@@ -47,6 +48,12 @@ func NewApplication(ctx context.Context) app.Application {
 		panic(err)
 	}
 	mq, err := rabbitmq.NewConn(mqc.Source(), rabbitmq.WithConnectionOptionsLogging)
+
+	clk, err := mevconn.NewKeyCloakConfig()
+	if err != nil {
+		panic(err)
+	}
+	cloak := keycloak.NewClient(clk)
 
 	access, err := DialToAccessClient()
 	if err != nil {
@@ -101,7 +108,7 @@ func NewApplication(ctx context.Context) app.Application {
 
 	public := &ports.PublicAPIRouter{
 		BaseAPIRouter:       core,
-		LoginUserHandle:     handler.NewLoginHandler(access),
+		LoginUserHandle:     handler.NewLoginHandler(cloak),
 		RegisterUserHandle:  handler.NewRegisterUserHandler(access),
 		RememberUserHandler: handler.NewRememberUserHandler(access),
 		WebsocketHandle:     handler.NewWebSocketHandler(svr),
