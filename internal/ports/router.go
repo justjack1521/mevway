@@ -35,15 +35,8 @@ func (a *APIRouter) HandleServerStatus(ctx *gin.Context) {
 }
 
 func (a *APIRouter) HandleTokenAuthorise(ctx *gin.Context) {
-	session, err := a.session(ctx)
-	if err != nil {
-		httperr.BadRequest(err, err.Error(), ctx)
-		return
-	}
 	a.TokenAuthHandle.Handle(ctx, handler.TokenAuthorise{
-		SessionID: session,
-		Bearer:    ctx.GetHeader("Authorization"),
-		DeviceID:  a.device(ctx),
+		Bearer: ctx.GetHeader("Authorization"),
 	})
 }
 
