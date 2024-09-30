@@ -121,7 +121,7 @@ func (c *Client) ExtractToken(ctx context.Context, token string) (auth.TokenClai
 	return auth.TokenClaims{
 		UserID:      usr,
 		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
-		Environment: "",
+		Environment: "development",
 	}, nil
 
 }

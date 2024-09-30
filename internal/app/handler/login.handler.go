@@ -46,7 +46,7 @@ func (h loginUserHandler) Handle(ctx *gin.Context, query LoginUser) {
 
 	ctx.JSON(200, resources.UserLoginResponse{
 		//SessionID:     login.SessionId,
-		CustomerID:   login.IDToken,
+		IDToken:      login.IDToken,
 		AccessToken:  login.AccessToken,
 		RefreshToken: login.RefreshToken,
 		//RememberToken: login.RememberToken,

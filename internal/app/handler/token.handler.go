@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	uuid "github.com/satori/go.uuid"
@@ -50,6 +51,8 @@ func (h tokenAuthoriseHandler) Handle(ctx *gin.Context, query TokenAuthorise) {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
 		return
 	}
+
+	fmt.Println(claims.UserID, claims.PlayerID, claims.Environment)
 
 	ctx.Set(UserIDContextKey, claims.UserID)
 	ctx.Set(PlayerIDContextKey, claims.PlayerID)

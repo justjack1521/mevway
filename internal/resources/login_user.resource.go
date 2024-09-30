@@ -8,7 +8,7 @@ type UserLoginRequest struct {
 
 type UserLoginResponse struct {
 	SessionID     string `json:"SessionID" form:"SessionID" binding:"required"`
-	CustomerID    string `json:"CustomerID" form:"CustomerID" binding:"required"`
+	IDToken       string `json:"IDToken" form:"CustomerID" binding:"required"`
 	AccessToken   string `json:"AccessToken" form:"AccessToken" binding:"required"`
 	RefreshToken  string `json:"RefreshToken" form:"RefreshToken" binding:"required"`
 	RememberToken string `json:"RememberToken" form:"RememberToken"`
