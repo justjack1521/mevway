@@ -6,6 +6,7 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
+	IDToken      string
 	AccessToken  string
 	RefreshToken string
 	ExpiresIn    int

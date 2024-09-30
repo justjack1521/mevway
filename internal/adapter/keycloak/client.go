@@ -40,6 +40,7 @@ func (c *Client) Login(ctx context.Context, request auth.LoginRequest) (auth.Log
 	}
 
 	return auth.LoginResponse{
+		IDToken:      jwt.IDToken,
 		AccessToken:  jwt.AccessToken,
 		RefreshToken: jwt.RefreshToken,
 		ExpiresIn:    jwt.ExpiresIn,
