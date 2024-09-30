@@ -51,24 +51,29 @@ func (c *Client) Login(ctx context.Context, request auth.LoginRequest) (auth.Log
 
 }
 
+var (
+	errFailedToRegisterUser = func(err error) error {
+		return fmt.Errorf("failed to register user: %w", err)
+	}
+)
+
 func (c *Client) Register(ctx context.Context, username string, password string) (uuid.UUID, error) {
 
 	jwt, err := c.gocloak.LoginClient(ctx, c.clientID, c.clientSecret, c.realm)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, errFailedToRegisterUser(err)
 	}
 
 	id, err := c.gocloak.CreateUser(ctx, jwt.AccessToken, c.realm, gocloak.User{
 		Username: gocloak.StringP(username),
 		Enabled:  gocloak.BoolP(true),
 	})
-
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, errFailedToRegisterUser(err)
 	}
 
 	if err := c.gocloak.SetPassword(ctx, jwt.AccessToken, id, c.realm, password, false); err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, errFailedToRegisterUser(err)
 	}
 
 	return uuid.FromStringOrNil(id), nil
