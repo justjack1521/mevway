@@ -59,7 +59,7 @@ var (
 
 func (c *Client) Register(ctx context.Context, username string, password string) (uuid.UUID, error) {
 
-	jwt, err := c.gocloak.LoginClient(ctx, c.clientID, c.clientSecret, c.realm)
+	jwt, err := c.gocloak.LoginAdmin(ctx, "admin", "admin", c.realm)
 	if err != nil {
 		return uuid.Nil, errFailedToRegisterUser(err)
 	}
