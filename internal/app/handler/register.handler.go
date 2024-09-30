@@ -6,6 +6,7 @@ import (
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/decorator"
+	"mevway/internal/domain/user"
 	"mevway/internal/resources"
 )
 
@@ -22,7 +23,7 @@ type registerUserHandler struct {
 }
 
 type RegistrationClient interface {
-	Register(ctx context.Context, username string, password string) (uuid.UUID, error)
+	Register(ctx context.Context, user user.User) (uuid.UUID, error)
 }
 
 func NewRegisterUserHandler(clt RegistrationClient) RegisterUserHandler {
@@ -33,7 +34,7 @@ func NewRegisterUserHandler(clt RegistrationClient) RegisterUserHandler {
 
 func (h registerUserHandler) Handle(ctx *gin.Context, query RegisterUser) {
 
-	response, err := h.client.Register(ctx, query.Username, query.Password)
+	response, err := h.client.Register(ctx, user.NewUser(query.Username, query.Password))
 
 	if err != nil {
 		httperr.BadRequest(err, err.Error(), ctx)

@@ -9,6 +9,7 @@ import (
 	"github.com/justjack1521/mevconn"
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/domain/auth"
+	"mevway/internal/domain/user"
 )
 
 var (
@@ -55,7 +56,7 @@ var (
 	}
 )
 
-func (c *Client) Register(ctx context.Context, username string, password string) (uuid.UUID, error) {
+func (c *Client) Register(ctx context.Context, target user.User) (uuid.UUID, error) {
 
 	token, err := c.LoginAdmin(ctx)
 	if err != nil {
@@ -65,7 +66,7 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 	var credentials = []gocloak.CredentialRepresentation{
 		{
 			Type:  gocloak.StringP("password"),
-			Value: gocloak.StringP(password),
+			Value: gocloak.StringP(target.Password),
 		},
 	}
 
@@ -74,11 +75,13 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 	}
 
 	var attributes = map[string][]string{
-		"profile": {uuid.NewV4().String()},
+		"profile":  {target.PlayerID.String()},
+		"customer": {target.CustomerID},
 	}
 
 	id, err := c.gocloak.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
-		Username:    gocloak.StringP(username),
+		ID:          gocloak.StringP(target.UserID.String()),
+		Username:    gocloak.StringP(target.Username),
 		Enabled:     gocloak.BoolP(true),
 		Credentials: &credentials,
 		RealmRoles:  &roles,
