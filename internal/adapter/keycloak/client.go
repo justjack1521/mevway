@@ -64,17 +64,25 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 		return uuid.Nil, errFailedToRegisterUser(err)
 	}
 
+	var creds = []gocloak.CredentialRepresentation{
+		gocloak.CredentialRepresentation{
+			Type:  gocloak.StringP("password"),
+			Value: gocloak.StringP(password),
+		},
+	}
+
 	id, err := c.gocloak.CreateUser(ctx, jwt.AccessToken, c.realm, gocloak.User{
-		Username: gocloak.StringP(username),
-		Enabled:  gocloak.BoolP(true),
+		Username:    gocloak.StringP(username),
+		Enabled:     gocloak.BoolP(true),
+		Credentials: &creds,
 	})
 	if err != nil {
 		return uuid.Nil, errFailedToRegisterUser(err)
 	}
 
-	if err := c.gocloak.SetPassword(ctx, jwt.AccessToken, id, c.realm, password, false); err != nil {
-		return uuid.Nil, errFailedToRegisterUser(err)
-	}
+	//if err := c.gocloak.SetPassword(ctx, jwt.AccessToken, id, c.realm, password, false); err != nil {
+	//	return uuid.Nil, errFailedToRegisterUser(err)
+	//}
 
 	return uuid.FromStringOrNil(id), nil
 
