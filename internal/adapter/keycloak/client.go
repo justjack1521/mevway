@@ -55,9 +55,7 @@ var (
 
 func (c *Client) Register(ctx context.Context, username string, password string) (uuid.UUID, error) {
 
-	admin, creds := c.config.AdminCredentials()
-
-	jwt, err := c.gocloak.LoginAdmin(ctx, admin, creds, "master")
+	token, err := c.LoginAdmin(ctx)
 	if err != nil {
 		return uuid.Nil, errFailedToRegisterUser(err)
 	}
@@ -73,12 +71,18 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 		"default-roles-mevius",
 	}
 
-	id, err := c.gocloak.CreateUser(ctx, jwt.AccessToken, c.config.Realm(), gocloak.User{
+	var attributes = map[string][]string{
+		"player-id": {uuid.NewV4().String()},
+	}
+
+	id, err := c.gocloak.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
 		Username:    gocloak.StringP(username),
 		Enabled:     gocloak.BoolP(true),
 		Credentials: &credentials,
 		RealmRoles:  &roles,
+		Attributes:  &attributes,
 	})
+
 	if err != nil {
 		return uuid.Nil, errFailedToRegisterUser(err)
 	}
@@ -124,5 +128,24 @@ func (c *Client) AuthoriseToken(ctx context.Context, token string) error {
 	}
 
 	return nil
+
+}
+
+var (
+	errFailedAdminLogin = func(err error) error {
+		return fmt.Errorf("failed to log in as admin: %w", err)
+	}
+)
+
+func (c *Client) LoginAdmin(ctx context.Context) (string, error) {
+
+	username, password := c.config.AdminCredentials()
+
+	jwt, err := c.gocloak.LoginAdmin(ctx, username, password, "master")
+	if err != nil {
+		return "", errFailedAdminLogin(err)
+	}
+
+	return jwt.AccessToken, nil
 
 }
