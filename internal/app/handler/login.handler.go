@@ -1,11 +1,11 @@
 package handler
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	"mevway/internal/decorator"
 	"mevway/internal/domain/auth"
-	"mevway/internal/ports"
 	"mevway/internal/resources"
 )
 
@@ -16,13 +16,17 @@ type LoginUser struct {
 	RememberMe bool
 }
 
+type LoginClient interface {
+	Login(ctx context.Context, request auth.LoginRequest) (auth.LoginResponse, error)
+}
+
 type LoginUserHandler decorator.APIRouterHandler[LoginUser]
 
 type loginUserHandler struct {
-	client ports.AuthenticationClient
+	client LoginClient
 }
 
-func NewLoginHandler(clt ports.AuthenticationClient) LoginUserHandler {
+func NewLoginHandler(clt LoginClient) LoginUserHandler {
 	return loginUserHandler{
 		client: clt,
 	}
