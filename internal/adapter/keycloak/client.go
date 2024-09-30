@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Nerzal/gocloak/v13"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/justjack1521/mevconn"
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/domain/auth"
@@ -34,16 +35,16 @@ func NewClient(config mevconn.KeyCloakConfig) *Client {
 
 func (c *Client) Login(ctx context.Context, request auth.LoginRequest) (auth.LoginResponse, error) {
 
-	jwt, err := c.gocloak.Login(ctx, c.config.ClientID(), c.config.ClientSecret(), c.config.Realm(), request.Username, request.Password)
+	tkn, err := c.gocloak.Login(ctx, c.config.ClientID(), c.config.ClientSecret(), c.config.Realm(), request.Username, request.Password)
 	if err != nil {
 		return auth.LoginResponse{}, err
 	}
 
 	return auth.LoginResponse{
-		IDToken:      jwt.IDToken,
-		AccessToken:  jwt.AccessToken,
-		RefreshToken: jwt.RefreshToken,
-		ExpiresIn:    jwt.ExpiresIn,
+		IDToken:      tkn.IDToken,
+		AccessToken:  tkn.AccessToken,
+		RefreshToken: tkn.RefreshToken,
+		ExpiresIn:    tkn.ExpiresIn,
 	}, nil
 
 }
@@ -73,7 +74,7 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 	}
 
 	var attributes = map[string][]string{
-		"player-id": {uuid.NewV4().String()},
+		"profile": {uuid.NewV4().String()},
 	}
 
 	id, err := c.gocloak.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
@@ -94,7 +95,9 @@ func (c *Client) Register(ctx context.Context, username string, password string)
 
 func (c *Client) ExtractToken(ctx context.Context, token string) (auth.TokenClaims, error) {
 
-	_, claims, err := c.gocloak.DecodeAccessToken(ctx, token, c.config.ClientID())
+	claims := jwt.MapClaims{}
+
+	_, err := c.gocloak.DecodeAccessTokenCustomClaims(ctx, token, c.config.Realm(), claims)
 
 	if err != nil {
 		return auth.TokenClaims{}, errTokenExtractionFailed(err)
@@ -104,14 +107,17 @@ func (c *Client) ExtractToken(ctx context.Context, token string) (auth.TokenClai
 	if err != nil {
 		return auth.TokenClaims{}, errTokenExtractionFailed(err)
 	}
+
 	usr, err := uuid.FromString(sub)
 	if err != nil {
 		return auth.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
+	profile, _ := claims["profile"]
+
 	return auth.TokenClaims{
 		UserID:      usr,
-		PlayerID:    uuid.UUID{},
+		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
 		Environment: "",
 	}, nil
 
