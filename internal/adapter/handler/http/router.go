@@ -29,7 +29,7 @@ func NewRouter(
 	{
 		socketGroup.Use(authHandler.TokenAuthorise)
 		socketGroup.GET("/join", socketHandler.Join)
-		socketGroup.GET("/list", socketHandler.List)
+		socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)
 	}
 
 	var authGroup = publicGroup.Group("/auth")
