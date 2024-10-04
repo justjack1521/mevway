@@ -25,7 +25,11 @@ func NewRouter(
 
 	var publicGroup = router.Group("/public")
 
-	publicGroup.GET("/ws", socketHandler.Join)
+	var socketGroup = publicGroup.Group("/socket")
+	{
+		socketGroup.GET("/join", socketHandler.Join)
+		socketGroup.GET("/list", socketHandler.List)
+	}
 
 	var authGroup = publicGroup.Group("/auth")
 	{
@@ -39,7 +43,7 @@ func NewRouter(
 		var patch = systemGroup.Group("/patch")
 		{
 			patch.Use(authHandler.TokenAuthorise)
-			patch.GET("/recent", middleware.AdminRoleMiddleware(), patchHandler.Recent)
+			patch.GET("/recent", patchHandler.Recent)
 			patch.GET("/list", patchHandler.List)
 		}
 	}

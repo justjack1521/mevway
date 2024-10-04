@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"mevway/internal/adapter/handler/http/middleware"
+	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/application"
 	"mevway/internal/core/port"
 	"mevway/internal/domain/socket"
@@ -24,12 +25,25 @@ var upgrader = websocket.Upgrader{
 }
 
 type SocketHandler struct {
-	svc     port.SocketServer
-	factory application.SocketClientFactory
+	svc        port.SocketServer
+	repository port.ClientRepository
+	factory    application.SocketClientFactory
 }
 
-func NewSocketHandler(factory application.SocketClientFactory) *SocketHandler {
-	return &SocketHandler{factory: factory}
+func NewSocketHandler(svc port.SocketServer, clients port.ClientRepository, factory application.SocketClientFactory) *SocketHandler {
+	return &SocketHandler{svc: svc, repository: clients, factory: factory}
+}
+
+func (h *SocketHandler) List(ctx *gin.Context) {
+
+	clients, err := h.repository.List(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, resources.NewSocketClientListResponse(clients))
+
 }
 
 func (h *SocketHandler) Join(ctx *gin.Context) {

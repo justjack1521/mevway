@@ -12,6 +12,12 @@ type Client interface {
 	Close()
 }
 
+type ClientRepository interface {
+	Add(ctx context.Context, client socket.Client) error
+	Remove(ctx context.Context, client socket.Client) error
+	List(ctx context.Context) ([]socket.Client, error)
+}
+
 type SocketServer interface {
 	Register(client socket.Client, notifier Client)
 	Unregister(client socket.Client)

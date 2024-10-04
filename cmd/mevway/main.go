@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
@@ -14,6 +15,7 @@ import (
 	"mevway/internal/adapter/handler/rpc"
 	"mevway/internal/adapter/handler/web"
 	"mevway/internal/adapter/keycloak"
+	"mevway/internal/adapter/memory"
 	"mevway/internal/adapter/translate"
 	"mevway/internal/core/application"
 	"mevway/internal/infrastructure/instrumentation/relic"
@@ -27,6 +29,11 @@ func main() {
 	var publisher = mevent.NewPublisher(mevent.PublisherWithLogger(logger))
 
 	db, err := database.NewPostgresConnection()
+	if err != nil {
+		panic(err)
+	}
+
+	rds, err := memory.NewRedisConnection(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -70,6 +77,7 @@ func main() {
 	var userRepository = keycloak.NewUserClient(keyCloakClient, cloak)
 	var tokenRepository = keycloak.NewTokenClient(keyCloakClient, cloak)
 	var patchRepository = database.NewPatchRepository(db)
+	var clientRepository = memory.NewClientRepository(rds)
 
 	var serviceRouter = application.NewServiceRouter()
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
@@ -93,7 +101,7 @@ func main() {
 	var statusHandler = http.NewStatusHandler(statusService)
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
 	var patchHandler = http.NewPatchHandler(patchService)
-	var socketHandler = http.NewSocketHandler(socketFactory)
+	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 
 	var listeners = []io.Closer{
 		broker.NewClientNotificationConsumer(msq, server, messageTranslator),
