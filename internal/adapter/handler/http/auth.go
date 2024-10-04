@@ -18,6 +18,7 @@ const (
 	UserIDContextKey   string = "UserIDContextKey"
 	PlayerIDContextKey string = "PlayerIDContextKey"
 	UserEnvironmentKey string = "UserEnvironmentKey"
+	UserRoleContextKey string = "UserRoleContextKey"
 )
 
 type AuthenticationHandler struct {
@@ -102,5 +103,6 @@ func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 	ctx.Set(UserIDContextKey, claims.UserID)
 	ctx.Set(PlayerIDContextKey, claims.PlayerID)
 	ctx.Set(UserEnvironmentKey, claims.Environment)
+	ctx.Set(UserRoleContextKey, claims.Roles)
 
 }

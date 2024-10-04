@@ -69,7 +69,6 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 				if !ok {
 					continue
 				}
-				fmt.Println(str)
 				roles = append(roles, auth.Role{Name: str})
 			}
 		}

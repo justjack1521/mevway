@@ -31,7 +31,7 @@ func NewSocketHandler(factory application.SocketClientFactory) *SocketHandler {
 	return &SocketHandler{factory: factory}
 }
 
-func (h *SocketHandler) Handle(ctx *gin.Context) {
+func (h *SocketHandler) Join(ctx *gin.Context) {
 
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
