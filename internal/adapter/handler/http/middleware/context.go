@@ -33,7 +33,7 @@ func UserIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 	if result == uuid.Nil {
-		return uuid.Nil, errors.New("context missing user id")
+		return uuid.Nil, errors.New("context user id malformed")
 	}
 	return result, nil
 }
@@ -48,7 +48,7 @@ func PlayerIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 	if result == uuid.Nil {
-		return uuid.Nil, errors.New("context missing player id")
+		return uuid.Nil, errors.New("context player id malformed")
 	}
 	return result, nil
 }
@@ -63,7 +63,7 @@ func SessionIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 	if result == uuid.Nil {
-		return uuid.Nil, errors.New("context missing session id")
+		return uuid.Nil, errors.New("context session id malformed")
 	}
 	return result, nil
 }
