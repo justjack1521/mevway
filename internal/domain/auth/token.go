@@ -10,4 +10,9 @@ type TokenClaims struct {
 	UserID      uuid.UUID
 	PlayerID    uuid.UUID
 	Environment string
+	Roles       []Role
+}
+
+type Role struct {
+	Name string
 }

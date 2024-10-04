@@ -58,10 +58,28 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 
 	profile, _ := claims["profile"]
 
+	var roles = make([]auth.Role, 0)
+
+	scope := claims["roles"]
+	if scope != nil {
+		slc, ok := scope.([]any)
+		if ok {
+			for _, s := range slc {
+				str, ok := s.(string)
+				if !ok {
+					continue
+				}
+				fmt.Println(str)
+				roles = append(roles, auth.Role{Name: str})
+			}
+		}
+	}
+
 	return auth.TokenClaims{
 		UserID:      usr,
 		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
 		Environment: "development",
+		Roles:       roles,
 	}, nil
 
 }
