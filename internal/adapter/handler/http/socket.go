@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/core/application"
 	"mevway/internal/core/port"
 	"mevway/internal/domain/socket"
@@ -35,26 +36,34 @@ func (h *SocketHandler) Join(ctx *gin.Context) {
 
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	session, err := SessionIDFromContext(ctx)
+	session, err := middleware.SessionIDFromContext(ctx)
 	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	user, err := UserIDFromContext(ctx)
+	user, err := middleware.UserIDFromContext(ctx)
 	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	player, err := PlayerIDFromContext(ctx)
+	player, err := middleware.PlayerIDFromContext(ctx)
 	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	var c = socket.NewClient(session, user, player)
 	client, err := h.factory.Create(ctx, c, conn)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
 	h.svc.Register(c, client)
 

@@ -58,7 +58,7 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 
 	profile, _ := claims["profile"]
 
-	var roles = make([]auth.Role, 0)
+	var roles = make([]string, 0)
 
 	scope := claims["roles"]
 	if scope != nil {
@@ -69,7 +69,7 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 				if !ok {
 					continue
 				}
-				roles = append(roles, auth.Role{Name: str})
+				roles = append(roles, str)
 			}
 		}
 	}

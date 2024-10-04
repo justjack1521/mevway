@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/port"
 	"mevway/internal/domain/user"
@@ -12,13 +13,6 @@ import (
 const (
 	authorizationHeaderKey = "authorization"
 	authorizationType      = "bearer"
-)
-
-const (
-	UserIDContextKey   string = "UserIDContextKey"
-	PlayerIDContextKey string = "PlayerIDContextKey"
-	UserEnvironmentKey string = "UserEnvironmentKey"
-	UserRoleContextKey string = "UserRoleContextKey"
 )
 
 type AuthenticationHandler struct {
@@ -100,9 +94,9 @@ func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusUnauthorized, err)
 	}
 
-	ctx.Set(UserIDContextKey, claims.UserID)
-	ctx.Set(PlayerIDContextKey, claims.PlayerID)
-	ctx.Set(UserEnvironmentKey, claims.Environment)
-	ctx.Set(UserRoleContextKey, claims.Roles)
+	ctx.Set(middleware.UserIDContextKey, claims.UserID)
+	ctx.Set(middleware.PlayerIDContextKey, claims.PlayerID)
+	ctx.Set(middleware.UserEnvironmentKey, claims.Environment)
+	ctx.Set(middleware.UserRoleContextKey, claims.Roles)
 
 }
