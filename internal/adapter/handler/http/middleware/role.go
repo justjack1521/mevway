@@ -22,7 +22,7 @@ func RoleFromContext(ctx *gin.Context, role string) error {
 func AdminRoleMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := RoleFromContext(c, adminRoleName); err != nil {
-			c.AbortWithStatus(403)
+			c.AbortWithError(403, err)
 		}
 	}
 }
