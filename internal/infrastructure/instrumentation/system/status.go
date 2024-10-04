@@ -18,7 +18,7 @@ func NewStatusService() *StatusService {
 
 func (s *StatusService) Status() error {
 	if os.Getenv("MAINTENANCE_MODE") == "true" {
-		return nil
+		return errServerMaintenance
 	}
-	return errServerMaintenance
+	return nil
 }
