@@ -88,8 +88,8 @@ func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 		return
 	}
 
-	var token = fields[1]
-	claims, err := h.tokens.VerifyToken(ctx, token)
+	var tkn = fields[1]
+	claims, err := h.tokens.VerifyToken(ctx, tkn)
 	if err != nil {
 		ctx.AbortWithError(http.StatusUnauthorized, err)
 	}
