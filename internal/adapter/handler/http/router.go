@@ -27,6 +27,7 @@ func NewRouter(
 
 	var socketGroup = publicGroup.Group("/socket")
 	{
+		socketGroup.Use(authHandler.TokenAuthorise)
 		socketGroup.GET("/join", socketHandler.Join)
 		socketGroup.GET("/list", socketHandler.List)
 	}
