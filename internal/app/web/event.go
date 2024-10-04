@@ -24,7 +24,6 @@ func (e ServerStartEvent) ToLogFields() logrus.Fields {
 }
 
 type ClientEvent interface {
-	mevent.ClientEvent
 	mevent.ContextEvent
 	UserID() uuid.UUID
 	RemoteAddress() net.Addr

@@ -5,10 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Nerzal/gocloak/v13"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/justjack1521/mevconn"
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/domain/auth"
 	"mevway/internal/domain/user"
 )
 
@@ -22,32 +20,16 @@ var (
 	errTokenInactive = errors.New("token no longer active")
 )
 
-type Client struct {
-	gocloak *gocloak.GoCloak
-	config  mevconn.KeyCloakConfig
+type UserClient struct {
+	client *gocloak.GoCloak
+	config mevconn.KeyCloakConfig
 }
 
-func NewClient(config mevconn.KeyCloakConfig) *Client {
-	return &Client{
-		gocloak: gocloak.NewClient(config.Hostname()),
-		config:  config,
+func NewUserClient(client *gocloak.GoCloak, config mevconn.KeyCloakConfig) *UserClient {
+	return &UserClient{
+		client: client,
+		config: config,
 	}
-}
-
-func (c *Client) Login(ctx context.Context, request auth.LoginRequest) (auth.LoginResponse, error) {
-
-	tkn, err := c.gocloak.Login(ctx, c.config.ClientID(), c.config.ClientSecret(), c.config.Realm(), request.Username, request.Password)
-	if err != nil {
-		return auth.LoginResponse{}, err
-	}
-
-	return auth.LoginResponse{
-		IDToken:      tkn.IDToken,
-		AccessToken:  tkn.AccessToken,
-		RefreshToken: tkn.RefreshToken,
-		ExpiresIn:    tkn.ExpiresIn,
-	}, nil
-
 }
 
 var (
@@ -56,11 +38,11 @@ var (
 	}
 )
 
-func (c *Client) Register(ctx context.Context, target user.User) (uuid.UUID, error) {
+func (c *UserClient) CreateUser(ctx context.Context, target user.User) error {
 
 	token, err := c.LoginAdmin(ctx)
 	if err != nil {
-		return uuid.Nil, errFailedToRegisterUser(err)
+		return errFailedToRegisterUser(err)
 	}
 
 	var credentials = []gocloak.CredentialRepresentation{
@@ -79,7 +61,7 @@ func (c *Client) Register(ctx context.Context, target user.User) (uuid.UUID, err
 		"customer": {target.CustomerID},
 	}
 
-	id, err := c.gocloak.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
+	_, err = c.client.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
 		ID:          gocloak.StringP(target.UserID.String()),
 		Username:    gocloak.StringP(target.Username),
 		Enabled:     gocloak.BoolP(true),
@@ -89,52 +71,7 @@ func (c *Client) Register(ctx context.Context, target user.User) (uuid.UUID, err
 	})
 
 	if err != nil {
-		return uuid.Nil, errFailedToRegisterUser(err)
-	}
-
-	return uuid.FromStringOrNil(id), nil
-
-}
-
-func (c *Client) ExtractToken(ctx context.Context, token string) (auth.TokenClaims, error) {
-
-	claims := jwt.MapClaims{}
-
-	_, err := c.gocloak.DecodeAccessTokenCustomClaims(ctx, token, c.config.Realm(), claims)
-
-	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
-	}
-
-	sub, err := claims.GetSubject()
-	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
-	}
-
-	usr, err := uuid.FromString(sub)
-	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
-	}
-
-	profile, _ := claims["profile"]
-
-	return auth.TokenClaims{
-		UserID:      usr,
-		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
-		Environment: "development",
-	}, nil
-
-}
-
-func (c *Client) AuthoriseToken(ctx context.Context, token string) error {
-
-	result, err := c.gocloak.RetrospectToken(ctx, token, c.config.ClientID(), c.config.ClientSecret(), c.config.Realm())
-	if err != nil {
-		return errTokenAuthoriseFailed(err)
-	}
-
-	if *result.Active == false {
-		return errTokenAuthoriseFailed(errTokenInactive)
+		return errFailedToRegisterUser(err)
 	}
 
 	return nil
@@ -147,15 +84,36 @@ var (
 	}
 )
 
-func (c *Client) LoginAdmin(ctx context.Context) (string, error) {
+func (c *UserClient) LoginAdmin(ctx context.Context) (string, error) {
 
 	username, password := c.config.AdminCredentials()
 
-	jwt, err := c.gocloak.LoginAdmin(ctx, username, password, "master")
+	tkn, err := c.client.LoginAdmin(ctx, username, password, "master")
 	if err != nil {
 		return "", errFailedAdminLogin(err)
 	}
 
-	return jwt.AccessToken, nil
+	return tkn.AccessToken, nil
+
+}
+
+func (c *UserClient) GetPlayerIDFromCustomerID(ctx context.Context, id string) (uuid.UUID, error) {
+
+	token, err := c.LoginAdmin(ctx)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	users, err := c.client.GetUsers(ctx, token, c.config.Realm(), gocloak.GetUsersParams{
+		Q: gocloak.StringP("customer:f03c-33ce-41ed"),
+	})
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	var attrs = *users[0].Attributes
+	profile, _ := attrs["profile"]
+	return uuid.FromStringOrNil(profile[0]), nil
 
 }

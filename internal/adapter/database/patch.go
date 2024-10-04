@@ -17,7 +17,7 @@ func NewPatchRepository(db *gorm.DB) *PatchRepository {
 	return &PatchRepository{database: db}
 }
 
-func (r *PatchRepository) Get(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {
+func (r *PatchRepository) GetList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {
 	var cond = &dto.PatchGorm{
 		Released: true,
 	}
@@ -34,7 +34,7 @@ func (r *PatchRepository) Get(ctx context.Context, environment uuid.UUID, limit 
 
 }
 
-func (r *PatchRepository) Current(ctx context.Context, environment uuid.UUID) (patch.Patch, error) {
+func (r *PatchRepository) GetLatest(ctx context.Context, environment uuid.UUID) (patch.Patch, error) {
 
 	var cond = &dto.PatchGorm{
 		Released: true,

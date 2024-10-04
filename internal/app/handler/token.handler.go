@@ -24,7 +24,7 @@ type TokenAuthorise struct {
 
 type TokenAuthorisationClient interface {
 	AuthoriseToken(ctx context.Context, token string) error
-	ExtractToken(ctx context.Context, token string) (auth.TokenClaims, error)
+	VerifyToken(ctx context.Context, token string) (auth.TokenClaims, error)
 }
 
 type TokenAuthoriseHandler decorator.APIRouterHandler[TokenAuthorise]
@@ -46,7 +46,7 @@ func (h tokenAuthoriseHandler) Handle(ctx *gin.Context, query TokenAuthorise) {
 		return
 	}
 
-	claims, err := h.client.ExtractToken(ctx, query.Bearer)
+	claims, err := h.client.VerifyToken(ctx, query.Bearer)
 	if err != nil {
 		httperr.UnauthorisedError(err, err.Error(), ctx)
 		return

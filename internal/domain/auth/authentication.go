@@ -5,7 +5,7 @@ type LoginRequest struct {
 	Password string
 }
 
-type LoginResponse struct {
+type LoginResult struct {
 	IDToken      string
 	AccessToken  string
 	RefreshToken string

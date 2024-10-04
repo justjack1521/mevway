@@ -17,7 +17,7 @@ type LoginUser struct {
 }
 
 type LoginClient interface {
-	Login(ctx context.Context, request auth.LoginRequest) (auth.LoginResponse, error)
+	Login(ctx context.Context, request auth.LoginRequest) (auth.LoginResult, error)
 }
 
 type LoginUserHandler decorator.APIRouterHandler[LoginUser]

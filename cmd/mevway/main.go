@@ -1,44 +1,114 @@
 package main
 
 import (
-	"context"
+	"github.com/Nerzal/gocloak/v13"
+	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/justjack1521/mevium/pkg/server"
-	"mevway/internal/app"
-	"mevway/internal/service"
-	"net/http"
+	"github.com/justjack1521/mevrelic"
+	"github.com/sirupsen/logrus"
+	"io"
+	"mevway/internal/adapter/broker"
+	"mevway/internal/adapter/database"
+	"mevway/internal/adapter/handler/http"
+	"mevway/internal/adapter/handler/http/middleware"
+	"mevway/internal/adapter/handler/rpc"
+	"mevway/internal/adapter/handler/web"
+	"mevway/internal/adapter/keycloak"
+	"mevway/internal/adapter/translate"
+	"mevway/internal/core/application"
+	"mevway/internal/infrastructure/instrumentation/relic"
+	"mevway/internal/infrastructure/instrumentation/system"
+	"os"
 )
 
 func main() {
 
-	ctx := context.Background()
+	var logger = logrus.New()
+	var publisher = mevent.NewPublisher(mevent.PublisherWithLogger(logger))
 
-	application := service.NewApplication(ctx)
+	db, err := database.NewPostgresConnection()
+	if err != nil {
+		panic(err)
+	}
 
-	//var cpuprofile = "mevway.prof"
-	//
-	//f, err := os.Create(cpuprofile)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//pprof.StartCPUProfile(f)
-	//
-	//c := make(chan os.Signal)
-	//signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	//go func() {
-	//	<-c
-	//	pprof.StopCPUProfile()
-	//	os.Exit(1)
-	//}()
+	cloak, err := mevconn.NewKeyCloakConfig()
+	if err != nil {
+		panic(err)
+	}
 
-	go application.WebServer.Server.Run()
+	msq, err := broker.NewRabbitMQConnection()
+	if err != nil {
+		panic(err)
+	}
 
-	server.RunHTTPServer("8080", func(server *http.Server) {
-		server.Handler = application.Engine
-	})
+	nrl, err := mevrelic.NewRelicApplication()
+	if err != nil {
+		panic(err)
+	}
 
-	defer func(application app.Application) {
-		application.EventPublisher.Notify(mevent.ApplicationShutdownEvent{})
-	}(application)
+	game, err := rpc.DialToGameClient()
+	if err != nil {
+		panic(err)
+	}
+
+	social, err := rpc.DialToSocialClient()
+	if err != nil {
+		panic(err)
+	}
+
+	rank, err := rpc.DialToRankClient()
+	if err != nil {
+		panic(err)
+	}
+
+	multi, err := rpc.DialToLobbyClient()
+	if err != nil {
+		panic(err)
+	}
+
+	var keyCloakClient = gocloak.NewClient(cloak.Hostname())
+	var userRepository = keycloak.NewUserClient(keyCloakClient, cloak)
+	var tokenRepository = keycloak.NewTokenClient(keyCloakClient, cloak)
+	var patchRepository = database.NewPatchRepository(db)
+
+	var serviceRouter = application.NewServiceRouter()
+	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
+	serviceRouter.RegisterSubRouter(rpc.SocialClientRouteKey, rpc.NewSocialServiceClientRouter(social))
+	serviceRouter.RegisterSubRouter(rpc.RankingClientRouteKey, rpc.NewRankServiceClientRouter(rank))
+	serviceRouter.RegisterSubRouter(rpc.MultiClientRouteKey, rpc.NewMultiServiceClientRouter(multi))
+
+	var server = application.NewSocketServer()
+
+	var relicInstrumenter = relic.NewRelicInstrumenter(nrl.Application)
+	var messageTranslator = translate.NewProtobufSocketMessageTranslator()
+	var socketFactory = web.NewClientFactory(serviceRouter, relicInstrumenter, messageTranslator)
+
+	var statusService = system.NewStatusService()
+	var authService = application.NewAuthenticationService(userRepository, tokenRepository)
+	var patchService = application.NewPatchService(patchRepository)
+
+	var loggerMiddleware = middleware.NewLoggingMiddleware(logger)
+	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
+
+	var statusHandler = http.NewStatusHandler(statusService)
+	var authHandler = http.NewAuthenticationHandler(authService)
+	var patchHandler = http.NewPatchHandler(patchService)
+	var socketHandler = http.NewSocketHandler(socketFactory)
+
+	var listeners = []io.Closer{
+		broker.NewClientNotificationConsumer(msq, server, messageTranslator),
+		broker.NewClientEventPublisher(msq, publisher),
+	}
+
+	go server.Run()
+
+	router, err := http.NewRouter(authHandler, statusHandler, patchHandler, socketHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+
+	if err := router.Serve(":8080"); err != nil {
+		for _, listener := range listeners {
+			listener.Close()
+		}
+		os.Exit(1)
+	}
 
 }
