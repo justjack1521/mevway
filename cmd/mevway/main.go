@@ -91,7 +91,7 @@ func main() {
 	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
 
 	var statusHandler = http.NewStatusHandler(statusService)
-	var authHandler = http.NewAuthenticationHandler(authService)
+	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
 	var patchHandler = http.NewPatchHandler(patchService)
 	var socketHandler = http.NewSocketHandler(socketFactory)
 

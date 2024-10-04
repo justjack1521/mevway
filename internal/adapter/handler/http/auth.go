@@ -21,12 +21,12 @@ const (
 )
 
 type AuthenticationHandler struct {
-	svc        port.AuthenticationService
-	repository port.TokenRepository
+	svc    port.AuthenticationService
+	tokens port.TokenRepository
 }
 
-func NewAuthenticationHandler(svc port.AuthenticationService) *AuthenticationHandler {
-	return &AuthenticationHandler{svc: svc}
+func NewAuthenticationHandler(svc port.AuthenticationService, repository port.TokenRepository) *AuthenticationHandler {
+	return &AuthenticationHandler{svc: svc, tokens: repository}
 }
 
 func (h *AuthenticationHandler) Login(ctx *gin.Context) {
@@ -71,7 +71,7 @@ func (h *AuthenticationHandler) Register(ctx *gin.Context) {
 
 }
 
-func (m *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
+func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 
 	var header = ctx.GetHeader(authorizationHeaderKey)
 
@@ -94,7 +94,7 @@ func (m *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 	}
 
 	var token = fields[1]
-	claims, err := m.repository.VerifyToken(ctx, token)
+	claims, err := h.tokens.VerifyToken(ctx, token)
 	if err != nil {
 		ctx.AbortWithError(http.StatusUnauthorized, err)
 	}
