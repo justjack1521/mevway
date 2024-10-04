@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"github.com/justjack1521/mevium/pkg/mevent"
 	"mevway/internal/core/port"
 	"mevway/internal/domain/socket"
 	"sync"
@@ -19,11 +20,14 @@ type SocketServer struct {
 	unregister chan socket.Client
 	notify     chan socket.Message
 
+	publisher *mevent.Publisher
+
 	mu sync.RWMutex
 }
 
-func NewSocketServer() *SocketServer {
+func NewSocketServer(publisher *mevent.Publisher) *SocketServer {
 	return &SocketServer{
+		publisher:  publisher,
 		clients:    make(map[socket.Client]port.Client),
 		register:   make(chan *SocketClient),
 		unregister: make(chan socket.Client),
@@ -63,6 +67,7 @@ func (s *SocketServer) Run() {
 func (s *SocketServer) Register(client socket.Client, notifier port.Client) {
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
+		s.publisher.Notify(socket.NewClientConnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID, nil))
 		return
 	default:
 		return
@@ -72,6 +77,7 @@ func (s *SocketServer) Register(client socket.Client, notifier port.Client) {
 func (s *SocketServer) Unregister(client socket.Client) {
 	select {
 	case s.unregister <- client:
+		s.publisher.Notify(socket.NewClientDisconnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID, nil))
 		return
 	default:
 		return

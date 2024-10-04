@@ -9,17 +9,22 @@ import (
 
 type ClientConnectedEvent struct {
 	ctx        context.Context
+	sessionID  uuid.UUID
 	userID     uuid.UUID
 	playerID   uuid.UUID
 	remoteAddr net.Addr
 }
 
-func NewClientConnectedEvent(ctx context.Context, user uuid.UUID, player uuid.UUID, addr net.Addr) ClientConnectedEvent {
-	return ClientConnectedEvent{ctx: ctx, userID: user, playerID: player, remoteAddr: addr}
+func NewClientConnectedEvent(ctx context.Context, session, user, player uuid.UUID, addr net.Addr) ClientConnectedEvent {
+	return ClientConnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player, remoteAddr: addr}
 }
 
 func (e ClientConnectedEvent) Context() context.Context {
 	return e.ctx
+}
+
+func (e ClientConnectedEvent) SessionID() uuid.UUID {
+	return e.sessionID
 }
 
 func (e ClientConnectedEvent) UserID() uuid.UUID {
@@ -54,7 +59,7 @@ type ClientDisconnectedEvent struct {
 	remoteAddr net.Addr
 }
 
-func NewClientDisconnectedEvent(ctx context.Context, user, player, session uuid.UUID, addr net.Addr) ClientDisconnectedEvent {
+func NewClientDisconnectedEvent(ctx context.Context, session, user, player uuid.UUID, addr net.Addr) ClientDisconnectedEvent {
 	return ClientDisconnectedEvent{ctx: ctx, userID: user, playerID: player, sessionID: session, remoteAddr: addr}
 }
 

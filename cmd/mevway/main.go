@@ -85,7 +85,7 @@ func main() {
 	serviceRouter.RegisterSubRouter(rpc.RankingClientRouteKey, rpc.NewRankServiceClientRouter(rank))
 	serviceRouter.RegisterSubRouter(rpc.MultiClientRouteKey, rpc.NewMultiServiceClientRouter(multi))
 
-	var server = application.NewSocketServer()
+	var server = application.NewSocketServer(publisher)
 
 	var relicInstrumenter = relic.NewRelicInstrumenter(nrl.Application)
 	var messageTranslator = translate.NewProtobufSocketMessageTranslator()
@@ -107,6 +107,8 @@ func main() {
 		broker.NewClientNotificationConsumer(msq, server, messageTranslator),
 		broker.NewClientEventPublisher(msq, publisher),
 	}
+
+	broker.NewClientPersistenceConsumer(publisher, clientRepository)
 
 	go server.Run()
 
