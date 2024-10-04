@@ -21,7 +21,9 @@ type ServiceRouter struct {
 }
 
 func NewServiceRouter() *ServiceRouter {
-	return &ServiceRouter{}
+	return &ServiceRouter{
+		services: make(map[socket.ServiceIdentifier]port.SocketMessageRouter),
+	}
 }
 
 func (r *ServiceRouter) RegisterSubRouter(key int, router port.SocketMessageRouter) {
