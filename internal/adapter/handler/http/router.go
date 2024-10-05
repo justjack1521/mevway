@@ -45,7 +45,7 @@ func NewRouter(
 		{
 			patch.Use(authHandler.TokenAuthorise)
 			patch.GET("/recent", patchHandler.Recent)
-			patch.GET("/list", patchHandler.List)
+			patch.GET("/lis", patchHandler.List)
 		}
 	}
 
