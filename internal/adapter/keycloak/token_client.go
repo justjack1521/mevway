@@ -46,6 +46,11 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 		return auth.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
+	aud, ok := claims["sid"]
+	if ok == false {
+		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+	}
+
 	sub, err := claims.GetSubject()
 	if err != nil {
 		return auth.TokenClaims{}, errTokenExtractionFailed(err)
@@ -56,7 +61,10 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 		return auth.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
-	profile, _ := claims["profile"]
+	profile, ok := claims["profile"]
+	if ok == false {
+		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+	}
 
 	var roles = make([]string, 0)
 
@@ -75,6 +83,7 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 	}
 
 	return auth.TokenClaims{
+		SessionID:   uuid.FromStringOrNil(fmt.Sprintf("%v", aud)),
 		UserID:      usr,
 		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
 		Environment: "development",

@@ -7,6 +7,7 @@ type TokenAuthoriseRequest struct {
 }
 
 type TokenClaims struct {
+	SessionID   uuid.UUID
 	UserID      uuid.UUID
 	PlayerID    uuid.UUID
 	Environment string

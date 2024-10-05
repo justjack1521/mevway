@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	UserIDContextKey   string = "UserIDContextKey"
-	PlayerIDContextKey string = "PlayerIDContextKey"
-	UserEnvironmentKey string = "UserEnvironmentKey"
-	UserRoleContextKey string = "UserRoleContextKey"
+	SessionIDContextKey string = "SessionIDContextKey"
+	UserIDContextKey    string = "UserIDContextKey"
+	PlayerIDContextKey  string = "PlayerIDContextKey"
+	UserEnvironmentKey  string = "UserEnvironmentKey"
+	UserRoleContextKey  string = "UserRoleContextKey"
 )
 
 func RoleFromContext(ctx *gin.Context, role string) error {
@@ -21,6 +22,21 @@ func RoleFromContext(ctx *gin.Context, role string) error {
 		}
 	}
 	return errors.New("context missing role")
+}
+
+func SessionIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
+	var value = ctx.GetString(SessionIDContextKey)
+	if value == "" {
+		return uuid.Nil, errors.New("context missing session id")
+	}
+	result, err := uuid.FromString(value)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	if result == uuid.Nil {
+		return uuid.Nil, errors.New("context session id malformed")
+	}
+	return result, nil
 }
 
 func UserIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
@@ -49,21 +65,6 @@ func PlayerIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
 	}
 	if result == uuid.Nil {
 		return uuid.Nil, errors.New("context player id malformed")
-	}
-	return result, nil
-}
-
-func SessionIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
-	var value = ctx.GetHeader("X-API-SESSION")
-	if value == "" {
-		return uuid.Nil, errors.New("context missing session id")
-	}
-	result, err := uuid.FromString(value)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	if result == uuid.Nil {
-		return uuid.Nil, errors.New("context session id malformed")
 	}
 	return result, nil
 }

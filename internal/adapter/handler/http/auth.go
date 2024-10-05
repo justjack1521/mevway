@@ -96,6 +96,7 @@ func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusUnauthorized, err)
 	}
 
+	ctx.Set(middleware.SessionIDContextKey, claims.SessionID)
 	ctx.Set(middleware.UserIDContextKey, claims.UserID)
 	ctx.Set(middleware.PlayerIDContextKey, claims.PlayerID)
 	ctx.Set(middleware.UserEnvironmentKey, claims.Environment)
