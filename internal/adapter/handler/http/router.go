@@ -25,9 +25,8 @@ func NewRouter(
 
 	var publicGroup = router.Group("/public")
 
-	var socketGroup = publicGroup.Group("/socket")
+	var socketGroup = publicGroup.Group("/socket", authHandler.TokenAuthorise)
 	{
-		socketGroup.Use(authHandler.TokenAuthorise)
 		socketGroup.GET("/join", socketHandler.Join)
 		socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)
 	}
@@ -41,12 +40,12 @@ func NewRouter(
 	var systemGroup = publicGroup.Group("/system")
 	{
 		systemGroup.GET("/status", statusHandler.Get)
-		var patch = systemGroup.Group("/patch")
-		{
-			patch.Use(authHandler.TokenAuthorise)
-			patch.GET("/recent", patchHandler.Recent)
-			patch.GET("/lis", patchHandler.List)
-		}
+	}
+
+	var patch = publicGroup.Group("/patch", authHandler.TokenAuthorise)
+	{
+		patch.GET("/recent", patchHandler.Recent)
+		patch.GET("/list", patchHandler.List)
 	}
 
 	return &Router{router}, nil
