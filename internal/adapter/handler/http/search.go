@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/port"
@@ -20,6 +21,8 @@ func (h *SearchHandler) Search(ctx *gin.Context) {
 	var request = resources.PlayerSearchRequest{
 		CustomerID: ctx.Param("customer_id"),
 	}
+
+	fmt.Println(request.CustomerID)
 
 	result, err := h.svc.Search(ctx, request.CustomerID)
 	if err != nil {

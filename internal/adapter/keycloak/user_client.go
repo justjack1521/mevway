@@ -123,7 +123,7 @@ func (c *UserClient) IdentityFromCustomerID(ctx context.Context, customer string
 		return user.Identity{}, errFailedGetIdentityFromCustomerID(errUserMatchingCustomerIDNotFound)
 	}
 
-	id, err := uuid.FromString(*users[0].ID)
+	id, err := uuid.FromString(gocloak.PString(users[0].ID))
 	if err != nil {
 		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
 	}
