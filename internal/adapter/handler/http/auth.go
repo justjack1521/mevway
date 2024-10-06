@@ -29,6 +29,7 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 	var request = &resources.UserLoginRequest{}
 
 	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -38,6 +39,7 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 	})
 
 	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 

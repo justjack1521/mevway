@@ -98,6 +98,7 @@ func (c *UserClient) LoginAdmin(ctx context.Context) (string, error) {
 }
 
 var (
+	errUserMatchingCustomerIDNotFound  = errors.New("user matching customer id not found")
 	errProfileAttributeNotFound        = errors.New("profile attribute not found")
 	errFailedGetIdentityFromCustomerID = func(err error) error {
 		return fmt.Errorf("failed to get identity from customer id: %w", err)
@@ -116,6 +117,10 @@ func (c *UserClient) IdentityFromCustomerID(ctx context.Context, customer string
 	})
 	if err != nil {
 		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
+	}
+
+	if users == nil || len(users) == 0 {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(errUserMatchingCustomerIDNotFound)
 	}
 
 	id, err := uuid.FromString(*users[0].ID)
