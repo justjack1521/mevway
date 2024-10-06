@@ -92,7 +92,7 @@ func main() {
 	var socketFactory = web.NewClientFactory(serviceRouter, relicInstrumenter, messageTranslator)
 
 	var statusService = system.NewStatusService()
-	var authService = application.NewAuthenticationService(userRepository, tokenRepository)
+	var authService = application.NewAuthenticationService(tokenRepository, userRepository, publisher)
 	var patchService = application.NewPatchService(patchRepository)
 
 	var loggerMiddleware = middleware.NewLoggingMiddleware(logger)
@@ -105,7 +105,8 @@ func main() {
 
 	var listeners = []io.Closer{
 		broker.NewClientNotificationConsumer(msq, server, messageTranslator),
-		broker.NewClientEventPublisher(msq, publisher),
+		broker.NewClientEventPublisher(msq, publisher, translate.NewProtobufSocketEventTranslator()),
+		broker.NewUserEventPublisher(msq, publisher, translate.NewProtobufUserEventTranslator()),
 	}
 
 	broker.NewClientPersistenceConsumer(publisher, clientRepository)

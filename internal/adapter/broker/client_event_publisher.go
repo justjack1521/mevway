@@ -9,18 +9,18 @@ import (
 	"mevway/internal/domain/socket"
 )
 
-type ClientEventPublisher struct {
+type SocketClientEventPublisher struct {
 	publisher  *mevrabbit.StandardPublisher
-	translator application.EventTranslator
+	translator application.SocketEventTranslator
 }
 
-func NewClientEventPublisher(connection *rabbitmq.Conn, publisher *mevent.Publisher) *ClientEventPublisher {
-	var service = &ClientEventPublisher{publisher: mevrabbit.NewClientPublisher(connection)}
+func NewClientEventPublisher(connection *rabbitmq.Conn, publisher *mevent.Publisher, translator application.SocketEventTranslator) *SocketClientEventPublisher {
+	var service = &SocketClientEventPublisher{publisher: mevrabbit.NewClientPublisher(connection), translator: translator}
 	publisher.Subscribe(service, socket.ClientConnectedEvent{}, socket.ClientDisconnectedEvent{})
 	return service
 }
 
-func (s *ClientEventPublisher) Notify(evt mevent.Event) {
+func (s *SocketClientEventPublisher) Notify(evt mevent.Event) {
 	switch actual := evt.(type) {
 	case socket.ClientConnectedEvent:
 		s.publishClientConnected(actual.Context(), actual)
@@ -29,7 +29,7 @@ func (s *ClientEventPublisher) Notify(evt mevent.Event) {
 	}
 }
 
-func (s *ClientEventPublisher) publishClientConnected(ctx context.Context, evt socket.ClientConnectedEvent) {
+func (s *SocketClientEventPublisher) publishClientConnected(ctx context.Context, evt socket.ClientConnectedEvent) {
 	bytes, err := s.translator.Connected(evt)
 	if err != nil {
 		return
@@ -39,7 +39,7 @@ func (s *ClientEventPublisher) publishClientConnected(ctx context.Context, evt s
 	}
 }
 
-func (s *ClientEventPublisher) publishClientDisconnected(ctx context.Context, evt socket.ClientDisconnectedEvent) {
+func (s *SocketClientEventPublisher) publishClientDisconnected(ctx context.Context, evt socket.ClientDisconnectedEvent) {
 	bytes, err := s.translator.Disconnected(evt)
 	if err != nil {
 		return
@@ -49,7 +49,7 @@ func (s *ClientEventPublisher) publishClientDisconnected(ctx context.Context, ev
 	}
 }
 
-func (s *ClientEventPublisher) Close() error {
+func (s *SocketClientEventPublisher) Close() error {
 	s.publisher.Close()
 	return nil
 }

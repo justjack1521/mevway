@@ -24,7 +24,7 @@ type NotificationTranslator interface {
 	Notification(data []byte) (socket.Message, error)
 }
 
-type EventTranslator interface {
+type SocketEventTranslator interface {
 	Connected(event socket.ClientConnectedEvent) ([]byte, error)
 	Disconnected(event socket.ClientDisconnectedEvent) ([]byte, error)
 }

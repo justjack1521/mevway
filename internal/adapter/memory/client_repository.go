@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var (
+const (
 	connectedClientsKey = "connected_clients"
 )
 
@@ -49,5 +49,5 @@ func (c *ClientRepository) List(ctx context.Context) ([]socket.Client, error) {
 }
 
 func (c *ClientRepository) key(client socket.Client) string {
-	return strings.Join([]string{connectedClientsKey, client.Session.String()}, ":")
+	return strings.Join([]string{serviceKey, connectedClientsKey, client.Session.String()}, ":")
 }

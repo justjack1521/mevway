@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"github.com/justjack1521/mevium/pkg/mevent"
 	"mevway/internal/core/port"
 	"mevway/internal/domain/auth"
 	"mevway/internal/domain/user"
@@ -13,12 +14,13 @@ var (
 )
 
 type AuthenticationService struct {
-	tokens port.TokenRepository
-	users  port.UserRepository
+	tokens    port.TokenRepository
+	users     port.UserRepository
+	publisher *mevent.Publisher
 }
 
-func NewAuthenticationService(users port.UserRepository, tokens port.TokenRepository) *AuthenticationService {
-	return &AuthenticationService{users: users, tokens: tokens}
+func NewAuthenticationService(tokens port.TokenRepository, users port.UserRepository, publisher *mevent.Publisher) *AuthenticationService {
+	return &AuthenticationService{tokens: tokens, users: users, publisher: publisher}
 }
 
 func (s *AuthenticationService) Login(ctx context.Context, target user.User) (auth.LoginResult, error) {
@@ -48,6 +50,8 @@ func (s *AuthenticationService) Register(ctx context.Context, username, password
 	if err := s.users.CreateUser(ctx, target); err != nil {
 		return user.User{}, err
 	}
+
+	s.publisher.Notify(user.NewCreatedEvent(ctx, target.UserID, target.PlayerID, target.CustomerID))
 
 	return target, nil
 
