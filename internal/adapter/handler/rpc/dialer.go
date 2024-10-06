@@ -3,6 +3,7 @@ package rpc
 import (
 	"github.com/justjack1521/mevconn"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
+	"github.com/justjack1521/mevrpc"
 	"github.com/newrelic/go-agent/v3/integrations/nrgrpc"
 	"google.golang.org/grpc"
 )
@@ -21,7 +22,7 @@ func DialToSocialClient() (services.MeviusSocialServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithUnaryInterceptor(nrgrpc.UnaryClientInterceptor), grpc.WithInsecure())
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithChainUnaryInterceptor(nrgrpc.UnaryClientInterceptor, mevrpc.IdentityCopyUnaryClientInterceptor), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
