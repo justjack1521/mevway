@@ -6,7 +6,7 @@ import (
 	"github.com/justjack1521/mevrabbit"
 	"github.com/wagslane/go-rabbitmq"
 	"mevway/internal/core/application"
-	"mevway/internal/domain/user"
+	"mevway/internal/core/domain/user"
 )
 
 type UserEventPublisher struct {

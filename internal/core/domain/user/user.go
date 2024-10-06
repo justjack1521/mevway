@@ -12,12 +12,16 @@ var (
 	errPasswordIsEmpty = errors.New("password is empty")
 )
 
-type User struct {
-	UserID     uuid.UUID
+type Identity struct {
+	ID         uuid.UUID
 	PlayerID   uuid.UUID
 	CustomerID string
-	Username   string
-	Password   string
+}
+
+type User struct {
+	Identity
+	Username string
+	Password string
 }
 
 func NewUser(username string, password string) (User, error) {
@@ -37,11 +41,13 @@ func NewUser(username string, password string) (User, error) {
 	}
 
 	return User{
-		UserID:     uuid.NewV4(),
-		PlayerID:   uuid.NewV4(),
-		CustomerID: fmt.Sprintf("%x-%x-%x", b[0:2], b[2:4], b[4:]),
-		Username:   username,
-		Password:   password,
+		Identity: Identity{
+			ID:         uuid.NewV4(),
+			PlayerID:   uuid.NewV4(),
+			CustomerID: fmt.Sprintf("%x-%x-%x", b[0:2], b[2:4], b[4:]),
+		},
+		Username: username,
+		Password: password,
 	}, nil
 }
 

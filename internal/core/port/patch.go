@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/domain/patch"
+	"mevway/internal/core/domain/patch"
 )
 
 type PatchRepository interface {

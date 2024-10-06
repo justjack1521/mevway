@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"github.com/justjack1521/mevium/pkg/mevent"
+	"mevway/internal/core/domain/auth"
+	"mevway/internal/core/domain/user"
 	"mevway/internal/core/port"
-	"mevway/internal/domain/auth"
-	"mevway/internal/domain/user"
 )
 
 var (
@@ -51,7 +51,7 @@ func (s *AuthenticationService) Register(ctx context.Context, username, password
 		return user.User{}, err
 	}
 
-	s.publisher.Notify(user.NewCreatedEvent(ctx, target.UserID, target.PlayerID, target.CustomerID))
+	s.publisher.Notify(user.NewCreatedEvent(ctx, target.ID, target.PlayerID, target.CustomerID))
 
 	return target, nil
 

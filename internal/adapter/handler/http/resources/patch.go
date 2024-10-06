@@ -2,7 +2,7 @@ package resources
 
 import (
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/domain/patch"
+	"mevway/internal/core/domain/patch"
 	"time"
 )
 

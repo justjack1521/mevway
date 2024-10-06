@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mevway/internal/domain/socket"
+	"mevway/internal/core/domain/socket"
 )
 
 var (

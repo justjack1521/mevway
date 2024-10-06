@@ -14,6 +14,7 @@ func NewRouter(
 	statusHandler *StatusHandler,
 	patchHandler *PatchHandler,
 	socketHandler *SocketHandler,
+	searchHandler *SearchHandler,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
 
@@ -46,6 +47,11 @@ func NewRouter(
 	{
 		patch.GET("/recent", patchHandler.Recent)
 		patch.GET("/list", patchHandler.List)
+	}
+
+	var player = publicGroup.Group("/player", authHandler.TokenAuthorise)
+	{
+		player.GET("/search/:customer_id", searchHandler.Search)
 	}
 
 	return &Router{router}, nil

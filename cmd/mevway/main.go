@@ -10,6 +10,7 @@ import (
 	"io"
 	"mevway/internal/adapter/broker"
 	"mevway/internal/adapter/database"
+	"mevway/internal/adapter/external"
 	"mevway/internal/adapter/handler/http"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/rpc"
@@ -78,6 +79,7 @@ func main() {
 	var tokenRepository = keycloak.NewTokenClient(keyCloakClient, cloak)
 	var patchRepository = database.NewPatchRepository(db)
 	var clientRepository = memory.NewClientRepository(rds)
+	var socialRepository = external.NewSocialPlayerRepository(social)
 
 	var serviceRouter = application.NewServiceRouter()
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
@@ -94,6 +96,7 @@ func main() {
 	var statusService = system.NewStatusService()
 	var authService = application.NewAuthenticationService(tokenRepository, userRepository, publisher)
 	var patchService = application.NewPatchService(patchRepository)
+	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
 
 	var loggerMiddleware = middleware.NewLoggingMiddleware(logger)
 	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
@@ -102,6 +105,7 @@ func main() {
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
 	var patchHandler = http.NewPatchHandler(patchService)
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
+	var searchHandler = http.NewSearchHandler(searchService)
 
 	var listeners = []io.Closer{
 		broker.NewClientNotificationConsumer(msq, server, messageTranslator),
@@ -113,7 +117,7 @@ func main() {
 
 	go server.Run()
 
-	router, err := http.NewRouter(authHandler, statusHandler, patchHandler, socketHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, statusHandler, patchHandler, socketHandler, searchHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 
 	if err := router.Serve(":8080"); err != nil {
 		for _, listener := range listeners {

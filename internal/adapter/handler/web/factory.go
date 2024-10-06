@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/gorilla/websocket"
 	"mevway/internal/core/application"
+	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
-	"mevway/internal/domain/socket"
 )
 
 type ClientFactory struct {

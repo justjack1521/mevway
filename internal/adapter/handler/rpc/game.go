@@ -5,7 +5,7 @@ import (
 	"github.com/justjack1521/mevium/pkg/genproto/protogame"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevrpc"
-	"mevway/internal/domain/socket"
+	"mevway/internal/core/domain/socket"
 )
 
 type GameServiceClientRouter struct {

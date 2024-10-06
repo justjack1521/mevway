@@ -6,8 +6,8 @@ import (
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/application"
+	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
-	"mevway/internal/domain/socket"
 	"net/http"
 	"time"
 )

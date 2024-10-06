@@ -2,7 +2,7 @@ package translate
 
 import (
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
-	"mevway/internal/domain/user"
+	"mevway/internal/core/domain/user"
 )
 
 type ProtobufUserEventTranslator struct {

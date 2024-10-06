@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"mevway/internal/adapter/database/dto"
-	"mevway/internal/domain/patch"
+	"mevway/internal/core/domain/patch"
 )
 
 type PatchRepository struct {

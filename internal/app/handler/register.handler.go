@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
+	"mevway/internal/core/domain/user"
 	"mevway/internal/decorator"
-	"mevway/internal/domain/user"
 )
 
 type RegisterUser struct {

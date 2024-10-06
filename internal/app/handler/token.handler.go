@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
 	uuid "github.com/satori/go.uuid"
+	"mevway/internal/core/domain/auth"
 	"mevway/internal/decorator"
-	"mevway/internal/domain/auth"
 )
 
 const (

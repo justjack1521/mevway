@@ -3,8 +3,8 @@ package application
 import (
 	"context"
 	"fmt"
+	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
-	"mevway/internal/domain/socket"
 )
 
 var (

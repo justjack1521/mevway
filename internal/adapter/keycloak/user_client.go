@@ -7,7 +7,7 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/justjack1521/mevconn"
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/domain/user"
+	"mevway/internal/core/domain/user"
 )
 
 var (
@@ -62,7 +62,7 @@ func (c *UserClient) CreateUser(ctx context.Context, target user.User) error {
 	}
 
 	_, err = c.client.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
-		ID:          gocloak.StringP(target.UserID.String()),
+		ID:          gocloak.StringP(target.ID.String()),
 		Username:    gocloak.StringP(target.Username),
 		Enabled:     gocloak.BoolP(true),
 		Credentials: &credentials,
@@ -97,23 +97,47 @@ func (c *UserClient) LoginAdmin(ctx context.Context) (string, error) {
 
 }
 
-func (c *UserClient) GetPlayerIDFromCustomerID(ctx context.Context, id string) (uuid.UUID, error) {
+var (
+	errProfileAttributeNotFound        = errors.New("profile attribute not found")
+	errFailedGetIdentityFromCustomerID = func(err error) error {
+		return fmt.Errorf("failed to get identity from customer id: %w", err)
+	}
+)
+
+func (c *UserClient) IdentityFromCustomerID(ctx context.Context, customer string) (user.Identity, error) {
 
 	token, err := c.LoginAdmin(ctx)
 	if err != nil {
-		return uuid.Nil, err
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
 	}
 
 	users, err := c.client.GetUsers(ctx, token, c.config.Realm(), gocloak.GetUsersParams{
-		Q: gocloak.StringP("customer:f03c-33ce-41ed"),
+		Q: gocloak.StringP(fmt.Sprintf("customer:%s", customer)),
 	})
-
 	if err != nil {
-		return uuid.Nil, err
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
+	}
+
+	id, err := uuid.FromString(*users[0].ID)
+	if err != nil {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
 	}
 
 	var attrs = *users[0].Attributes
-	profile, _ := attrs["profile"]
-	return uuid.FromStringOrNil(profile[0]), nil
+	profile, ok := attrs["profile"]
+	if ok == false {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(errProfileAttributeNotFound)
+	}
+
+	pid, err := uuid.FromString(profile[0])
+	if err != nil {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
+	}
+
+	return user.Identity{
+		ID:         id,
+		PlayerID:   pid,
+		CustomerID: customer,
+	}, nil
 
 }

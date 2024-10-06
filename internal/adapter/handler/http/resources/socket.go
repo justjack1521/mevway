@@ -2,7 +2,7 @@ package resources
 
 import (
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/domain/socket"
+	"mevway/internal/core/domain/socket"
 )
 
 type SocketClientListResponse struct {

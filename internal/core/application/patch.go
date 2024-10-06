@@ -3,8 +3,8 @@ package application
 import (
 	"context"
 	uuid "github.com/satori/go.uuid"
+	"mevway/internal/core/domain/patch"
 	"mevway/internal/core/port"
-	"mevway/internal/domain/patch"
 )
 
 type PatchService struct {

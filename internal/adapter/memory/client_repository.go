@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"mevway/internal/adapter/memory/dto"
-	"mevway/internal/domain/socket"
+	"mevway/internal/core/domain/socket"
 	"strings"
 )
 

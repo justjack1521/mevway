@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/justjack1521/mevium/pkg/server/httperr"
+	"mevway/internal/core/domain/auth"
 	"mevway/internal/decorator"
-	"mevway/internal/domain/auth"
 	"mevway/internal/resources"
 )
 

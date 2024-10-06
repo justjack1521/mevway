@@ -7,8 +7,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/justjack1521/mevconn"
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/domain/auth"
-	"mevway/internal/domain/user"
+	auth2 "mevway/internal/core/domain/auth"
+	"mevway/internal/core/domain/user"
 )
 
 type TokenClient struct {
@@ -20,14 +20,14 @@ func NewTokenClient(client *gocloak.GoCloak, config mevconn.KeyCloakConfig) *Tok
 	return &TokenClient{client: client, config: config}
 }
 
-func (c *TokenClient) CreateToken(ctx context.Context, target user.User) (auth.LoginResult, error) {
+func (c *TokenClient) CreateToken(ctx context.Context, target user.User) (auth2.LoginResult, error) {
 
 	tkn, err := c.client.Login(ctx, c.config.ClientID(), c.config.ClientSecret(), c.config.Realm(), target.Username, target.Password)
 	if err != nil {
-		return auth.LoginResult{}, err
+		return auth2.LoginResult{}, err
 	}
 
-	return auth.LoginResult{
+	return auth2.LoginResult{
 		IDToken:      tkn.IDToken,
 		AccessToken:  tkn.AccessToken,
 		RefreshToken: tkn.RefreshToken,
@@ -36,34 +36,34 @@ func (c *TokenClient) CreateToken(ctx context.Context, target user.User) (auth.L
 
 }
 
-func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.TokenClaims, error) {
+func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth2.TokenClaims, error) {
 
 	claims := jwt.MapClaims{}
 
 	_, err := c.client.DecodeAccessTokenCustomClaims(ctx, token, c.config.Realm(), claims)
 
 	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+		return auth2.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
 	aud, ok := claims["sid"]
 	if ok == false {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+		return auth2.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
 	sub, err := claims.GetSubject()
 	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+		return auth2.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
 	usr, err := uuid.FromString(sub)
 	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+		return auth2.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
 	profile, ok := claims["profile"]
 	if ok == false {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+		return auth2.TokenClaims{}, errTokenExtractionFailed(err)
 	}
 
 	var roles = make([]string, 0)
@@ -82,7 +82,7 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 		}
 	}
 
-	return auth.TokenClaims{
+	return auth2.TokenClaims{
 		SessionID:   uuid.FromStringOrNil(fmt.Sprintf("%v", aud)),
 		UserID:      usr,
 		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),

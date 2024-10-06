@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
+	"mevway/internal/core/domain/user"
 	"mevway/internal/core/port"
-	"mevway/internal/domain/user"
 	"net/http"
 	"strings"
 )
@@ -64,7 +64,7 @@ func (h *AuthenticationHandler) Register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, resources.UserRegisterResponse{SysUser: result.UserID})
+	ctx.JSON(200, resources.UserRegisterResponse{SysUser: result.ID})
 
 }
 

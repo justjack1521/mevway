@@ -3,22 +3,22 @@ package application
 import (
 	"context"
 	"github.com/justjack1521/mevium/pkg/mevent"
+	socket2 "mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
-	"mevway/internal/domain/socket"
 	"sync"
 )
 
 type SocketClient struct {
-	client   socket.Client
+	client   socket2.Client
 	notifier port.Client
 }
 
 type SocketServer struct {
-	clients map[socket.Client]port.Client
+	clients map[socket2.Client]port.Client
 
 	register   chan *SocketClient
-	unregister chan socket.Client
-	notify     chan socket.Message
+	unregister chan socket2.Client
+	notify     chan socket2.Message
 
 	publisher *mevent.Publisher
 
@@ -28,10 +28,10 @@ type SocketServer struct {
 func NewSocketServer(publisher *mevent.Publisher) *SocketServer {
 	return &SocketServer{
 		publisher:  publisher,
-		clients:    make(map[socket.Client]port.Client),
+		clients:    make(map[socket2.Client]port.Client),
 		register:   make(chan *SocketClient),
-		unregister: make(chan socket.Client),
-		notify:     make(chan socket.Message),
+		unregister: make(chan socket2.Client),
+		notify:     make(chan socket2.Message),
 	}
 }
 
@@ -64,27 +64,27 @@ func (s *SocketServer) Run() {
 	}
 }
 
-func (s *SocketServer) Register(client socket.Client, notifier port.Client) {
+func (s *SocketServer) Register(client socket2.Client, notifier port.Client) {
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
-		s.publisher.Notify(socket.NewClientConnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID, nil))
+		s.publisher.Notify(socket2.NewClientConnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID, nil))
 		return
 	default:
 		return
 	}
 }
 
-func (s *SocketServer) Unregister(client socket.Client) {
+func (s *SocketServer) Unregister(client socket2.Client) {
 	select {
 	case s.unregister <- client:
-		s.publisher.Notify(socket.NewClientDisconnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID, nil))
+		s.publisher.Notify(socket2.NewClientDisconnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID, nil))
 		return
 	default:
 		return
 	}
 }
 
-func (s *SocketServer) Notify(ctx context.Context, message socket.Message) {
+func (s *SocketServer) Notify(ctx context.Context, message socket2.Message) {
 	select {
 	case s.notify <- message:
 		return

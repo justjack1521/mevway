@@ -6,7 +6,7 @@ import (
 	"github.com/justjack1521/mevrabbit"
 	"github.com/wagslane/go-rabbitmq"
 	"mevway/internal/core/application"
-	"mevway/internal/domain/socket"
+	"mevway/internal/core/domain/socket"
 )
 
 type SocketClientEventPublisher struct {
