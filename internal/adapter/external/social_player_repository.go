@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/justjack1521/mevium/pkg/genproto/protosocial"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
+	"github.com/justjack1521/mevrpc"
 	uuid "github.com/satori/go.uuid"
+	"mevway/internal/core/application"
 	"mevway/internal/core/domain/player"
 )
 
@@ -18,7 +20,9 @@ func NewSocialPlayerRepository(svc services.MeviusSocialServiceClient) *SocialPl
 
 func (r *SocialPlayerRepository) GetByID(ctx context.Context, id uuid.UUID) (player.SocialPlayer, error) {
 
-	search, err := r.svc.PlayerSearch(ctx, &protosocial.PlayerSearchRequest{PlayerId: id.String()})
+	var md = application.MetadataFromContext(ctx)
+
+	search, err := r.svc.PlayerSearch(mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID), &protosocial.PlayerSearchRequest{PlayerId: id.String()})
 	if err != nil {
 		return player.SocialPlayer{}, err
 	}

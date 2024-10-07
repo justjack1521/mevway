@@ -2,7 +2,9 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
+	"mevway/internal/core/application"
 	"mevway/internal/core/port"
 	"net/http"
 )
@@ -21,7 +23,21 @@ func (h *SearchHandler) Search(ctx *gin.Context) {
 		CustomerID: ctx.Param("customer_id"),
 	}
 
-	result, err := h.svc.Search(ctx, request.CustomerID)
+	user, err := middleware.UserIDFromContext(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+	}
+	player, err := middleware.PlayerIDFromContext(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+	}
+
+	var md = application.ContextMetadata{
+		UserID:   user,
+		PlayerID: player,
+	}
+
+	result, err := h.svc.Search(application.NewApplicationContext(ctx, md), request.CustomerID)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
