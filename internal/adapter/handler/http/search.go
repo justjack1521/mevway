@@ -26,11 +26,13 @@ func (h *SearchHandler) Search(ctx *gin.Context) {
 	user, err := middleware.UserIDFromContext(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	player, err := middleware.PlayerIDFromContext(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	var md = application.ContextMetadata{
