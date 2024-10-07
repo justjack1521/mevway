@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -13,6 +14,8 @@ type ContextMetadata struct {
 }
 
 func NewApplicationContext(ctx context.Context, md ContextMetadata) context.Context {
+	fmt.Println(md.UserID)
+	fmt.Println(md.PlayerID)
 	return context.WithValue(ctx, contextKey{}, md)
 }
 
