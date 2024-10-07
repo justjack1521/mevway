@@ -40,6 +40,7 @@ func (e ClientConnectedEvent) Name() string {
 func (e ClientConnectedEvent) ToLogFields() logrus.Fields {
 	return logrus.Fields{
 		"event.name": e.Name(),
+		"session.id": e.sessionID.String(),
 		"user.id":    e.userID.String(),
 		"player.id":  e.playerID.String(),
 	}
@@ -47,13 +48,13 @@ func (e ClientConnectedEvent) ToLogFields() logrus.Fields {
 
 type ClientDisconnectedEvent struct {
 	ctx       context.Context
+	sessionID uuid.UUID
 	userID    uuid.UUID
 	playerID  uuid.UUID
-	sessionID uuid.UUID
 }
 
 func NewClientDisconnectedEvent(ctx context.Context, session, user, player uuid.UUID) ClientDisconnectedEvent {
-	return ClientDisconnectedEvent{ctx: ctx, userID: user, playerID: player, sessionID: session}
+	return ClientDisconnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player}
 }
 
 func (e ClientDisconnectedEvent) Context() context.Context {
@@ -79,6 +80,7 @@ func (e ClientDisconnectedEvent) Name() string {
 func (e ClientDisconnectedEvent) ToLogFields() logrus.Fields {
 	return logrus.Fields{
 		"event.name": e.Name(),
+		"session.id": e.sessionID.String(),
 		"user.id":    e.userID.String(),
 		"player.id":  e.playerID.String(),
 	}
