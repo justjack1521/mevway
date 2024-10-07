@@ -44,20 +44,26 @@ var (
 )
 
 type Client struct {
-	client       socket.Client
-	connection   *websocket.Conn
+	client socket.Client
+
 	router       port.SocketMessageRouter
 	server       port.SocketServer
 	instrumenter application.TransactionInstrumenter
 	translator   application.MessageTranslator
-	send         chan []byte
-	mu           sync.Mutex
-	closed       bool
+
+	connection *Connection
+}
+
+type Connection struct {
+	*websocket.Conn
+	send   chan []byte
+	mu     sync.Mutex
+	closed bool
 }
 
 func (c *Client) Notify(data []byte) {
 	select {
-	case c.send <- data:
+	case c.connection.send <- data:
 		return
 	default:
 		return
@@ -66,25 +72,31 @@ func (c *Client) Notify(data []byte) {
 
 func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *Client {
 	return &Client{
-		client:       client,
-		connection:   conn,
+		client: client,
+		connection: &Connection{
+			Conn: conn,
+			send: make(chan []byte),
+		},
 		server:       server,
 		router:       router,
 		instrumenter: instrumenter,
 		translator:   translator,
-		send:         make(chan []byte),
 	}
 }
 
 func (c *Client) Close() {
+	c.server.Unregister(c.client)
+	c.connection.Close()
+}
+
+func (c *Connection) Close() {
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if c.closed == false {
 		close(c.send)
-		c.server.Unregister(c.client)
-		c.connection.Close()
+		c.Conn.Close()
 		c.closed = true
 	}
 
@@ -161,7 +173,7 @@ func (c *Client) Write() {
 				return
 			}
 
-		case message, ok := <-c.send:
+		case message, ok := <-c.connection.send:
 
 			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
 			if ok == false {
