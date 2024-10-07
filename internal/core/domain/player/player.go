@@ -4,7 +4,7 @@ import uuid "github.com/satori/go.uuid"
 
 type SocialPlayer struct {
 	Player
-	JobCard
+	Loadout
 	RentalCard
 	CompanionID uuid.UUID
 }
@@ -16,10 +16,12 @@ type Player struct {
 	Comment string
 }
 
-type JobCard struct {
-	JobCardID   uuid.UUID
-	SubJobIndex int
-	CrownLevel  int
+type Loadout struct {
+	JobCardID       uuid.UUID
+	SubJobIndex     int
+	CrownLevel      int
+	WeaponID        uuid.UUID
+	SubWeaponUnlock int
 }
 
 type RentalCard struct {

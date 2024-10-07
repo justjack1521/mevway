@@ -10,14 +10,14 @@ type PlayerSearchRequest struct {
 }
 
 type PlayerSearchResponse struct {
-	PlayerID      uuid.UUID `json:"PlayerID" binding:"required"`
-	PlayerName    string    `json:"PlayerName" binding:"required"`
-	PlayerLevel   int       `json:"PlayerLevel" binding:"required"`
-	PlayerComment string    `json:"PlayerComment" binding:"required"`
-	CompanionID   uuid.UUID `json:"CompanionID" binding:"required"`
-
+	PlayerID        uuid.UUID                      `json:"PlayerID" binding:"required"`
+	PlayerName      string                         `json:"PlayerName" binding:"required"`
+	PlayerLevel     int                            `json:"PlayerLevel" binding:"required"`
+	PlayerComment   string                         `json:"PlayerComment" binding:"required"`
+	CompanionID     uuid.UUID                      `json:"CompanionID" binding:"required"`
 	JobCardID       uuid.UUID                      `json:"JobCardID"`
 	SubJobIndex     int                            `json:"SubJobIndex"`
+	CrownLevel      int                            `json:"CrownLevel"`
 	WeaponID        uuid.UUID                      `json:"WeaponID"`
 	SubWeaponUnlock int                            `json:"SubWeaponUnlock"`
 	RentalCard      PlayerSearchResponseRentalCard `json:"RentalCard"`
@@ -32,8 +32,9 @@ func NewPlayerSearchResponse(player player.SocialPlayer) PlayerSearchResponse {
 		CompanionID:     player.CompanionID,
 		JobCardID:       player.JobCardID,
 		SubJobIndex:     player.SubJobIndex,
-		WeaponID:        uuid.Nil,
-		SubWeaponUnlock: 0,
+		CrownLevel:      player.CrownLevel,
+		WeaponID:        player.WeaponID,
+		SubWeaponUnlock: player.SubWeaponUnlock,
 		RentalCard: PlayerSearchResponseRentalCard{
 			AbilityCardID:    player.CardID,
 			AbilityCardLevel: player.CardLevel,

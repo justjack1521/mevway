@@ -35,9 +35,12 @@ func (r *SocialPlayerRepository) GetByID(ctx context.Context, id uuid.UUID) (pla
 			Comment: search.PlayerInfo.PlayerInfo.PlayerComment,
 		},
 		CompanionID: uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.CompanionId),
-		JobCard: player.JobCard{
-			JobCardID:   uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.JobCardId),
-			SubJobIndex: int(search.PlayerInfo.PlayerInfo.SubJobIndex),
+		Loadout: player.Loadout{
+			JobCardID:       uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.JobCardId),
+			SubJobIndex:     int(search.PlayerInfo.PlayerInfo.SubJobIndex),
+			CrownLevel:      int(search.PlayerInfo.PlayerInfo.CrownLevel),
+			WeaponID:        uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.WeaponId),
+			SubWeaponUnlock: int(search.PlayerInfo.PlayerInfo.SubWeaponUnlock),
 		},
 		RentalCard: player.RentalCard{
 			CardID:           uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.RentalCard.AbilityCardId),
