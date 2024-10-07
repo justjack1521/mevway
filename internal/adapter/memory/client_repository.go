@@ -23,10 +23,11 @@ func NewClientRepository(client *redis.Client) *ClientRepository {
 
 func (c *ClientRepository) Add(ctx context.Context, client socket.Client) error {
 	var hash = dto.SocketClientRedis{
-		UserID:   client.UserID.String(),
-		PlayerID: client.PlayerID.String(),
+		SessionID: client.Session.String(),
+		UserID:    client.UserID.String(),
+		PlayerID:  client.PlayerID.String(),
 	}
-	if err := c.client.HMSet(ctx, c.key(client), hash).Err(); err != nil {
+	if err := c.client.HSet(ctx, c.key(client), hash).Err(); err != nil {
 		return err
 	}
 	return nil
