@@ -16,7 +16,7 @@ type ClientFactory struct {
 }
 
 func NewClientFactory(server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *ClientFactory {
-	return &ClientFactory{router: router, instrumenter: instrumenter, translator: translator}
+	return &ClientFactory{server: server, router: router, instrumenter: instrumenter, translator: translator}
 }
 
 func (f *ClientFactory) Create(ctx context.Context, client socket.Client, connection *websocket.Conn) (port.Client, error) {
