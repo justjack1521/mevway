@@ -9,15 +9,19 @@ import (
 	"net/http"
 )
 
-type SearchHandler struct {
+type PlayerHandler struct {
 	svc port.PlayerSearchService
 }
 
-func NewSearchHandler(svc port.PlayerSearchService) *SearchHandler {
-	return &SearchHandler{svc: svc}
+func NewSearchHandler(svc port.PlayerSearchService) *PlayerHandler {
+	return &PlayerHandler{svc: svc}
 }
 
-func (h *SearchHandler) Search(ctx *gin.Context) {
+func (h *PlayerHandler) Me(ctx *gin.Context) {
+
+}
+
+func (h *PlayerHandler) Search(ctx *gin.Context) {
 
 	var request = resources.PlayerSearchRequest{
 		CustomerID: ctx.Param("customer_id"),

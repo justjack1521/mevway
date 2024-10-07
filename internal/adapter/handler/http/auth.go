@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
@@ -70,30 +71,31 @@ func (h *AuthenticationHandler) Register(ctx *gin.Context) {
 
 }
 
-func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
+func (h *AuthenticationHandler) Identity(ctx *gin.Context) {
 
-	var header = ctx.GetHeader(authorizationHeaderKey)
+	token, err := h.getAuthorisationToken(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusUnauthorized, err)
+	}
 
-	if len(header) == 0 {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+	claims, err := h.tokens.VerifyIdentityToken(ctx, token)
+	if err != nil {
+		ctx.AbortWithError(http.StatusUnauthorized, err)
 		return
 	}
 
-	var fields = strings.Fields(header)
+	ctx.JSON(200, resources.NewPlayerIdentityResponse(claims))
 
-	if len(fields) != 2 {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
-		return
+}
+
+func (h *AuthenticationHandler) AccessTokenAuthorise(ctx *gin.Context) {
+
+	token, err := h.getAuthorisationToken(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusUnauthorized, err)
 	}
 
-	var method = strings.ToLower(fields[0])
-	if method != authorizationType {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	var tkn = fields[1]
-	claims, err := h.tokens.VerifyToken(ctx, tkn)
+	claims, err := h.tokens.VerifyAccessToken(ctx, token)
 	if err != nil {
 		ctx.AbortWithError(http.StatusUnauthorized, err)
 		return
@@ -105,4 +107,31 @@ func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 	ctx.Set(middleware.UserEnvironmentKey, claims.Environment)
 	ctx.Set(middleware.UserRoleContextKey, claims.Roles)
 
+}
+
+var (
+	errNoAuthorisationHeader          = errors.New("authorisation header is missing")
+	errMalformedAuthorisationHeader   = errors.New("malformed authorisation header")
+	errUnsupportedAuthorisationMethod = errors.New("unsupported authorisation method")
+)
+
+func (h *AuthenticationHandler) getAuthorisationToken(ctx *gin.Context) (string, error) {
+	var header = ctx.GetHeader(authorizationHeaderKey)
+
+	if len(header) == 0 {
+		return "", errNoAuthorisationHeader
+	}
+
+	var fields = strings.Fields(header)
+
+	if len(fields) != 2 {
+		return "", errMalformedAuthorisationHeader
+	}
+
+	var method = strings.ToLower(fields[0])
+	if method != authorizationType {
+		return "", errUnsupportedAuthorisationMethod
+	}
+
+	return fields[1], nil
 }

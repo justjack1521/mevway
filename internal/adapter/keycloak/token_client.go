@@ -36,34 +36,67 @@ func (c *TokenClient) CreateToken(ctx context.Context, target user.User) (auth.L
 
 }
 
-func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.TokenClaims, error) {
+func (c *TokenClient) VerifyIdentityToken(ctx context.Context, token string) (auth.IdentityClaims, error) {
 
 	claims := jwt.MapClaims{}
 
 	_, err := c.client.DecodeAccessTokenCustomClaims(ctx, token, c.config.Realm(), claims)
 
 	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
-	}
-
-	aud, ok := claims["sid"]
-	if ok == false {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
-	}
-
-	sub, err := claims.GetSubject()
-	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
-	}
-
-	usr, err := uuid.FromString(sub)
-	if err != nil {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
 	}
 
 	profile, ok := claims["profile"]
 	if ok == false {
-		return auth.TokenClaims{}, errTokenExtractionFailed(err)
+		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
+	}
+
+	username, ok := claims["preferred_username"]
+	if ok == false {
+		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
+	}
+
+	customer, ok := claims["customer"]
+	if ok == false {
+		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
+	}
+
+	return auth.IdentityClaims{
+		PlayerID:   uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
+		Username:   fmt.Sprintf("%v", username),
+		CustomerID: fmt.Sprintf("%v", customer),
+	}, nil
+
+}
+
+func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth.AccessClaims, error) {
+
+	claims := jwt.MapClaims{}
+
+	_, err := c.client.DecodeAccessTokenCustomClaims(ctx, token, c.config.Realm(), claims)
+
+	if err != nil {
+		return auth.AccessClaims{}, errTokenExtractionFailed(err)
+	}
+
+	aud, ok := claims["sid"]
+	if ok == false {
+		return auth.AccessClaims{}, errTokenExtractionFailed(err)
+	}
+
+	sub, err := claims.GetSubject()
+	if err != nil {
+		return auth.AccessClaims{}, errTokenExtractionFailed(err)
+	}
+
+	usr, err := uuid.FromString(sub)
+	if err != nil {
+		return auth.AccessClaims{}, errTokenExtractionFailed(err)
+	}
+
+	profile, ok := claims["profile"]
+	if ok == false {
+		return auth.AccessClaims{}, errTokenExtractionFailed(err)
 	}
 
 	var roles = make([]string, 0)
@@ -82,7 +115,7 @@ func (c *TokenClient) VerifyToken(ctx context.Context, token string) (auth.Token
 		}
 	}
 
-	return auth.TokenClaims{
+	return auth.AccessClaims{
 		SessionID:   uuid.FromStringOrNil(fmt.Sprintf("%v", aud)),
 		UserID:      usr,
 		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),

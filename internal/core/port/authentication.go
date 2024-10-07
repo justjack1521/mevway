@@ -13,5 +13,6 @@ type AuthenticationService interface {
 
 type TokenRepository interface {
 	CreateToken(ctx context.Context, target user.User) (auth.LoginResult, error)
-	VerifyToken(ctx context.Context, token string) (auth.TokenClaims, error)
+	VerifyAccessToken(ctx context.Context, token string) (auth.AccessClaims, error)
+	VerifyIdentityToken(ctx context.Context, token string) (auth.IdentityClaims, error)
 }

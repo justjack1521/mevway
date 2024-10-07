@@ -14,7 +14,7 @@ func NewRouter(
 	statusHandler *StatusHandler,
 	patchHandler *PatchHandler,
 	socketHandler *SocketHandler,
-	searchHandler *SearchHandler,
+	playerHandler *PlayerHandler,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
 
@@ -26,7 +26,7 @@ func NewRouter(
 
 	var publicGroup = router.Group("/public")
 
-	var socketGroup = publicGroup.Group("/socket", authHandler.TokenAuthorise)
+	var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise)
 	{
 		socketGroup.GET("/join", socketHandler.Join)
 		socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)
@@ -43,15 +43,16 @@ func NewRouter(
 		systemGroup.GET("/status", statusHandler.Get)
 	}
 
-	var patch = publicGroup.Group("/patch", authHandler.TokenAuthorise)
+	var patch = publicGroup.Group("/patch", authHandler.AccessTokenAuthorise)
 	{
 		patch.GET("/recent", patchHandler.Recent)
 		patch.GET("/list", patchHandler.List)
 	}
 
-	var player = publicGroup.Group("/player", authHandler.TokenAuthorise)
+	var player = publicGroup.Group("/player")
 	{
-		player.GET("/search/:customer_id", searchHandler.Search)
+		player.GET("/me", authHandler.Identity)
+		player.GET("/search/:customer_id", authHandler.AccessTokenAuthorise, playerHandler.Search)
 	}
 
 	return &Router{router}, nil

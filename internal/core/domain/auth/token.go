@@ -6,7 +6,13 @@ type TokenAuthoriseRequest struct {
 	Token string
 }
 
-type TokenClaims struct {
+type IdentityClaims struct {
+	PlayerID   uuid.UUID
+	Username   string
+	CustomerID string
+}
+
+type AccessClaims struct {
 	SessionID   uuid.UUID
 	UserID      uuid.UUID
 	PlayerID    uuid.UUID
