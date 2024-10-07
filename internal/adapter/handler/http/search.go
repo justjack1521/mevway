@@ -27,6 +27,7 @@ func (h *SearchHandler) Search(ctx *gin.Context) {
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 	}
+
 	player, err := middleware.PlayerIDFromContext(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)

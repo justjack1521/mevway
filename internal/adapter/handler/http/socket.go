@@ -48,6 +48,11 @@ func (h *SocketHandler) List(ctx *gin.Context) {
 
 func (h *SocketHandler) Join(ctx *gin.Context) {
 
+	if ctx.IsWebsocket() == false {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
