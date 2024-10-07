@@ -45,6 +45,7 @@ func (c *ClientConnectionRepository) Add(ctx context.Context, client socket.Clie
 }
 
 func (c *ClientConnectionRepository) Remove(ctx context.Context, client socket.Client) error {
+	fmt.Println(c.key(client))
 	if err := c.client.Del(ctx, c.key(client)).Err(); err != nil {
 		return err
 	}
