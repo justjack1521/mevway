@@ -44,8 +44,20 @@ func (c *ClientConnectionRepository) Add(ctx context.Context, client socket.Clie
 	return nil
 }
 
+func (c *ClientConnectionRepository) RemoveAll(ctx context.Context) error {
+	iter := c.client.Scan(ctx, 0, fmt.Sprintf("%s*", c.key(socket.Client{})), 0).Iterator()
+	for iter.Next(ctx) {
+		if err := c.client.Del(ctx, iter.Val()).Err(); err != nil {
+			return err
+		}
+	}
+	if err := iter.Err(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *ClientConnectionRepository) Remove(ctx context.Context, client socket.Client) error {
-	fmt.Println(c.key(client))
 	if err := c.client.Del(ctx, c.key(client)).Err(); err != nil {
 		return err
 	}

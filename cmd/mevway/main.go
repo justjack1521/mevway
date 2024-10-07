@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
@@ -19,6 +20,7 @@ import (
 	"mevway/internal/adapter/memory"
 	"mevway/internal/adapter/translate"
 	"mevway/internal/core/application"
+	"mevway/internal/core/application/subscriber"
 	"mevway/internal/infrastructure/instrumentation/relic"
 	"mevway/internal/infrastructure/instrumentation/system"
 	"os"
@@ -26,6 +28,7 @@ import (
 
 func main() {
 
+	var ctx = context.Background()
 	var logger = logrus.New()
 	var publisher = mevent.NewPublisher(mevent.PublisherWithLogger(logger))
 
@@ -34,7 +37,7 @@ func main() {
 		panic(err)
 	}
 
-	rds, err := memory.NewRedisConnection(context.Background())
+	rds, err := memory.NewRedisConnection(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -109,19 +112,22 @@ func main() {
 
 	var listeners = []io.Closer{
 		broker.NewClientNotificationConsumer(msq, server, messageTranslator),
-		broker.NewClientEventPublisher(msq, publisher, translate.NewProtobufSocketEventTranslator()),
+		broker.NewSocketClientEventPublisher(msq, publisher, translate.NewProtobufSocketEventTranslator()),
 		broker.NewUserEventPublisher(msq, publisher, translate.NewProtobufUserEventTranslator()),
 	}
 
-	broker.NewClientPersistenceConsumer(publisher, clientRepository)
+	subscriber.NewClientPersistenceConsumer(publisher, clientRepository)
 
 	go server.Run()
 
 	router, err := http.NewRouter(authHandler, statusHandler, patchHandler, socketHandler, searchHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 
 	if err := router.Serve(":8080"); err != nil {
+		publisher.Notify(application.NewShutdownEvent(ctx))
 		for _, listener := range listeners {
-			listener.Close()
+			if err := listener.Close(); err != nil {
+				fmt.Println(err)
+			}
 		}
 		os.Exit(1)
 	}

@@ -14,7 +14,7 @@ type SocketClientEventPublisher struct {
 	translator application.SocketEventTranslator
 }
 
-func NewClientEventPublisher(connection *rabbitmq.Conn, publisher *mevent.Publisher, translator application.SocketEventTranslator) *SocketClientEventPublisher {
+func NewSocketClientEventPublisher(connection *rabbitmq.Conn, publisher *mevent.Publisher, translator application.SocketEventTranslator) *SocketClientEventPublisher {
 	var service = &SocketClientEventPublisher{publisher: mevrabbit.NewClientPublisher(connection), translator: translator}
 	publisher.Subscribe(service, socket.ClientConnectedEvent{}, socket.ClientDisconnectedEvent{})
 	return service

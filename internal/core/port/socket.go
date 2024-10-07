@@ -15,6 +15,7 @@ type Client interface {
 type ClientConnectionRepository interface {
 	Add(ctx context.Context, client socket.Client) error
 	Remove(ctx context.Context, client socket.Client) error
+	RemoveAll(ctx context.Context) error
 	List(ctx context.Context) ([]socket.Client, error)
 }
 
