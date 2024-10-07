@@ -45,10 +45,12 @@ func (s *SocketServer) Run() {
 		case c := <-s.register:
 			s.mu.Lock()
 			s.clients[c.client] = c.notifier
+			s.publisher.Notify(socket.NewClientConnectedEvent(context.Background(), c.client.Session, c.client.UserID, c.client.PlayerID))
 			s.mu.Unlock()
 		case c := <-s.unregister:
 			s.mu.Lock()
 			if _, ok := s.clients[c]; ok {
+				s.publisher.Notify(socket.NewClientDisconnectedEvent(context.Background(), c.Session, c.UserID, c.PlayerID))
 				delete(s.clients, c)
 			}
 			s.mu.Unlock()
@@ -67,7 +69,6 @@ func (s *SocketServer) Run() {
 func (s *SocketServer) Register(client socket.Client, notifier port.Client) {
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
-		s.publisher.Notify(socket.NewClientConnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID))
 		return
 	default:
 		return
@@ -77,7 +78,6 @@ func (s *SocketServer) Register(client socket.Client, notifier port.Client) {
 func (s *SocketServer) Unregister(client socket.Client) {
 	select {
 	case s.unregister <- client:
-		s.publisher.Notify(socket.NewClientDisconnectedEvent(context.Background(), client.Session, client.UserID, client.PlayerID))
 		return
 	default:
 		return
