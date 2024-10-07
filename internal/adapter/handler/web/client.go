@@ -7,6 +7,7 @@ import (
 	"mevway/internal/core/application"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
+	"sync"
 	"time"
 )
 
@@ -50,6 +51,8 @@ type Client struct {
 	instrumenter application.TransactionInstrumenter
 	translator   application.MessageTranslator
 	send         chan []byte
+	mu           sync.Mutex
+	closed       bool
 }
 
 func (c *Client) Notify(data []byte) {
@@ -74,9 +77,17 @@ func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketSer
 }
 
 func (c *Client) Close() {
-	close(c.send)
-	c.server.Unregister(c.client)
-	c.connection.Close()
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.closed == false {
+		close(c.send)
+		c.server.Unregister(c.client)
+		c.connection.Close()
+		c.closed = true
+	}
+
 }
 
 func (c *Client) Read() {
