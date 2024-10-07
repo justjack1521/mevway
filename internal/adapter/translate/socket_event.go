@@ -14,8 +14,7 @@ func NewProtobufSocketEventTranslator() *ProtobufSocketEventTranslator {
 
 func (t *ProtobufSocketEventTranslator) Connected(event socket.ClientConnectedEvent) ([]byte, error) {
 	var message = &protocommon.ClientConnected{
-		SessionId:     event.SessionID().String(),
-		RemoteAddress: event.RemoteAddress().String(),
+		SessionId: event.SessionID().String(),
 	}
 	bytes, err := message.MarshallBinary()
 	if err != nil {
@@ -26,8 +25,7 @@ func (t *ProtobufSocketEventTranslator) Connected(event socket.ClientConnectedEv
 
 func (t *ProtobufSocketEventTranslator) Disconnected(event socket.ClientDisconnectedEvent) ([]byte, error) {
 	var message = &protocommon.ClientDisconnected{
-		SessionId:     event.SessionID().String(),
-		RemoteAddress: event.RemoteAddress().String(),
+		SessionId: event.SessionID().String(),
 	}
 	bytes, err := message.MarshallBinary()
 	if err != nil {

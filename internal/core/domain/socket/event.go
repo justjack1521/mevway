@@ -4,19 +4,17 @@ import (
 	"context"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
-	"net"
 )
 
 type ClientConnectedEvent struct {
-	ctx        context.Context
-	sessionID  uuid.UUID
-	userID     uuid.UUID
-	playerID   uuid.UUID
-	remoteAddr net.Addr
+	ctx       context.Context
+	sessionID uuid.UUID
+	userID    uuid.UUID
+	playerID  uuid.UUID
 }
 
-func NewClientConnectedEvent(ctx context.Context, session, user, player uuid.UUID, addr net.Addr) ClientConnectedEvent {
-	return ClientConnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player, remoteAddr: addr}
+func NewClientConnectedEvent(ctx context.Context, session, user, player uuid.UUID) ClientConnectedEvent {
+	return ClientConnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player}
 }
 
 func (e ClientConnectedEvent) Context() context.Context {
@@ -35,32 +33,27 @@ func (e ClientConnectedEvent) PlayerID() uuid.UUID {
 	return e.playerID
 }
 
-func (e ClientConnectedEvent) RemoteAddress() net.Addr {
-	return e.remoteAddr
-}
-
 func (e ClientConnectedEvent) Name() string {
 	return "event.client.connected"
 }
 
 func (e ClientConnectedEvent) ToLogFields() logrus.Fields {
 	return logrus.Fields{
-		"event.name":     e.Name(),
-		"client.id":      e.userID.String(),
-		"remote.address": e.remoteAddr.String(),
+		"event.name": e.Name(),
+		"user.id":    e.userID.String(),
+		"player.id":  e.playerID.String(),
 	}
 }
 
 type ClientDisconnectedEvent struct {
-	ctx        context.Context
-	userID     uuid.UUID
-	playerID   uuid.UUID
-	sessionID  uuid.UUID
-	remoteAddr net.Addr
+	ctx       context.Context
+	userID    uuid.UUID
+	playerID  uuid.UUID
+	sessionID uuid.UUID
 }
 
-func NewClientDisconnectedEvent(ctx context.Context, session, user, player uuid.UUID, addr net.Addr) ClientDisconnectedEvent {
-	return ClientDisconnectedEvent{ctx: ctx, userID: user, playerID: player, sessionID: session, remoteAddr: addr}
+func NewClientDisconnectedEvent(ctx context.Context, session, user, player uuid.UUID) ClientDisconnectedEvent {
+	return ClientDisconnectedEvent{ctx: ctx, userID: user, playerID: player, sessionID: session}
 }
 
 func (e ClientDisconnectedEvent) Context() context.Context {
@@ -79,18 +72,14 @@ func (e ClientDisconnectedEvent) SessionID() uuid.UUID {
 	return e.sessionID
 }
 
-func (e ClientDisconnectedEvent) RemoteAddress() net.Addr {
-	return e.remoteAddr
-}
-
 func (e ClientDisconnectedEvent) Name() string {
 	return "event.client.disconnected"
 }
 
 func (e ClientDisconnectedEvent) ToLogFields() logrus.Fields {
 	return logrus.Fields{
-		"event.name":     e.Name(),
-		"client.id":      e.userID.String(),
-		"remote.address": e.remoteAddr.String(),
+		"event.name": e.Name(),
+		"user.id":    e.userID.String(),
+		"player.id":  e.playerID.String(),
 	}
 }
