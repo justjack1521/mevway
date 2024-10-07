@@ -46,6 +46,7 @@ type Client struct {
 	client       socket.Client
 	connection   *websocket.Conn
 	router       port.SocketMessageRouter
+	server       port.SocketServer
 	instrumenter application.TransactionInstrumenter
 	translator   application.MessageTranslator
 	send         chan []byte
@@ -60,10 +61,11 @@ func (c *Client) Notify(data []byte) {
 	}
 }
 
-func NewClient(client socket.Client, conn *websocket.Conn, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *Client {
+func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *Client {
 	return &Client{
 		client:       client,
 		connection:   conn,
+		server:       server,
 		router:       router,
 		instrumenter: instrumenter,
 		translator:   translator,
@@ -73,12 +75,14 @@ func NewClient(client socket.Client, conn *websocket.Conn, router port.SocketMes
 
 func (c *Client) Close() {
 	close(c.send)
+	c.server.Unregister(c.client)
+	c.connection.Close()
 }
 
 func (c *Client) Read() {
 
 	defer func() {
-		c.connection.Close()
+		c.Close()
 	}()
 
 	c.connection.SetReadLimit(maxMessageSize)
@@ -133,7 +137,7 @@ func (c *Client) Write() {
 
 	defer func() {
 		ticker.Stop()
-		c.connection.Close()
+		c.Close()
 	}()
 
 	for {

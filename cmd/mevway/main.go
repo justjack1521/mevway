@@ -91,7 +91,7 @@ func main() {
 
 	var relicInstrumenter = relic.NewRelicInstrumenter(nrl.Application)
 	var messageTranslator = translate.NewProtobufSocketMessageTranslator()
-	var socketFactory = web.NewClientFactory(serviceRouter, relicInstrumenter, messageTranslator)
+	var socketFactory = web.NewClientFactory(server, serviceRouter, relicInstrumenter, messageTranslator)
 
 	var statusService = system.NewStatusService()
 	var authService = application.NewAuthenticationService(tokenRepository, userRepository, publisher)

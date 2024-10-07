@@ -9,15 +9,16 @@ import (
 )
 
 type ClientFactory struct {
+	server       port.SocketServer
 	router       port.SocketMessageRouter
 	instrumenter application.TransactionInstrumenter
 	translator   application.MessageTranslator
 }
 
-func NewClientFactory(router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *ClientFactory {
+func NewClientFactory(server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *ClientFactory {
 	return &ClientFactory{router: router, instrumenter: instrumenter, translator: translator}
 }
 
 func (f *ClientFactory) Create(ctx context.Context, client socket.Client, connection *websocket.Conn) (port.Client, error) {
-	return NewClient(client, connection, f.router, f.instrumenter, f.translator), nil
+	return NewClient(client, connection, f.server, f.router, f.instrumenter, f.translator), nil
 }

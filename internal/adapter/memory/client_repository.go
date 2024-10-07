@@ -32,12 +32,15 @@ func (c *ClientConnectionRepository) Add(ctx context.Context, client socket.Clie
 		UserID:    client.UserID.String(),
 		PlayerID:  client.PlayerID.String(),
 	}
+
 	if err := c.client.HSet(ctx, key, hash.ToMapStringInterface()).Err(); err != nil {
 		return err
 	}
+
 	if err := c.client.Expire(ctx, key, connectedClientsTTL).Err(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
