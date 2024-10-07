@@ -99,9 +99,9 @@ func (h *AuthenticationHandler) TokenAuthorise(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(middleware.SessionIDContextKey, claims.SessionID)
-	ctx.Set(middleware.UserIDContextKey, claims.UserID)
-	ctx.Set(middleware.PlayerIDContextKey, claims.PlayerID)
+	ctx.Set(middleware.SessionIDContextKey, claims.SessionID.String())
+	ctx.Set(middleware.UserIDContextKey, claims.UserID.String())
+	ctx.Set(middleware.PlayerIDContextKey, claims.PlayerID.String())
 	ctx.Set(middleware.UserEnvironmentKey, claims.Environment)
 	ctx.Set(middleware.UserRoleContextKey, claims.Roles)
 
