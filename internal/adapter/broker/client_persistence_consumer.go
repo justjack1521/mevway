@@ -8,10 +8,10 @@ import (
 )
 
 type ClientPersistenceConsumer struct {
-	repository port.ClientRepository
+	repository port.ClientConnectionRepository
 }
 
-func NewClientPersistenceConsumer(publisher *mevent.Publisher, repository port.ClientRepository) *ClientPersistenceConsumer {
+func NewClientPersistenceConsumer(publisher *mevent.Publisher, repository port.ClientConnectionRepository) *ClientPersistenceConsumer {
 	var consumer = &ClientPersistenceConsumer{repository: repository}
 	publisher.Subscribe(consumer, socket.ClientConnectedEvent{})
 	return consumer

@@ -3,9 +3,17 @@ package dto
 import "encoding/json"
 
 type SocketClientRedis struct {
-	SessionID string `redis:"session_id" json:"session_id"`
-	UserID    string `redis:"user_id" json:"user_id"`
-	PlayerID  string `redis:"player_id" json:"player_id"`
+	SessionID string `redis:"SessionID" json:"SessionID"`
+	UserID    string `redis:"UserID" json:"UserID"`
+	PlayerID  string `redis:"PlayerID" json:"PlayerID"`
+}
+
+func (s SocketClientRedis) ToMapStringInterface() map[string]interface{} {
+	return map[string]interface{}{
+		"SessionID": s.SessionID,
+		"UserID":    s.UserID,
+		"PlayerID":  s.PlayerID,
+	}
 }
 
 func (s SocketClientRedis) MarshalBinary() (data []byte, err error) {

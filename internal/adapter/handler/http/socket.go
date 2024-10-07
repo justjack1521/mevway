@@ -26,11 +26,11 @@ var upgrader = websocket.Upgrader{
 
 type SocketHandler struct {
 	svc        port.SocketServer
-	repository port.ClientRepository
+	repository port.ClientConnectionRepository
 	factory    application.SocketClientFactory
 }
 
-func NewSocketHandler(svc port.SocketServer, clients port.ClientRepository, factory application.SocketClientFactory) *SocketHandler {
+func NewSocketHandler(svc port.SocketServer, clients port.ClientConnectionRepository, factory application.SocketClientFactory) *SocketHandler {
 	return &SocketHandler{svc: svc, repository: clients, factory: factory}
 }
 
