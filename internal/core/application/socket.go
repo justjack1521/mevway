@@ -12,12 +12,8 @@ type SocketClientFactory interface {
 }
 
 type MessageTranslator interface {
-	Translate(client socket.Client, message []byte) (socket.Message, error)
-}
-
-type ResponseTranslator interface {
-	Response(message socket.Message, response []byte) (socket.Response, error)
-	Error(message socket.Message, err error) (socket.Response, error)
+	Message(client socket.Client, message []byte) (socket.Message, error)
+	Response(message socket.Message, response []byte, err error) socket.Response
 }
 
 type NotificationTranslator interface {

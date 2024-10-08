@@ -123,28 +123,35 @@ func (c *Client) Read() {
 
 		ctx, txn := c.instrumenter.Start(context.Background(), "socket/read")
 
-		request, err := c.translator.Translate(c.client, message)
+		request, err := c.translator.Message(c.client, message)
 		if err != nil {
 			txn.NoticeError(errFailedReadClientRequest(errFailedUnmarshalMessage(err)))
 			txn.End()
 			continue
 		}
 
-		response, err := c.router.Route(ctx, request)
+		result, err := c.router.Route(ctx, request)
+		if err != nil {
+			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
+			txn.End()
+		}
+
+		bytes, err := result.MarshallBinary()
+		if err != nil {
+			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
+			txn.End()
+		}
+
+		var response = c.translator.Response(request, bytes, err)
+
+		send, err := response.MarshallBinary()
 		if err != nil {
 			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 			txn.End()
 			continue
 		}
 
-		bytes, err := response.MarshallBinary()
-		if err != nil {
-			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
-			txn.End()
-			continue
-		}
-
-		c.Notify(bytes)
+		c.Notify(send)
 
 		txn.End()
 

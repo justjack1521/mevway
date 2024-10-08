@@ -14,7 +14,7 @@ func NewProtobufSocketMessageTranslator() *ProtobufSocketMessageTranslator {
 	return &ProtobufSocketMessageTranslator{}
 }
 
-func (t *ProtobufSocketMessageTranslator) Translate(client socket.Client, message []byte) (socket.Message, error) {
+func (t *ProtobufSocketMessageTranslator) Message(client socket.Client, message []byte) (socket.Message, error) {
 	var request = &protocommon.BaseRequest{}
 
 	if err := proto.Unmarshal(message, request); err != nil {
@@ -52,21 +52,23 @@ func (t *ProtobufSocketMessageTranslator) Notification(data []byte) (socket.Mess
 	}, nil
 }
 
-func (t *ProtobufSocketMessageTranslator) Response(message socket.Message, response []byte) (socket.Response, error) {
+func (t *ProtobufSocketMessageTranslator) Response(message socket.Message, response []byte, err error) (socket.Response, error) {
+
+	if err != nil {
+		return &protocommon.Response{
+			CommandId:    message.CommandID.String(),
+			Service:      protocommon.ServiceKey(message.Service.ID),
+			Operation:    int32(message.Operation.ID),
+			Error:        true,
+			ErrorMessage: err.Error(),
+		}, nil
+	}
+
 	return &protocommon.Response{
 		CommandId: message.CommandID.String(),
 		Service:   protocommon.ServiceKey(message.Service.ID),
 		Operation: int32(message.Operation.ID),
 		Data:      response,
 	}, nil
-}
 
-func (t *ProtobufSocketMessageTranslator) Error(message socket.Message, err error) (socket.Response, error) {
-	return &protocommon.Response{
-		CommandId:    message.CommandID.String(),
-		Service:      protocommon.ServiceKey(message.Service.ID),
-		Operation:    int32(message.Operation.ID),
-		Error:        true,
-		ErrorMessage: err.Error(),
-	}, nil
 }
