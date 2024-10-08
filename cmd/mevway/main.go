@@ -7,8 +7,10 @@ import (
 	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"github.com/justjack1521/mevrelic"
+	slogrus "github.com/samber/slog-logrus/v2"
 	"github.com/sirupsen/logrus"
 	"io"
+	"log/slog"
 	"mevway/internal/adapter/broker"
 	"mevway/internal/adapter/database"
 	"mevway/internal/adapter/external"
@@ -29,7 +31,10 @@ import (
 func main() {
 
 	var ctx = context.Background()
+
 	var logger = logrus.New()
+	var slogger = slog.New(slogrus.Option{Level: slog.LevelDebug, Logger: logger}.NewLogrusHandler())
+
 	var publisher = mevent.NewPublisher(mevent.PublisherWithLogger(logger))
 
 	db, err := database.NewPostgresConnection()
@@ -101,7 +106,7 @@ func main() {
 	var patchService = application.NewPatchService(patchRepository)
 	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
 
-	var loggerMiddleware = middleware.NewLoggingMiddleware(logger)
+	var loggerMiddleware = middleware.NewLoggingMiddleware(slogger)
 	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
 
 	var statusHandler = http.NewStatusHandler(statusService)

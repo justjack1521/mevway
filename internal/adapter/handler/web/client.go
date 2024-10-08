@@ -43,17 +43,6 @@ var (
 	}
 )
 
-type Client struct {
-	client socket.Client
-
-	router       port.SocketMessageRouter
-	server       port.SocketServer
-	instrumenter application.TransactionInstrumenter
-	translator   application.MessageTranslator
-
-	connection *Connection
-}
-
 type Connection struct {
 	*websocket.Conn
 	send   chan []byte
@@ -61,13 +50,26 @@ type Connection struct {
 	closed bool
 }
 
-func (c *Client) Notify(data []byte) {
-	select {
-	case c.connection.send <- data:
-		return
-	default:
-		return
+func (c *Connection) Close() {
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.closed == false {
+		close(c.send)
+		c.Conn.Close()
+		c.closed = true
 	}
+
+}
+
+type Client struct {
+	client       socket.Client
+	router       port.SocketMessageRouter
+	server       port.SocketServer
+	instrumenter application.TransactionInstrumenter
+	translator   application.MessageTranslator
+	connection   *Connection
 }
 
 func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *Client {
@@ -89,17 +91,13 @@ func (c *Client) Close() {
 	c.connection.Close()
 }
 
-func (c *Connection) Close() {
-
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.closed == false {
-		close(c.send)
-		c.Conn.Close()
-		c.closed = true
+func (c *Client) Notify(data []byte) {
+	select {
+	case c.connection.send <- data:
+		return
+	default:
+		return
 	}
-
 }
 
 func (c *Client) Read() {
@@ -129,21 +127,21 @@ func (c *Client) Read() {
 		if err != nil {
 			txn.NoticeError(errFailedReadClientRequest(errFailedUnmarshalMessage(err)))
 			txn.End()
-			break
+			continue
 		}
 
 		response, err := c.router.Route(ctx, request)
 		if err != nil {
 			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 			txn.End()
-			break
+			continue
 		}
 
 		bytes, err := response.MarshallBinary()
 		if err != nil {
 			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 			txn.End()
-			break
+			continue
 		}
 
 		c.Notify(bytes)

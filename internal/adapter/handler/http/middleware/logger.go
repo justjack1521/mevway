@@ -2,32 +2,33 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"log/slog"
 )
 
 type LoggingMiddleware struct {
-	logger *logrus.Logger
+	logger *slog.Logger
 }
 
-func NewLoggingMiddleware(logger *logrus.Logger) *LoggingMiddleware {
+func NewLoggingMiddleware(logger *slog.Logger) *LoggingMiddleware {
 	return &LoggingMiddleware{logger: logger}
 }
 
 func (m *LoggingMiddleware) Handle(ctx *gin.Context) {
 
-	entry := m.logger.WithContext(ctx.Request.Context()).WithFields(logrus.Fields{
-		"uri":    ctx.Request.RequestURI,
-		"method": ctx.Request.Method,
-		"addr":   ctx.Request.RemoteAddr,
-	})
-	entry.Info("Request received")
+	var entry = m.logger.With(slog.Group("request_attr"),
+		slog.String("uri", ctx.Request.RequestURI),
+		slog.String("method", ctx.Request.Method),
+		slog.String("addr", ctx.Request.RemoteAddr),
+	)
+
+	entry.InfoContext(ctx, "request received")
 
 	ctx.Next()
 
 	if len(ctx.Errors) == 0 {
-		entry.Info("Request success")
+		entry.InfoContext(ctx, "request success")
 	} else {
-		entry.WithError(ctx.Errors.Last()).Error("Request failure")
+		entry.With("error", ctx.Errors.Last()).ErrorContext(ctx, "request failed")
 	}
 
 }
