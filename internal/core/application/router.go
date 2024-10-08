@@ -37,7 +37,7 @@ func (r *ServiceRouter) Route(ctx context.Context, message socket.Message) (resp
 
 	var entry = r.logger.With(
 		slog.Group("message_attr",
-			slog.String("user", message.UserID.String()),
+			slog.String("player", message.PlayerID.String()),
 			slog.Int("service", message.Service.ID),
 			slog.Int("operation", message.Operation.ID),
 			slog.Int("bytes", len(message.Data)),
