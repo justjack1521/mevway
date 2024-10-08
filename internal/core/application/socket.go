@@ -13,7 +13,8 @@ type SocketClientFactory interface {
 
 type MessageTranslator interface {
 	Message(client socket.Client, message []byte) (socket.Message, error)
-	Response(message socket.Message, response []byte, err error) socket.Response
+	Response(message socket.Message, response []byte) socket.Response
+	Error(message socket.Message, err error) socket.Response
 }
 
 type NotificationTranslator interface {

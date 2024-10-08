@@ -52,17 +52,7 @@ func (t *ProtobufSocketMessageTranslator) Notification(data []byte) (socket.Mess
 	}, nil
 }
 
-func (t *ProtobufSocketMessageTranslator) Response(message socket.Message, response []byte, err error) socket.Response {
-
-	if err != nil {
-		return &protocommon.Response{
-			CommandId:    message.CommandID.String(),
-			Service:      protocommon.ServiceKey(message.Service.ID),
-			Operation:    int32(message.Operation.ID),
-			Error:        true,
-			ErrorMessage: err.Error(),
-		}
-	}
+func (t *ProtobufSocketMessageTranslator) Response(message socket.Message, response []byte) socket.Response {
 
 	return &protocommon.Response{
 		CommandId: message.CommandID.String(),
@@ -71,4 +61,14 @@ func (t *ProtobufSocketMessageTranslator) Response(message socket.Message, respo
 		Data:      response,
 	}
 
+}
+
+func (t *ProtobufSocketMessageTranslator) Error(message socket.Message, err error) socket.Response {
+	return &protocommon.Response{
+		CommandId:    message.CommandID.String(),
+		Service:      protocommon.ServiceKey(message.Service.ID),
+		Operation:    int32(message.Operation.ID),
+		Error:        true,
+		ErrorMessage: err.Error(),
+	}
 }

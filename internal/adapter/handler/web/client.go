@@ -130,21 +130,31 @@ func (c *Client) Read() {
 			continue
 		}
 
+		var response socket.Response
+
 		result, err := c.router.Route(ctx, request)
 		if err != nil {
+
 			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 			txn.End()
-		}
 
-		bytes, err := result.MarshallBinary()
-		if err != nil {
-			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
-			txn.End()
-		}
+			response = c.translator.Error(request, err)
 
-		var response = c.translator.Response(request, bytes, err)
+		} else {
+
+			bytes, err := result.MarshallBinary()
+
+			if err != nil {
+				txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
+				txn.End()
+				continue
+			}
+
+			response = c.translator.Response(request, bytes)
+		}
 
 		send, err := response.MarshallBinary()
+
 		if err != nil {
 			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 			txn.End()
