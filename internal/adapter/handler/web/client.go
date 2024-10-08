@@ -137,24 +137,20 @@ func (c *Client) Read() {
 
 			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 			txn.End()
-
 			response = c.translator.Error(request, err)
 
 		} else {
 
 			bytes, err := result.MarshallBinary()
-
 			if err != nil {
 				txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 				txn.End()
-				continue
 			}
-
 			response = c.translator.Response(request, bytes)
+
 		}
 
 		send, err := response.MarshallBinary()
-
 		if err != nil {
 			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
 			txn.End()
