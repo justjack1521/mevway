@@ -19,7 +19,8 @@ func (t *ProtobufSocketMessageTranslator) Translate(client socket.Client, messag
 		return socket.Message{}, err
 	}
 	return socket.Message{
-		UserID: client.UserID,
+		UserID:   client.UserID,
+		PlayerID: client.PlayerID,
 		Service: socket.ServiceIdentifier{
 			ID: int(request.Service),
 		},
