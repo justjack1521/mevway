@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/adapter/memory/dto"
 	"mevway/internal/core/domain/socket"
 	"strings"
@@ -74,5 +75,12 @@ func (c *ClientConnectionRepository) List(ctx context.Context) ([]socket.Client,
 }
 
 func (c *ClientConnectionRepository) key(client socket.Client) string {
-	return strings.Join([]string{serviceKey, connectedClientsKey, client.Session.String()}, ":")
+
+	var id = ""
+
+	if uuid.Equal(client.Session, uuid.Nil) == false {
+		id = client.Session.String()
+	}
+
+	return strings.Join([]string{serviceKey, connectedClientsKey, id}, ":")
 }
