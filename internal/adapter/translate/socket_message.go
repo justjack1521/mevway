@@ -16,13 +16,15 @@ func NewProtobufSocketMessageTranslator() *ProtobufSocketMessageTranslator {
 
 func (t *ProtobufSocketMessageTranslator) Translate(client socket.Client, message []byte) (socket.Message, error) {
 	var request = &protocommon.BaseRequest{}
+
 	if err := proto.Unmarshal(message, request); err != nil {
 		return socket.Message{}, err
 	}
+
 	return socket.Message{
 		UserID:    client.UserID,
 		PlayerID:  client.PlayerID,
-		CommandID: uuid.FromStringOrNil(request.Header.CommandId),
+		CommandID: uuid.FromStringOrNil(request.CommandId),
 		Service: socket.ServiceIdentifier{
 			ID: int(request.Service),
 		},
@@ -31,6 +33,7 @@ func (t *ProtobufSocketMessageTranslator) Translate(client socket.Client, messag
 		},
 		Data: request.Data,
 	}, nil
+
 }
 
 func (t *ProtobufSocketMessageTranslator) Notification(data []byte) (socket.Message, error) {
@@ -51,27 +54,19 @@ func (t *ProtobufSocketMessageTranslator) Notification(data []byte) (socket.Mess
 
 func (t *ProtobufSocketMessageTranslator) Response(message socket.Message, response []byte) (socket.Response, error) {
 	return &protocommon.Response{
-		Header: &protocommon.ResponseHeader{
-			ClientId:     message.UserID.String(),
-			ConnectionId: message.SessionID.String(),
-			CommandId:    message.CommandID.String(),
-			Service:      protocommon.ServiceKey(message.Service.ID),
-			Operation:    int32(message.Operation.ID),
-		},
-		Data: response,
+		CommandId: message.CommandID.String(),
+		Service:   protocommon.ServiceKey(message.Service.ID),
+		Operation: int32(message.Operation.ID),
+		Data:      response,
 	}, nil
 }
 
 func (t *ProtobufSocketMessageTranslator) Error(message socket.Message, err error) (socket.Response, error) {
 	return &protocommon.Response{
-		Header: &protocommon.ResponseHeader{
-			ClientId:     message.UserID.String(),
-			ConnectionId: message.SessionID.String(),
-			CommandId:    message.CommandID.String(),
-			Service:      protocommon.ServiceKey(message.Service.ID),
-			Operation:    int32(message.Operation.ID),
-			Error:        true,
-			ErrorMessage: err.Error(),
-		},
+		CommandId:    message.CommandID.String(),
+		Service:      protocommon.ServiceKey(message.Service.ID),
+		Operation:    int32(message.Operation.ID),
+		Error:        true,
+		ErrorMessage: err.Error(),
 	}, nil
 }
