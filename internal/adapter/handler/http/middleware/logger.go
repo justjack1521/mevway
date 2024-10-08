@@ -15,10 +15,12 @@ func NewLoggingMiddleware(logger *slog.Logger) *LoggingMiddleware {
 
 func (m *LoggingMiddleware) Handle(ctx *gin.Context) {
 
-	var entry = m.logger.With(slog.Group("request_attr"),
-		slog.String("uri", ctx.Request.RequestURI),
-		slog.String("method", ctx.Request.Method),
-		slog.String("addr", ctx.Request.RemoteAddr),
+	var entry = m.logger.With(
+		slog.Group("request_attr",
+			slog.String("uri", ctx.Request.RequestURI),
+			slog.String("method", ctx.Request.Method),
+			slog.String("addr", ctx.Request.RemoteAddr),
+		),
 	)
 
 	entry.InfoContext(ctx, "request received")

@@ -89,7 +89,7 @@ func main() {
 	var clientRepository = memory.NewClientRepository(rds)
 	var socialRepository = external.NewSocialPlayerRepository(social)
 
-	var serviceRouter = application.NewServiceRouter()
+	var serviceRouter = application.NewServiceRouter(slogger)
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
 	serviceRouter.RegisterSubRouter(rpc.SocialClientRouteKey, rpc.NewSocialServiceClientRouter(social))
 	serviceRouter.RegisterSubRouter(rpc.RankingClientRouteKey, rpc.NewRankServiceClientRouter(rank))

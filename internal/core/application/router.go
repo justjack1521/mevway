@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
 )
@@ -17,11 +18,13 @@ var (
 )
 
 type ServiceRouter struct {
+	logger   *slog.Logger
 	services map[socket.ServiceIdentifier]port.SocketMessageRouter
 }
 
-func NewServiceRouter() *ServiceRouter {
+func NewServiceRouter(logger *slog.Logger) *ServiceRouter {
 	return &ServiceRouter{
+		logger:   logger,
 		services: make(map[socket.ServiceIdentifier]port.SocketMessageRouter),
 	}
 }
@@ -30,14 +33,33 @@ func (r *ServiceRouter) RegisterSubRouter(key int, router port.SocketMessageRout
 	r.services[socket.ServiceIdentifier{ID: key}] = router
 }
 
-func (r *ServiceRouter) Route(ctx context.Context, message socket.Message) (socket.Response, error) {
+func (r *ServiceRouter) Route(ctx context.Context, message socket.Message) (response socket.Response, err error) {
+
+	var entry = r.logger.With(
+		slog.Group("message_attr",
+			slog.String("user", message.UserID.String()),
+			slog.Int("service", message.Service.ID),
+			slog.Int("operation", message.Operation.ID),
+			slog.Int("bytes", len(message.Data)),
+		),
+	)
+
+	entry.InfoContext(ctx, "socket message received")
+
+	defer func() {
+		if err != nil {
+			entry.With("error", err.Error()).ErrorContext(ctx, "socket message route failed")
+		} else {
+			entry.InfoContext(ctx, "socket route success")
+		}
+	}()
 
 	service, exists := r.services[message.Service]
 	if exists == false {
 		return nil, errFailedRouteRequest(errServiceNotFound(message.Service))
 	}
 
-	response, err := service.Route(ctx, message)
+	response, err = service.Route(ctx, message)
 	if err != nil {
 		return nil, errFailedRouteRequest(err)
 	}
