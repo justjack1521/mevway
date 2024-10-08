@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	connectedClientsKey = "connected_clients"
-	connectedClientsTTL = time.Hour * 8
+	connectedClientInfoKey = "connected_client_info"
+	connectedClientsTTL    = time.Hour * 8
 )
 
 type ClientConnectionRepository struct {
@@ -26,7 +26,7 @@ func NewClientRepository(client *redis.Client) *ClientConnectionRepository {
 
 func (c *ClientConnectionRepository) Add(ctx context.Context, client socket.Client) error {
 
-	var key = c.key(client)
+	var key = c.clientKey(client)
 
 	var hash = dto.SocketClientRedis{
 		SessionID: client.Session.String(),
@@ -46,7 +46,7 @@ func (c *ClientConnectionRepository) Add(ctx context.Context, client socket.Clie
 }
 
 func (c *ClientConnectionRepository) RemoveAll(ctx context.Context) error {
-	iter := c.client.Scan(ctx, 0, fmt.Sprintf("%s*", c.key(socket.Client{})), 0).Iterator()
+	iter := c.client.Scan(ctx, 0, fmt.Sprintf("%s*", c.clientKey(socket.Client{})), 0).Iterator()
 	for iter.Next(ctx) {
 		if err := c.client.Del(ctx, iter.Val()).Err(); err != nil {
 			return err
@@ -59,14 +59,14 @@ func (c *ClientConnectionRepository) RemoveAll(ctx context.Context) error {
 }
 
 func (c *ClientConnectionRepository) Remove(ctx context.Context, client socket.Client) error {
-	if err := c.client.Del(ctx, c.key(client)).Err(); err != nil {
+	if err := c.client.Del(ctx, c.clientKey(client)).Err(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c *ClientConnectionRepository) List(ctx context.Context) ([]socket.Client, error) {
-	result, _, err := c.client.HScan(ctx, connectedClientsKey, 0, "", 10).Result()
+	result, _, err := c.client.HScan(ctx, connectedClientInfoKey, 0, "", 10).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c *ClientConnectionRepository) List(ctx context.Context) ([]socket.Client,
 	return nil, nil
 }
 
-func (c *ClientConnectionRepository) key(client socket.Client) string {
+func (c *ClientConnectionRepository) clientKey(client socket.Client) string {
 
 	var id = ""
 
@@ -82,5 +82,5 @@ func (c *ClientConnectionRepository) key(client socket.Client) string {
 		id = client.Session.String()
 	}
 
-	return strings.Join([]string{serviceKey, connectedClientsKey, id}, ":")
+	return strings.Join([]string{serviceKey, connectedClientInfoKey, id}, ":")
 }

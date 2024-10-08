@@ -3,6 +3,7 @@ package translate
 import (
 	"github.com/golang/protobuf/proto"
 	"github.com/justjack1521/mevium/pkg/genproto/protocommon"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/socket"
 )
 
@@ -19,8 +20,9 @@ func (t *ProtobufSocketMessageTranslator) Translate(client socket.Client, messag
 		return socket.Message{}, err
 	}
 	return socket.Message{
-		UserID:   client.UserID,
-		PlayerID: client.PlayerID,
+		UserID:    client.UserID,
+		PlayerID:  client.PlayerID,
+		CommandID: uuid.FromStringOrNil(request.Header.CommandId),
 		Service: socket.ServiceIdentifier{
 			ID: int(request.Service),
 		},
