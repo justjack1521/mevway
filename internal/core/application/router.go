@@ -50,7 +50,7 @@ func (r *ServiceRouter) Route(ctx context.Context, message socket.Message) (resp
 		if err != nil {
 			entry.With("error", err.Error()).ErrorContext(ctx, "socket message route failed")
 		} else {
-			entry.InfoContext(ctx, "socket route success")
+			entry.InfoContext(ctx, "socket message route success")
 		}
 	}()
 
