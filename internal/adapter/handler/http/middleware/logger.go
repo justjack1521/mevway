@@ -30,7 +30,7 @@ func (m *LoggingMiddleware) Handle(ctx *gin.Context) {
 	if len(ctx.Errors) == 0 {
 		entry.InfoContext(ctx, "request success")
 	} else {
-		entry.With("error", ctx.Errors.Last()).ErrorContext(ctx, "request failed")
+		entry.With("error", ctx.Errors.Last().Error()).ErrorContext(ctx, "request failed")
 	}
 
 }
