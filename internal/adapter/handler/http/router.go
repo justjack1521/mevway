@@ -25,9 +25,9 @@ func NewRouter(
 	router.Use(middleware.CORSMiddleware())
 	router.Use(middle...)
 
-	var privateGroup = router.Group("/private", middleware.AdminRoleMiddleware())
+	var privateGroup = router.Group("/private", authHandler.AccessTokenAuthorise, middleware.AdminRoleMiddleware())
 	{
-		var userGroup = privateGroup.Group("/user", authHandler.AccessTokenAuthorise)
+		var userGroup = privateGroup.Group("/user")
 		{
 			userGroup.POST("/ban")
 			userGroup.POST("/delete", userHandler.Delete)
