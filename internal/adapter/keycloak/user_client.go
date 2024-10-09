@@ -59,7 +59,7 @@ var (
 	}
 )
 
-func (c *UserClient) CreateUser(ctx context.Context, target user.User) error {
+func (c *UserClient) CreateUser(ctx context.Context, target *user.User) error {
 
 	token, err := c.LoginAdmin(ctx)
 	if err != nil {
@@ -82,7 +82,7 @@ func (c *UserClient) CreateUser(ctx context.Context, target user.User) error {
 		"customer": {target.CustomerID},
 	}
 
-	_, err = c.client.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
+	id, err := c.client.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
 		ID:          gocloak.StringP(target.ID.String()),
 		Username:    gocloak.StringP(target.Username),
 		Enabled:     gocloak.BoolP(true),
@@ -94,6 +94,8 @@ func (c *UserClient) CreateUser(ctx context.Context, target user.User) error {
 	if err != nil {
 		return errFailedToCreateUser(err)
 	}
+
+	target.ID = uuid.FromStringOrNil(id)
 
 	return nil
 

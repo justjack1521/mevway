@@ -17,19 +17,19 @@ func NewUserService(publisher *mevent.Publisher, users port.UserRepository) *Use
 	return &UserService{publisher: publisher, users: users}
 }
 
-func (s *UserService) Register(ctx context.Context, username, password, confirm string) (user.User, error) {
+func (s *UserService) Register(ctx context.Context, username, password, confirm string) (*user.User, error) {
 
 	if password != confirm {
-		return user.User{}, errPasswordConfirmMismatch
+		return nil, errPasswordConfirmMismatch
 	}
 
 	target, err := user.NewUser(username, password)
 	if err != nil {
-		return user.User{}, err
+		return nil, err
 	}
 
 	if err := s.users.CreateUser(ctx, target); err != nil {
-		return user.User{}, err
+		return nil, err
 	}
 
 	s.publisher.Notify(user.NewCreatedEvent(ctx, target.ID, target.PlayerID, target.CustomerID))

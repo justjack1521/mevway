@@ -24,23 +24,23 @@ type User struct {
 	Password string
 }
 
-func NewUser(username string, password string) (User, error) {
+func NewUser(username string, password string) (*User, error) {
 
 	if username == "" {
-		return User{}, errUserNameIsEmpty
+		return nil, errUserNameIsEmpty
 	}
 
 	if password == "" {
-		return User{}, errPasswordIsEmpty
+		return nil, errPasswordIsEmpty
 	}
 
 	b := make([]byte, 6)
 	_, err := rand.Read(b)
 	if err != nil {
-		return User{}, err
+		return nil, err
 	}
 
-	return User{
+	return &User{
 		Identity: Identity{
 			ID:         uuid.NewV4(),
 			PlayerID:   uuid.NewV4(),
