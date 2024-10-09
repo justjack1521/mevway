@@ -1,4 +1,4 @@
-package broker
+package rmq
 
 import (
 	"github.com/justjack1521/mevrabbit"
@@ -13,17 +13,21 @@ type ClientNotificationConsumer struct {
 	translator application.NotificationTranslator
 }
 
-func NewClientNotificationConsumer(conn *rabbitmq.Conn, svc port.SocketServer, translator application.NotificationTranslator) *ClientNotificationConsumer {
+func NewClientNotificationConsumer(app *ApplicationConnection, svc port.SocketServer, translator application.NotificationTranslator) *ClientNotificationConsumer {
 	service := &ClientNotificationConsumer{
 		svc:        svc,
 		translator: translator,
 	}
-	consumer, err := mevrabbit.NewStandardConsumer(conn, mevrabbit.ClientUpdate, mevrabbit.ClientNotification, mevrabbit.Client, service.consume)
+
+	consumer, err := mevrabbit.NewStandardConsumer(app.conn, mevrabbit.ClientUpdate, mevrabbit.ClientNotification, mevrabbit.Client, service.consume)
+
 	if err != nil {
 		panic(err)
 	}
-	service.consumer = consumer
+
+	service.consumer = consumer.WithSlogging(app.slogger).WithTracing(app.tracer)
 	return service
+
 }
 
 func (s *ClientNotificationConsumer) consume(ctx *mevrabbit.ConsumerContext) (action rabbitmq.Action, err error) {
@@ -39,7 +43,6 @@ func (s *ClientNotificationConsumer) consume(ctx *mevrabbit.ConsumerContext) (ac
 	return rabbitmq.Ack, nil
 }
 
-func (s *ClientNotificationConsumer) Close() error {
+func (s *ClientNotificationConsumer) Close() {
 	s.consumer.Close()
-	return nil
 }

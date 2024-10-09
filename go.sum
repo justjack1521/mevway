@@ -80,6 +80,14 @@ github.com/justjack1521/mevrabbit v0.0.0-20240804051039-2cab5b6fcac6 h1:D/IE9LK3
 github.com/justjack1521/mevrabbit v0.0.0-20240804051039-2cab5b6fcac6/go.mod h1:rX1ouxxqpwpJTkG6DijqoZ7THDs5fVkWH2j/Q+z6Pdk=
 github.com/justjack1521/mevrabbit v0.0.0-20241006085453-6240108089a2 h1:/iejsqA/EmNSUdkN40taUy0uvKMAp5dREfbw4pwNlqc=
 github.com/justjack1521/mevrabbit v0.0.0-20241006085453-6240108089a2/go.mod h1:rX1ouxxqpwpJTkG6DijqoZ7THDs5fVkWH2j/Q+z6Pdk=
+github.com/justjack1521/mevrabbit v0.0.0-20241009014915-5a415a73f581 h1:M6qLNCvGaYX0vtM+JZ10GsiPPdJ4nQpUUNJu3FajiAw=
+github.com/justjack1521/mevrabbit v0.0.0-20241009014915-5a415a73f581/go.mod h1:rX1ouxxqpwpJTkG6DijqoZ7THDs5fVkWH2j/Q+z6Pdk=
+github.com/justjack1521/mevrabbit v0.0.0-20241009022215-07dd23bdb250 h1:bhka8jaEfRGOf2A6dxHa+AWRafpax5raVdnX+ee3R3k=
+github.com/justjack1521/mevrabbit v0.0.0-20241009022215-07dd23bdb250/go.mod h1:rX1ouxxqpwpJTkG6DijqoZ7THDs5fVkWH2j/Q+z6Pdk=
+github.com/justjack1521/mevrabbit v0.0.0-20241009025835-8fcaba4dc303 h1:KnSN4EOlDNKsL7R+5EH2lIaR9T9PrNTsNoWs7jwz0is=
+github.com/justjack1521/mevrabbit v0.0.0-20241009025835-8fcaba4dc303/go.mod h1:bCRtWJi8cFxYNUqwm8s4vpsjtz7aj7Gaa5xnE3PlZbc=
+github.com/justjack1521/mevrabbit v0.0.0-20241009030309-4fba4ae719fb h1:pHuqDXXjx5OA2AQwtlDMtLoCuf+IUtWqGrv4epnseqQ=
+github.com/justjack1521/mevrabbit v0.0.0-20241009030309-4fba4ae719fb/go.mod h1:bCRtWJi8cFxYNUqwm8s4vpsjtz7aj7Gaa5xnE3PlZbc=
 github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4 h1:+IduYXPLwUhVukbqClbuq3J1fAKh6wUNX5qsSGQgt1Q=
 github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4/go.mod h1:l9/BJQk7g7K2JaT/l2s1VEmDmK4MrWYFZeCHaNsff6E=
 github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83 h1:0WOayrrSC5AW4MMGiK+UHnSmf9CMwu61mKc3LrDBS7Y=

@@ -11,11 +11,11 @@ import (
 type ClientFactory struct {
 	server       port.SocketServer
 	router       port.SocketMessageRouter
-	instrumenter application.TransactionInstrumenter
+	instrumenter application.TransactionTracer
 	translator   application.MessageTranslator
 }
 
-func NewClientFactory(server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *ClientFactory {
+func NewClientFactory(server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionTracer, translator application.MessageTranslator) *ClientFactory {
 	return &ClientFactory{server: server, router: router, instrumenter: instrumenter, translator: translator}
 }
 

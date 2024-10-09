@@ -12,7 +12,7 @@ type ClientPersistenceSubscriber struct {
 	repository port.ClientConnectionRepository
 }
 
-func NewClientPersistenceConsumer(publisher *mevent.Publisher, repository port.ClientConnectionRepository) *ClientPersistenceSubscriber {
+func NewClientPersistenceSubscriber(publisher *mevent.Publisher, repository port.ClientConnectionRepository) *ClientPersistenceSubscriber {
 	var consumer = &ClientPersistenceSubscriber{repository: repository}
 	publisher.Subscribe(consumer, socket.ClientConnectedEvent{}, socket.ClientDisconnectedEvent{}, application.ShutdownEvent{})
 	return consumer

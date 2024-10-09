@@ -1,10 +1,9 @@
-package broker
+package rmq
 
 import (
 	"context"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"github.com/justjack1521/mevrabbit"
-	"github.com/wagslane/go-rabbitmq"
 	"mevway/internal/core/application"
 	"mevway/internal/core/domain/socket"
 )
@@ -14,10 +13,12 @@ type SocketClientEventPublisher struct {
 	translator application.SocketEventTranslator
 }
 
-func NewSocketClientEventPublisher(connection *rabbitmq.Conn, publisher *mevent.Publisher, translator application.SocketEventTranslator) *SocketClientEventPublisher {
-	var service = &SocketClientEventPublisher{publisher: mevrabbit.NewClientPublisher(connection), translator: translator}
+func NewSocketClientEventPublisher(app *ApplicationConnection, publisher *mevent.Publisher, translator application.SocketEventTranslator) *SocketClientEventPublisher {
+	var pub = mevrabbit.NewClientPublisher(app.conn).WithSlogging(app.slogger).WithTracing(app.tracer)
+	var service = &SocketClientEventPublisher{publisher: pub, translator: translator}
 	publisher.Subscribe(service, socket.ClientConnectedEvent{}, socket.ClientDisconnectedEvent{})
 	return service
+
 }
 
 func (s *SocketClientEventPublisher) Notify(evt mevent.Event) {
@@ -49,7 +50,6 @@ func (s *SocketClientEventPublisher) publishClientDisconnected(ctx context.Conte
 	}
 }
 
-func (s *SocketClientEventPublisher) Close() error {
+func (s *SocketClientEventPublisher) Close() {
 	s.publisher.Close()
-	return nil
 }

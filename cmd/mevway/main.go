@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/justjack1521/mevconn"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"github.com/justjack1521/mevrelic"
 	slogrus "github.com/samber/slog-logrus/v2"
 	"github.com/sirupsen/logrus"
-	"io"
 	"log/slog"
 	"mevway/internal/adapter/broker"
 	"mevway/internal/adapter/database"
@@ -23,8 +21,9 @@ import (
 	"mevway/internal/adapter/translate"
 	"mevway/internal/core/application"
 	"mevway/internal/core/application/subscriber"
-	"mevway/internal/infrastructure/instrumentation/relic"
-	"mevway/internal/infrastructure/instrumentation/system"
+	"mevway/internal/infrastructure/broker/rmq"
+	"mevway/internal/infrastructure/trace/relic"
+	"mevway/internal/infrastructure/trace/system"
 	"os"
 )
 
@@ -35,7 +34,7 @@ func main() {
 	var logger = logrus.New()
 	var slogger = slog.New(slogrus.Option{Level: slog.LevelDebug, Logger: logger}.NewLogrusHandler())
 
-	var publisher = mevent.NewPublisher(mevent.PublisherWithLogger(logger))
+	var events = mevent.NewPublisher(mevent.PublisherWithLogger(logger))
 
 	db, err := database.NewPostgresConnection()
 	if err != nil {
@@ -52,7 +51,7 @@ func main() {
 		panic(err)
 	}
 
-	msq, err := broker.NewRabbitMQConnection()
+	mqc, err := rmq.NewRabbitMQConnection()
 	if err != nil {
 		panic(err)
 	}
@@ -95,14 +94,14 @@ func main() {
 	serviceRouter.RegisterSubRouter(rpc.RankingClientRouteKey, rpc.NewRankServiceClientRouter(rank))
 	serviceRouter.RegisterSubRouter(rpc.MultiClientRouteKey, rpc.NewMultiServiceClientRouter(multi))
 
-	var server = application.NewSocketServer(publisher)
+	var server = application.NewSocketServer(events)
+	var tracer = relic.NewRelicTracer(nrl.Application)
 
-	var relicInstrumenter = relic.NewRelicInstrumenter(nrl.Application)
 	var messageTranslator = translate.NewProtobufSocketMessageTranslator()
-	var socketFactory = web.NewClientFactory(server, serviceRouter, relicInstrumenter, messageTranslator)
+	var socketFactory = web.NewClientFactory(server, serviceRouter, tracer, messageTranslator)
 
 	var statusService = system.NewStatusService()
-	var authService = application.NewAuthenticationService(tokenRepository, userRepository, publisher)
+	var authService = application.NewAuthenticationService(tokenRepository, userRepository, events)
 	var patchService = application.NewPatchService(patchRepository)
 	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
 
@@ -115,24 +114,30 @@ func main() {
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
 
-	var listeners = []io.Closer{
-		broker.NewClientNotificationConsumer(msq, server, messageTranslator),
-		broker.NewSocketClientEventPublisher(msq, publisher, translate.NewProtobufSocketEventTranslator()),
-		broker.NewUserEventPublisher(msq, publisher, translate.NewProtobufUserEventTranslator()),
+	subscriber.NewClientPersistenceSubscriber(events, clientRepository)
+
+	var rmqa = rmq.NewApplicationConnection(mqc, slogger, tracer)
+
+	var consumers = []broker.Consumer{
+		rmq.NewClientNotificationConsumer(rmqa, server, messageTranslator),
 	}
 
-	subscriber.NewClientPersistenceConsumer(publisher, clientRepository)
+	var publishers = []broker.Publisher{
+		rmq.NewSocketClientEventPublisher(rmqa, events, translate.NewProtobufSocketEventTranslator()),
+		rmq.NewUserEventPublisher(rmqa, events, translate.NewProtobufUserEventTranslator()),
+	}
 
 	go server.Run()
 
 	router, err := http.NewRouter(authHandler, statusHandler, patchHandler, socketHandler, searchHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 
 	if err := router.Serve(":8080"); err != nil {
-		publisher.Notify(application.NewShutdownEvent(ctx))
-		for _, listener := range listeners {
-			if err := listener.Close(); err != nil {
-				fmt.Println(err)
-			}
+		events.Notify(application.NewShutdownEvent(ctx))
+		for _, consumer := range consumers {
+			consumer.Close()
+		}
+		for _, publisher := range publishers {
+			publisher.Close()
 		}
 		os.Exit(1)
 	}

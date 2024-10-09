@@ -1,10 +1,9 @@
-package broker
+package rmq
 
 import (
 	"context"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"github.com/justjack1521/mevrabbit"
-	"github.com/wagslane/go-rabbitmq"
 	"mevway/internal/core/application"
 	"mevway/internal/core/domain/user"
 )
@@ -14,8 +13,9 @@ type UserEventPublisher struct {
 	translator application.UserEventTranslator
 }
 
-func NewUserEventPublisher(connection *rabbitmq.Conn, publisher *mevent.Publisher, translator application.UserEventTranslator) *UserEventPublisher {
-	var service = &UserEventPublisher{publisher: mevrabbit.NewUserPublisher(connection), translator: translator}
+func NewUserEventPublisher(app *ApplicationConnection, publisher *mevent.Publisher, translator application.UserEventTranslator) *UserEventPublisher {
+	var pub = mevrabbit.NewUserPublisher(app.conn).WithSlogging(app.slogger).WithTracing(app.tracer)
+	var service = &UserEventPublisher{publisher: pub, translator: translator}
 	publisher.Subscribe(service, user.CreatedEvent{})
 	return service
 }
@@ -37,7 +37,6 @@ func (s *UserEventPublisher) publishUserCreated(ctx context.Context, evt user.Cr
 	}
 }
 
-func (s *UserEventPublisher) Close() error {
+func (s *UserEventPublisher) Close() {
 	s.publisher.Close()
-	return nil
 }

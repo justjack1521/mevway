@@ -67,12 +67,12 @@ type Client struct {
 	client       socket.Client
 	router       port.SocketMessageRouter
 	server       port.SocketServer
-	instrumenter application.TransactionInstrumenter
+	instrumenter application.TransactionTracer
 	translator   application.MessageTranslator
 	connection   *Connection
 }
 
-func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionInstrumenter, translator application.MessageTranslator) *Client {
+func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionTracer, translator application.MessageTranslator) *Client {
 	return &Client{
 		client: client,
 		connection: &Connection{
@@ -98,6 +98,31 @@ func (c *Client) Notify(data []byte) {
 	default:
 		return
 	}
+}
+
+func (c *Client) error(message socket.Message, response socket.Response, transaction application.Transaction) {
+	data, err := response.MarshallBinary()
+	if err != nil {
+		transaction.NoticeError(err)
+		return
+	}
+	var r = c.translator.Response(message, data)
+	send, err := r.MarshallBinary()
+	if err != nil {
+		transaction.NoticeError(err)
+	}
+	c.Notify(send)
+}
+
+func (c *Client) response(message socket.Message, err error, transaction application.Transaction) {
+	transaction.NoticeError(err)
+	var response = c.translator.Error(message, err)
+	send, err := response.MarshallBinary()
+	if err != nil {
+		transaction.NoticeError(err)
+		return
+	}
+	c.Notify(send)
 }
 
 func (c *Client) Read() {
@@ -130,34 +155,12 @@ func (c *Client) Read() {
 			continue
 		}
 
-		var response socket.Response
-
 		result, err := c.router.Route(ctx, request)
 		if err != nil {
-
-			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
-			txn.End()
-			response = c.translator.Error(request, err)
-
+			c.response(request, err, txn)
 		} else {
-
-			bytes, err := result.MarshallBinary()
-			if err != nil {
-				txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
-				txn.End()
-			}
-			response = c.translator.Response(request, bytes)
-
+			c.error(request, result, txn)
 		}
-
-		send, err := response.MarshallBinary()
-		if err != nil {
-			txn.NoticeError(errFailedReadClientRequest(errFailedRouteMessage(err)))
-			txn.End()
-			continue
-		}
-
-		c.Notify(send)
 
 		txn.End()
 
