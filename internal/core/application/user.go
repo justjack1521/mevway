@@ -44,7 +44,7 @@ func (s *UserService) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	s.publisher.Notify(user.NewDeleteEvent(ctx, id))
+	s.publisher.Notify(user.NewDeleteEvent(ctx, id, id))
 
 	return nil
 

@@ -83,7 +83,6 @@ func (c *UserClient) CreateUser(ctx context.Context, target *user.User) error {
 	}
 
 	id, err := c.client.CreateUser(ctx, token, c.config.Realm(), gocloak.User{
-		ID:          gocloak.StringP(target.ID.String()),
 		Username:    gocloak.StringP(target.Username),
 		Enabled:     gocloak.BoolP(true),
 		Credentials: &credentials,

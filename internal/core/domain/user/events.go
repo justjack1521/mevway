@@ -47,12 +47,13 @@ func (e CreatedEvent) CustomerID() string {
 }
 
 type DeleteEvent struct {
-	ctx    context.Context
-	userID uuid.UUID
+	ctx      context.Context
+	userID   uuid.UUID
+	playerID uuid.UUID
 }
 
-func NewDeleteEvent(ctx context.Context, id uuid.UUID) DeleteEvent {
-	return DeleteEvent{ctx: ctx, userID: id}
+func NewDeleteEvent(ctx context.Context, id uuid.UUID, player uuid.UUID) DeleteEvent {
+	return DeleteEvent{ctx: ctx, userID: id, playerID: player}
 }
 
 func (e DeleteEvent) Name() string {
@@ -63,6 +64,7 @@ func (e DeleteEvent) ToLogFields() logrus.Fields {
 	return logrus.Fields{
 		"event.name": e.Name(),
 		"user.id":    e.userID.String(),
+		"player.id":  e.playerID.String(),
 	}
 }
 
@@ -72,4 +74,8 @@ func (e DeleteEvent) Context() context.Context {
 
 func (e DeleteEvent) UserID() uuid.UUID {
 	return e.userID
+}
+
+func (e DeleteEvent) PlayerID() uuid.UUID {
+	return e.playerID
 }
