@@ -60,6 +60,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	nrl.Attach(logger)
 
 	game, err := rpc.DialToGameClient()
 	if err != nil {
