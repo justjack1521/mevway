@@ -7,17 +7,20 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/justjack1521/mevconn"
 	uuid "github.com/satori/go.uuid"
+	"log/slog"
 	"mevway/internal/core/domain/auth"
 	"mevway/internal/core/domain/user"
+	"strings"
 )
 
 type TokenClient struct {
 	client *gocloak.GoCloak
 	config mevconn.KeyCloakConfig
+	logger *slog.Logger
 }
 
-func NewTokenClient(client *gocloak.GoCloak, config mevconn.KeyCloakConfig) *TokenClient {
-	return &TokenClient{client: client, config: config}
+func NewTokenClient(client *gocloak.GoCloak, config mevconn.KeyCloakConfig, logger *slog.Logger) *TokenClient {
+	return &TokenClient{client: client, config: config, logger: logger}
 }
 
 func (c *TokenClient) CreateToken(ctx context.Context, target user.User) (auth.LoginResult, error) {
@@ -114,6 +117,13 @@ func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth
 			}
 		}
 	}
+
+	c.logger.With(
+		slog.Group("token_arr",
+			slog.String("sub", sub),
+			slog.String("roles", strings.Join(roles, ",")),
+		),
+	).InfoContext(ctx, "access token verified")
 
 	return auth.AccessClaims{
 		SessionID:   uuid.FromStringOrNil(fmt.Sprintf("%v", aud)),

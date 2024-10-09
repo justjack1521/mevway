@@ -84,7 +84,7 @@ func main() {
 
 	var keyCloakClient = gocloak.NewClient(cloak.Hostname())
 	var userRepository = keycloak.NewUserClient(keyCloakClient, cloak)
-	var tokenRepository = keycloak.NewTokenClient(keyCloakClient, cloak)
+	var tokenRepository = keycloak.NewTokenClient(keyCloakClient, cloak, slogger)
 	var patchRepository = database.NewPatchRepository(db)
 	var clientRepository = memory.NewClientRepository(rds)
 	var socialRepository = external.NewSocialPlayerRepository(social)
