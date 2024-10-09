@@ -45,3 +45,31 @@ func (e CreatedEvent) PlayerID() uuid.UUID {
 func (e CreatedEvent) CustomerID() string {
 	return e.customerID
 }
+
+type DeleteEvent struct {
+	ctx    context.Context
+	userID uuid.UUID
+}
+
+func NewDeleteEvent(ctx context.Context, id uuid.UUID) DeleteEvent {
+	return DeleteEvent{ctx: ctx, userID: id}
+}
+
+func (e DeleteEvent) Name() string {
+	return "event.user.deleted"
+}
+
+func (e DeleteEvent) ToLogFields() logrus.Fields {
+	return logrus.Fields{
+		"event.name": e.Name(),
+		"user.id":    e.userID.String(),
+	}
+}
+
+func (e DeleteEvent) Context() context.Context {
+	return e.ctx
+}
+
+func (e DeleteEvent) UserID() uuid.UUID {
+	return e.userID
+}

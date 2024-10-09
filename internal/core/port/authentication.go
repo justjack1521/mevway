@@ -8,7 +8,6 @@ import (
 
 type AuthenticationService interface {
 	Login(ctx context.Context, target user.User) (auth.LoginResult, error)
-	Register(ctx context.Context, username, password, confirm string) (user.User, error)
 }
 
 type TokenRepository interface {

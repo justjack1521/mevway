@@ -14,13 +14,12 @@ var (
 )
 
 type AuthenticationService struct {
-	tokens    port.TokenRepository
-	users     port.UserRepository
 	publisher *mevent.Publisher
+	tokens    port.TokenRepository
 }
 
-func NewAuthenticationService(tokens port.TokenRepository, users port.UserRepository, publisher *mevent.Publisher) *AuthenticationService {
-	return &AuthenticationService{tokens: tokens, users: users, publisher: publisher}
+func NewAuthenticationService(publisher *mevent.Publisher, tokens port.TokenRepository) *AuthenticationService {
+	return &AuthenticationService{publisher: publisher, tokens: tokens}
 }
 
 func (s *AuthenticationService) Login(ctx context.Context, target user.User) (auth.LoginResult, error) {
@@ -34,25 +33,4 @@ func (s *AuthenticationService) Login(ctx context.Context, target user.User) (au
 		return auth.LoginResult{}, err
 	}
 	return login, nil
-}
-
-func (s *AuthenticationService) Register(ctx context.Context, username, password, confirm string) (user.User, error) {
-
-	if password != confirm {
-		return user.User{}, errPasswordConfirmMismatch
-	}
-
-	target, err := user.NewUser(username, password)
-	if err != nil {
-		return user.User{}, err
-	}
-
-	if err := s.users.CreateUser(ctx, target); err != nil {
-		return user.User{}, err
-	}
-
-	s.publisher.Notify(user.NewCreatedEvent(ctx, target.ID, target.PlayerID, target.CustomerID))
-
-	return target, nil
-
 }

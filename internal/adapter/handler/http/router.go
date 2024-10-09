@@ -11,6 +11,7 @@ type Router struct {
 
 func NewRouter(
 	authHandler *AuthenticationHandler,
+	userHandler *UserHandler,
 	statusHandler *StatusHandler,
 	patchHandler *PatchHandler,
 	socketHandler *SocketHandler,
@@ -24,35 +25,45 @@ func NewRouter(
 	router.Use(middleware.CORSMiddleware())
 	router.Use(middle...)
 
+	var privateGroup = router.Group("/private", middleware.AdminRoleMiddleware())
+	{
+		var userGroup = privateGroup.Group("/user", authHandler.AccessTokenAuthorise)
+		{
+			userGroup.POST("/ban")
+			userGroup.POST("/delete", userHandler.Delete)
+		}
+	}
+
 	var publicGroup = router.Group("/public")
-
-	var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise)
 	{
-		socketGroup.GET("/join", socketHandler.Join)
-		socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)
-	}
+		var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise)
+		{
+			socketGroup.GET("/join", socketHandler.Join)
+			socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)
+		}
 
-	var authGroup = publicGroup.Group("/auth")
-	{
-		authGroup.POST("/login", authHandler.Login)
-		authGroup.POST("/register", authHandler.Register)
-	}
+		var authGroup = publicGroup.Group("/auth")
+		{
+			authGroup.POST("/login", authHandler.Login)
+			authGroup.POST("/register", userHandler.Register)
+		}
 
-	var systemGroup = publicGroup.Group("/system")
-	{
-		systemGroup.GET("/status", statusHandler.Get)
-	}
+		var systemGroup = publicGroup.Group("/system")
+		{
+			systemGroup.GET("/status", statusHandler.Get)
+		}
 
-	var patch = publicGroup.Group("/patch", authHandler.AccessTokenAuthorise)
-	{
-		patch.GET("/recent", patchHandler.Recent)
-		patch.GET("/list", patchHandler.List)
-	}
+		var patch = publicGroup.Group("/patch", authHandler.AccessTokenAuthorise)
+		{
+			patch.GET("/recent", patchHandler.Recent)
+			patch.GET("/list", patchHandler.List)
+		}
 
-	var player = publicGroup.Group("/player")
-	{
-		player.GET("/me", authHandler.Identity)
-		player.GET("/search/:customer_id", authHandler.AccessTokenAuthorise, playerHandler.Search)
+		var player = publicGroup.Group("/player")
+		{
+			player.GET("/me", authHandler.Identity)
+			player.GET("/search/:customer_id", authHandler.AccessTokenAuthorise, playerHandler.Search)
+		}
 	}
 
 	return &Router{router}, nil

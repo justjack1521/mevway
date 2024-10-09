@@ -102,7 +102,8 @@ func main() {
 	var socketFactory = web.NewClientFactory(server, serviceRouter, tracer, messageTranslator)
 
 	var statusService = system.NewStatusService()
-	var authService = application.NewAuthenticationService(tokenRepository, userRepository, events)
+	var authService = application.NewAuthenticationService(events, tokenRepository)
+	var userService = application.NewUserService(events, userRepository)
 	var patchService = application.NewPatchService(patchRepository)
 	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
 
@@ -111,6 +112,7 @@ func main() {
 
 	var statusHandler = http.NewStatusHandler(statusService)
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
+	var userHandler = http.NewUserHandler(userService)
 	var patchHandler = http.NewPatchHandler(patchService)
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
@@ -130,7 +132,7 @@ func main() {
 
 	go server.Run()
 
-	router, err := http.NewRouter(authHandler, statusHandler, patchHandler, socketHandler, searchHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))

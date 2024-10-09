@@ -33,7 +33,28 @@ func NewUserClient(client *gocloak.GoCloak, config mevconn.KeyCloakConfig) *User
 }
 
 var (
-	errFailedToRegisterUser = func(err error) error {
+	errFailedDeleteUser = func(err error) error {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+)
+
+func (c *UserClient) DeleteUser(ctx context.Context, target user.Identity) error {
+
+	token, err := c.LoginAdmin(ctx)
+	if err != nil {
+		return errFailedDeleteUser(err)
+	}
+
+	if err := c.client.DeleteUser(ctx, token, c.config.Realm(), target.ID.String()); err != nil {
+		return errFailedDeleteUser(err)
+	}
+
+	return nil
+
+}
+
+var (
+	errFailedToCreateUser = func(err error) error {
 		return fmt.Errorf("failed to register user: %w", err)
 	}
 )
@@ -42,7 +63,7 @@ func (c *UserClient) CreateUser(ctx context.Context, target user.User) error {
 
 	token, err := c.LoginAdmin(ctx)
 	if err != nil {
-		return errFailedToRegisterUser(err)
+		return errFailedToCreateUser(err)
 	}
 
 	var credentials = []gocloak.CredentialRepresentation{
@@ -71,7 +92,7 @@ func (c *UserClient) CreateUser(ctx context.Context, target user.User) error {
 	})
 
 	if err != nil {
-		return errFailedToRegisterUser(err)
+		return errFailedToCreateUser(err)
 	}
 
 	return nil

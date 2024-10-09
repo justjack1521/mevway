@@ -24,3 +24,14 @@ func (t *ProtobufUserEventTranslator) Created(evt user.CreatedEvent) ([]byte, er
 	}
 	return bytes, nil
 }
+
+func (t *ProtobufUserEventTranslator) Deleted(evt user.DeleteEvent) ([]byte, error) {
+	var message = &protocommon.UserDeleted{
+		UserId: evt.UserID().String(),
+	}
+	bytes, err := message.MarshallBinary()
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
+}

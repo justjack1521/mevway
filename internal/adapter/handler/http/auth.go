@@ -52,25 +52,6 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 
 }
 
-func (h *AuthenticationHandler) Register(ctx *gin.Context) {
-
-	var request = &resources.UserRegisterRequest{}
-
-	if err := ctx.BindJSON(request); err != nil {
-		ctx.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	result, err := h.svc.Register(ctx, request.Username, request.Password, request.ConfirmPassword)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	ctx.JSON(200, resources.UserRegisterResponse{SysUser: result.ID})
-
-}
-
 func (h *AuthenticationHandler) Identity(ctx *gin.Context) {
 
 	token, err := h.getAuthorisationToken(ctx)
