@@ -15,13 +15,13 @@ type PlayerSearchResponse struct {
 	PlayerLevel     int                            `json:"PlayerLevel" binding:"required"`
 	PlayerComment   string                         `json:"PlayerComment" binding:"required"`
 	CompanionID     uuid.UUID                      `json:"CompanionID" binding:"required"`
+	LastOnline      int64                          `json:"LastOnline"`
 	JobCardID       uuid.UUID                      `json:"JobCardID"`
 	SubJobIndex     int                            `json:"SubJobIndex"`
 	CrownLevel      int                            `json:"CrownLevel"`
 	WeaponID        uuid.UUID                      `json:"WeaponID"`
 	SubWeaponUnlock int                            `json:"SubWeaponUnlock"`
 	RentalCard      PlayerSearchResponseRentalCard `json:"RentalCard"`
-	LastOnline      int64                          `json:"LastOnline"`
 }
 
 func NewPlayerSearchResponse(player player.SocialPlayer) PlayerSearchResponse {
@@ -37,21 +37,25 @@ func NewPlayerSearchResponse(player player.SocialPlayer) PlayerSearchResponse {
 		WeaponID:        player.WeaponID,
 		SubWeaponUnlock: player.SubWeaponUnlock,
 		LastOnline:      player.LastOnline,
-		RentalCard: PlayerSearchResponseRentalCard{
-			AbilityCardID:    player.CardID,
-			AbilityCardLevel: player.CardLevel,
-			AbilityLevel:     player.AbilityLevel,
-			ExtraSkillUnlock: player.ExtraSkillUnlock,
-			OverBoostLevel:   player.OverboostLevel,
-		},
+		RentalCard:      NewPlayerSearchResponseRentalCard(player.RentalCard),
 	}
 	return response
 }
 
 type PlayerSearchResponseRentalCard struct {
 	AbilityCardID    uuid.UUID `json:"AbilityCardID" binding:"required"`
-	AbilityCardLevel int       `json:"AbilityCardLevel"`
+	CardLevel        int       `json:"CardLevel"`
 	AbilityLevel     int       `json:"AbilityLevel"`
 	ExtraSkillUnlock int       `json:"ExtraSkillUnlock"`
 	OverBoostLevel   int       `json:"OverBoostLevel"`
+}
+
+func NewPlayerSearchResponseRentalCard(card player.RentalCard) PlayerSearchResponseRentalCard {
+	return PlayerSearchResponseRentalCard{
+		AbilityCardID:    card.CardID,
+		CardLevel:        card.CardLevel,
+		AbilityLevel:     card.AbilityLevel,
+		ExtraSkillUnlock: card.ExtraSkillUnlock,
+		OverBoostLevel:   card.OverboostLevel,
+	}
 }
