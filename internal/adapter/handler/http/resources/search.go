@@ -21,6 +21,7 @@ type PlayerSearchResponse struct {
 	WeaponID        uuid.UUID                      `json:"WeaponID"`
 	SubWeaponUnlock int                            `json:"SubWeaponUnlock"`
 	RentalCard      PlayerSearchResponseRentalCard `json:"RentalCard"`
+	LastOnline      int64                          `json:"LastOnline"`
 }
 
 func NewPlayerSearchResponse(player player.SocialPlayer) PlayerSearchResponse {
@@ -35,6 +36,7 @@ func NewPlayerSearchResponse(player player.SocialPlayer) PlayerSearchResponse {
 		CrownLevel:      player.CrownLevel,
 		WeaponID:        player.WeaponID,
 		SubWeaponUnlock: player.SubWeaponUnlock,
+		LastOnline:      player.LastOnline,
 		RentalCard: PlayerSearchResponseRentalCard{
 			AbilityCardID:    player.CardID,
 			AbilityCardLevel: player.CardLevel,
