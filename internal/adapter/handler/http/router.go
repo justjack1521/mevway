@@ -16,6 +16,7 @@ func NewRouter(
 	patchHandler *PatchHandler,
 	socketHandler *SocketHandler,
 	playerHandler *PlayerHandler,
+	adminHandler *AdminHandler,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
 
@@ -27,6 +28,10 @@ func NewRouter(
 
 	var privateGroup = router.Group("/private", authHandler.AccessTokenAuthorise, middleware.AdminRoleMiddleware())
 	{
+		var gameGroup = privateGroup.Group("/game")
+		{
+			gameGroup.POST("/item/grant", adminHandler.GrantItem)
+		}
 		var userGroup = privateGroup.Group("/user")
 		{
 			userGroup.POST("/ban")

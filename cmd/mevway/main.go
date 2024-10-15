@@ -67,6 +67,11 @@ func main() {
 		panic(err)
 	}
 
+	admin, err := rpc.DialToAdminClient()
+	if err != nil {
+		panic(err)
+	}
+
 	social, err := rpc.DialToSocialClient()
 	if err != nil {
 		panic(err)
@@ -95,6 +100,8 @@ func main() {
 	serviceRouter.RegisterSubRouter(rpc.RankingClientRouteKey, rpc.NewRankServiceClientRouter(rank))
 	serviceRouter.RegisterSubRouter(rpc.MultiClientRouteKey, rpc.NewMultiServiceClientRouter(multi))
 
+	var adminService = external.NewGameAdminService(admin)
+
 	var server = application.NewSocketServer(events)
 	var tracer = relic.NewRelicTracer(nrl.Application)
 
@@ -116,6 +123,7 @@ func main() {
 	var patchHandler = http.NewPatchHandler(patchService)
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
+	var adminHandler = http.NewAdminHandler(adminService)
 
 	subscriber.NewClientPersistenceSubscriber(events, clientRepository)
 
@@ -132,7 +140,7 @@ func main() {
 
 	go server.Run()
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))

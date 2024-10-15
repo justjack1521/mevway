@@ -40,6 +40,18 @@ func DialToGameClient() (services.MeviusGameServiceClient, error) {
 	return services.NewMeviusGameServiceClient(conn), nil
 }
 
+func DialToAdminClient() (services.MeviusAdminServiceClient, error) {
+	config, err := mevconn.CreateGrpcServiceConfig(mevconn.GAMESERVICENAME)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := grpc.Dial(config.ConnectionString(), grpc.WithUnaryInterceptor(nrgrpc.UnaryClientInterceptor), grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	return services.NewMeviusAdminServiceClient(conn), nil
+}
+
 func DialToRankClient() (services.MeviusRankServiceClient, error) {
 	config, err := mevconn.CreateGrpcServiceConfig(mevconn.RANKSERVICENAME)
 	if err != nil {

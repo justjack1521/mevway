@@ -9,18 +9,21 @@ import (
 	"net/http"
 )
 
-type PlayerHandler struct {
-	svc port.PlayerSearchService
+type AdminHandler struct {
+	svc port.GameAdminService
 }
 
-func NewSearchHandler(svc port.PlayerSearchService) *PlayerHandler {
-	return &PlayerHandler{svc: svc}
+func NewAdminHandler(svc port.GameAdminService) *AdminHandler {
+	return &AdminHandler{svc: svc}
 }
 
-func (h *PlayerHandler) Search(ctx *gin.Context) {
+func (h *AdminHandler) GrantItem(ctx *gin.Context) {
 
-	var request = resources.PlayerSearchRequest{
-		CustomerID: ctx.Param("customer_id"),
+	var request = &resources.AdminGrantItemRequest{}
+
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	user, err := middleware.UserIDFromContext(ctx)
@@ -40,12 +43,11 @@ func (h *PlayerHandler) Search(ctx *gin.Context) {
 		PlayerID: player,
 	}
 
-	result, err := h.svc.Search(application.NewApplicationContext(ctx, md), request.CustomerID)
-	if err != nil {
+	if err := h.svc.GrantItem(application.NewApplicationContext(ctx, md), request.PlayerID, request.ItemID, request.Quantity); err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	ctx.JSON(200, resources.NewPlayerSearchResponse(result))
+	ctx.JSON(200, resources.AdminGrantItemResponse{})
 
 }
