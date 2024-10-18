@@ -15,6 +15,17 @@ func NewUserHandler(svc port.UserService) *UserHandler {
 	return &UserHandler{svc: svc}
 }
 
+func (h *UserHandler) List(ctx *gin.Context) {
+
+	users, err := h.svc.List(ctx, 10, 0)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+	}
+
+	ctx.JSON(200, resources.NewUserIdentityListResponse(users))
+
+}
+
 func (h *UserHandler) Register(ctx *gin.Context) {
 
 	var request = &resources.UserRegisterRequest{}

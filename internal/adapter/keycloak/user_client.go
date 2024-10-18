@@ -38,6 +38,64 @@ var (
 	}
 )
 
+func (c *UserClient) GetAllUsers(ctx context.Context, count, offset int) ([]user.Identity, error) {
+
+	token, err := c.LoginAdmin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := c.client.GetUsers(ctx, token, c.config.Realm(), gocloak.GetUsersParams{
+		BriefRepresentation: nil,
+		Email:               nil,
+		EmailVerified:       nil,
+		Enabled:             gocloak.BoolP(true),
+		Max:                 gocloak.IntP(count),
+	})
+
+	var results = make([]user.Identity, len(users))
+
+	for index, value := range users {
+		identity, err := c.IdentityFromUser(value)
+		if err != nil {
+			return nil, err
+		}
+		results[index] = identity
+	}
+
+	return results, nil
+
+}
+
+func (c *UserClient) IdentityFromUser(target *gocloak.User) (user.Identity, error) {
+	id, err := uuid.FromString(gocloak.PString(target.ID))
+	if err != nil {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
+	}
+
+	var attrs = *target.Attributes
+	profile, ok := attrs["profile"]
+	if ok == false {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(errProfileAttributeNotFound)
+	}
+
+	pid, err := uuid.FromString(profile[0])
+	if err != nil {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
+	}
+
+	csm, ok := attrs["customer"]
+	if ok == false {
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(errProfileAttributeNotFound)
+	}
+
+	return user.Identity{
+		ID:         id,
+		PlayerID:   pid,
+		CustomerID: fmt.Sprintf("%s", csm),
+	}, nil
+}
+
 func (c *UserClient) DeleteUser(ctx context.Context, target user.Identity) error {
 
 	token, err := c.LoginAdmin(ctx)
@@ -145,26 +203,6 @@ func (c *UserClient) IdentityFromCustomerID(ctx context.Context, customer string
 		return user.Identity{}, errFailedGetIdentityFromCustomerID(errUserMatchingCustomerIDNotFound)
 	}
 
-	id, err := uuid.FromString(gocloak.PString(users[0].ID))
-	if err != nil {
-		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
-	}
-
-	var attrs = *users[0].Attributes
-	profile, ok := attrs["profile"]
-	if ok == false {
-		return user.Identity{}, errFailedGetIdentityFromCustomerID(errProfileAttributeNotFound)
-	}
-
-	pid, err := uuid.FromString(profile[0])
-	if err != nil {
-		return user.Identity{}, errFailedGetIdentityFromCustomerID(err)
-	}
-
-	return user.Identity{
-		ID:         id,
-		PlayerID:   pid,
-		CustomerID: customer,
-	}, nil
+	return c.IdentityFromUser(users[0])
 
 }

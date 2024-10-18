@@ -13,6 +13,10 @@ type UserService struct {
 	users     port.UserRepository
 }
 
+func (s *UserService) List(ctx context.Context, count, offset int) ([]user.Identity, error) {
+	return s.users.GetAllUsers(ctx, count, offset)
+}
+
 func NewUserService(publisher *mevent.Publisher, users port.UserRepository) *UserService {
 	return &UserService{publisher: publisher, users: users}
 }

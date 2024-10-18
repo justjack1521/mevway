@@ -34,6 +34,7 @@ func NewRouter(
 		}
 		var userGroup = privateGroup.Group("/user")
 		{
+			userGroup.GET("/list", userHandler.List)
 			userGroup.POST("/ban")
 			userGroup.POST("/delete", userHandler.Delete)
 		}
