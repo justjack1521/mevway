@@ -5,18 +5,28 @@ import (
 	"mevway/internal/core/domain/user"
 )
 
-type UserIdentityResponse struct {
-	UserID     uuid.UUID
-	PlayerID   uuid.UUID
-	CustomerID string
+type UserIdentityListResponse struct {
+	Count int                    `json:"Count"`
+	List  []UserIdentityResponse `json:"List"`
 }
 
-func NewUserIdentityListResponse(identities []user.Identity) []UserIdentityResponse {
-	var result = make([]UserIdentityResponse, len(identities))
-	for index, value := range identities {
-		result[index] = NewUserIdentityResponse(value)
+type UserIdentityResponse struct {
+	UserID     uuid.UUID `json:"UserID"`
+	PlayerID   uuid.UUID `json:"PlayerID"`
+	CustomerID string    `json:"CustomerID"`
+}
+
+func NewUserIdentityListResponse(identities []user.Identity) UserIdentityListResponse {
+
+	var results = UserIdentityListResponse{
+		Count: len(identities),
+		List:  make([]UserIdentityResponse, len(identities)),
 	}
-	return result
+
+	for index, value := range identities {
+		results.List[index] = NewUserIdentityResponse(value)
+	}
+	return results
 }
 
 func NewUserIdentityResponse(identity user.Identity) UserIdentityResponse {
