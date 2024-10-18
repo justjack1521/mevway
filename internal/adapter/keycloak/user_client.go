@@ -46,11 +46,7 @@ func (c *UserClient) GetAllUsers(ctx context.Context, count, offset int) ([]user
 	}
 
 	users, err := c.client.GetUsers(ctx, token, c.config.Realm(), gocloak.GetUsersParams{
-		BriefRepresentation: nil,
-		Email:               nil,
-		EmailVerified:       nil,
-		Enabled:             gocloak.BoolP(true),
-		Max:                 gocloak.IntP(count),
+		Enabled: gocloak.BoolP(true),
 	})
 
 	var results = make([]user.Identity, len(users))
