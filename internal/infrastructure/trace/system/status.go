@@ -2,7 +2,6 @@ package system
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -38,11 +37,8 @@ func (s *StatusService) Status(address net.IP) error {
 
 	var ips = make([]net.IP, len(list))
 
-	fmt.Println(address)
-
 	for index, value := range list {
 		ips[index] = net.ParseIP(value)
-		fmt.Println(ips[index])
 	}
 
 	for _, value := range ips {
