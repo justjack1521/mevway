@@ -42,7 +42,7 @@ func NewRouter(
 
 	var publicGroup = router.Group("/public")
 	{
-		var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise)
+		var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise, middleware.AdminRoleMiddleware())
 		{
 			socketGroup.GET("/join", socketHandler.Join)
 			socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)
@@ -67,7 +67,7 @@ func NewRouter(
 
 		var player = publicGroup.Group("/player")
 		{
-			player.GET("/me", authHandler.Identity)
+			player.GET("/me", authHandler.IdentityTokenAuthorise)
 			player.GET("/search/:customer_id", authHandler.AccessTokenAuthorise, playerHandler.Search)
 		}
 	}

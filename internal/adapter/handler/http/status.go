@@ -17,6 +17,7 @@ func (h *StatusHandler) Get(ctx *gin.Context) {
 
 	if err := h.svc.Status(); err != nil {
 		ctx.AbortWithError(503, err)
+		return
 	}
 
 }

@@ -52,7 +52,7 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 
 }
 
-func (h *AuthenticationHandler) Identity(ctx *gin.Context) {
+func (h *AuthenticationHandler) IdentityTokenAuthorise(ctx *gin.Context) {
 
 	token, err := h.getAuthorisationToken(ctx)
 	if err != nil {
