@@ -1,5 +1,9 @@
 package port
 
+import (
+	"net"
+)
+
 type SystemStatusService interface {
-	Status() error
+	Status(address net.IP) error
 }
