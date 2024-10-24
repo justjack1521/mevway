@@ -24,3 +24,8 @@ type Fix struct {
 	Text  string
 	Order int
 }
+
+type KnownIssue struct {
+	SysID uuid.UUID
+	Text  string
+}

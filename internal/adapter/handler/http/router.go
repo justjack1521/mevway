@@ -59,10 +59,11 @@ func NewRouter(
 			systemGroup.GET("/status", statusHandler.Get)
 		}
 
-		var patch = publicGroup.Group("/patch", authHandler.AccessTokenAuthorise)
+		var patch = publicGroup.Group("/patch")
 		{
 			patch.GET("/recent", patchHandler.Recent)
 			patch.GET("/list", patchHandler.List)
+			patch.GET("/issues", patchHandler.Issues)
 		}
 
 		var player = publicGroup.Group("/player")

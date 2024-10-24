@@ -6,6 +6,30 @@ import (
 	"time"
 )
 
+type KnownIssueListResponse struct {
+	Issues []KnownIssue `json:"Issues"`
+}
+
+func NewKnowLIssueListResponse(p []patch.KnownIssue) KnownIssueListResponse {
+	var response = KnownIssueListResponse{Issues: make([]KnownIssue, len(p))}
+	for index, value := range p {
+		response.Issues[index] = NewKnownIssue(value)
+	}
+	return response
+}
+
+type KnownIssue struct {
+	SysID uuid.UUID `json:"SysID"`
+	Text  string    `json:"Text"`
+}
+
+func NewKnownIssue(p patch.KnownIssue) KnownIssue {
+	return KnownIssue{
+		SysID: p.SysID,
+		Text:  p.Text,
+	}
+}
+
 type PatchListResponse struct {
 	Patches []Patch `json:"Patches"`
 }

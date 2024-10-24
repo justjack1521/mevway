@@ -17,7 +17,7 @@ func NewPatchRepository(db *gorm.DB) *PatchRepository {
 	return &PatchRepository{database: db}
 }
 
-func (r *PatchRepository) GetList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {
+func (r *PatchRepository) GetPatchList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {
 	var cond = &dto.PatchGorm{
 		Released: true,
 	}
@@ -34,7 +34,7 @@ func (r *PatchRepository) GetList(ctx context.Context, environment uuid.UUID, li
 
 }
 
-func (r *PatchRepository) GetLatest(ctx context.Context, environment uuid.UUID) (patch.Patch, error) {
+func (r *PatchRepository) GetLatestPatch(ctx context.Context, environment uuid.UUID) (patch.Patch, error) {
 
 	var cond = &dto.PatchGorm{
 		Released: true,
@@ -46,5 +46,21 @@ func (r *PatchRepository) GetLatest(ctx context.Context, environment uuid.UUID) 
 	}
 
 	return res.ToEntity(), nil
+
+}
+
+func (r *PatchRepository) GetOpenIssuesList(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error) {
+
+	var results []dto.KnownIssueGorm
+	if err := r.database.Table("system.known_issues AS issues").Select("issues.*").Joins("LEFT JOIN system.patch_fix_issue AS fix ON issues.sys_id = fix.issue").Where("fix.issue IS NULL").Find(&results).Error; err != nil {
+		return nil, err
+	}
+
+	var dest = make([]patch.KnownIssue, len(results))
+	for index, value := range results {
+		dest[index] = value.ToEntity()
+	}
+
+	return dest, nil
 
 }

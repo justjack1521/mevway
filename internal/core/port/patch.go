@@ -7,11 +7,13 @@ import (
 )
 
 type PatchRepository interface {
-	GetLatest(ctx context.Context, environment uuid.UUID) (patch.Patch, error)
-	GetList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error)
+	GetLatestPatch(ctx context.Context, environment uuid.UUID) (patch.Patch, error)
+	GetPatchList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error)
+	GetOpenIssuesList(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error)
 }
 
 type PatchService interface {
-	Get(ctx context.Context, environment uuid.UUID) (patch.Patch, error)
-	GetList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error)
+	GetCurrentPatch(ctx context.Context, environment uuid.UUID) (patch.Patch, error)
+	ListPatches(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error)
+	ListOpenIssues(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error)
 }

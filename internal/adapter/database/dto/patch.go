@@ -6,6 +6,22 @@ import (
 	"time"
 )
 
+type KnownIssueGorm struct {
+	SysID uuid.UUID `gorm:"primaryKey;column:sys_id"`
+	Text  string    `gorm:"column:text"`
+}
+
+func (KnownIssueGorm) TableName() string {
+	return "system.known_issues"
+}
+
+func (x *KnownIssueGorm) ToEntity() patch.KnownIssue {
+	return patch.KnownIssue{
+		SysID: x.SysID,
+		Text:  x.Text,
+	}
+}
+
 type PatchGorm struct {
 	SysID       uuid.UUID           `gorm:"primaryKey;column:sys_id"`
 	ReleaseDate time.Time           `gorm:"column:release_date"`
