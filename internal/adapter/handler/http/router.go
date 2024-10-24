@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"mevway/internal/adapter/handler/http/middleware"
 )
@@ -23,7 +24,13 @@ func NewRouter(
 	var router = gin.New()
 	router.HandleMethodNotAllowed = false
 
-	router.Use(middleware.CORSMiddleware())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"https://blankproject.dev"},
+		AllowMethods:     []string{"GET", "POST", "PATCH"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 	router.Use(middle...)
 
 	var privateGroup = router.Group("/private", authHandler.AccessTokenAuthorise, middleware.AdminRoleMiddleware())
