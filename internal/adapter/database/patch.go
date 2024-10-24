@@ -55,7 +55,8 @@ func (r *PatchRepository) GetOpenIssuesList(ctx context.Context, environment uui
 	if err := r.database.Table("system.known_issues AS issues").
 		Select("issues.*").
 		Joins("LEFT JOIN system.patch_fix_issue AS fix ON issues.sys_id = fix.issue").
-		Where("fix.issue IS NULL").
+		Joins("LEFT JOIN system.patch AS patch ON fix.patch = patch.sys_id").
+		Where("fix.issue IS NULL OR patch.released = false").
 		Find(&results).Error; err != nil {
 		return nil, err
 	}
