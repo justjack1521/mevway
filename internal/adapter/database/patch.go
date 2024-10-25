@@ -52,7 +52,7 @@ func (r *PatchRepository) GetLatestPatch(ctx context.Context, environment uuid.U
 func (r *PatchRepository) GetOpenIssuesList(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error) {
 
 	var results []dto.KnownIssueGorm
-	if err := r.database.Table("system.known_issues AS issues").
+	if err := r.database.WithContext(ctx).Table("system.known_issues AS issues").
 		Select("issues.*").
 		Joins("LEFT JOIN system.patch_fix_issue AS fix ON issues.sys_id = fix.issue").
 		Joins("LEFT JOIN system.patch AS patch ON fix.patch = patch.sys_id").

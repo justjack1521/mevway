@@ -21,6 +21,7 @@ func NewKnowLIssueListResponse(p []patch.KnownIssue) KnownIssueListResponse {
 type KnownIssue struct {
 	SysID uuid.UUID `json:"SysID"`
 	Text  string    `json:"Text"`
+	Order int       `json:"Order"`
 }
 
 func NewKnownIssue(p patch.KnownIssue) KnownIssue {
@@ -47,7 +48,7 @@ type Patch struct {
 	ReleaseDate time.Time      `json:"ReleaseDate"`
 	Description string         `json:"Description"`
 	Features    []PatchFeature `json:"Features"`
-	Fixes       []PatchFix     `json:"Fixes"`
+	Fixes       []KnownIssue   `json:"Fixes"`
 }
 
 func NewPatchResponse(p patch.Patch) Patch {
@@ -56,13 +57,14 @@ func NewPatchResponse(p patch.Patch) Patch {
 		ReleaseDate: p.ReleaseDate,
 		Description: p.Description,
 		Features:    make([]PatchFeature, len(p.Features)),
-		Fixes:       make([]PatchFix, len(p.Fixes)),
+		Fixes:       make([]KnownIssue, len(p.Fixes)),
 	}
 	for index, value := range p.Features {
 		response.Features[index] = NewPatchFeature(value)
 	}
 	for index, value := range p.Fixes {
-		response.Fixes[index] = NewPatchFix(value)
+		response.Fixes[index] = NewKnownIssue(value)
+		response.Fixes[index].Order = index
 	}
 	return response
 }
@@ -74,18 +76,6 @@ type PatchFeature struct {
 
 func NewPatchFeature(p patch.Feature) PatchFeature {
 	return PatchFeature{
-		Text:  p.Text,
-		Order: p.Order,
-	}
-}
-
-type PatchFix struct {
-	Text  string `json:"Text"`
-	Order int    `json:"Order"`
-}
-
-func NewPatchFix(p patch.Fix) PatchFix {
-	return PatchFix{
 		Text:  p.Text,
 		Order: p.Order,
 	}

@@ -7,8 +7,9 @@ import (
 )
 
 type KnownIssueGorm struct {
-	SysID uuid.UUID `gorm:"primaryKey;column:sys_id"`
-	Text  string    `gorm:"column:text"`
+	SysID   uuid.UUID `gorm:"primaryKey;column:sys_id"`
+	Text    string    `gorm:"column:text"`
+	FixedBy uuid.UUID `gorm:"column:fixed_by"`
 }
 
 func (KnownIssueGorm) TableName() string {
@@ -29,7 +30,7 @@ type PatchGorm struct {
 	Released    bool                `gorm:"column:released"`
 	Environment uuid.UUID           `gorm:"column:environment"`
 	Features    []*PatchFeatureGorm `gorm:"foreignKey:Patch"`
-	Fixes       []*PatchFixGorm     `gorm:"foreignKey:Patch"`
+	Fixes       []*KnownIssueGorm   `gorm:"foreignKey:FixedBy"`
 }
 
 func (PatchGorm) TableName() string {
@@ -53,7 +54,7 @@ func (x *PatchGorm) ToEntity() patch.Patch {
 	}
 
 	if x.Fixes != nil {
-		result.Fixes = make([]patch.Fix, len(x.Fixes))
+		result.Fixes = make([]patch.KnownIssue, len(x.Fixes))
 		for index, fix := range x.Fixes {
 			result.Fixes[index] = fix.ToEntity()
 		}
@@ -74,23 +75,6 @@ func (PatchFeatureGorm) TableName() string {
 
 func (x *PatchFeatureGorm) ToEntity() patch.Feature {
 	return patch.Feature{
-		Text:  x.Text,
-		Order: x.Order,
-	}
-}
-
-type PatchFixGorm struct {
-	Patch uuid.UUID `gorm:"column:patch"`
-	Text  string    `gorm:"column:text"`
-	Order int       `gorm:"column:order"`
-}
-
-func (PatchFixGorm) TableName() string {
-	return "system.patch_fix"
-}
-
-func (x *PatchFixGorm) ToEntity() patch.Fix {
-	return patch.Fix{
 		Text:  x.Text,
 		Order: x.Order,
 	}

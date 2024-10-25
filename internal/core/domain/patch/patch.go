@@ -12,7 +12,7 @@ type Patch struct {
 	Environment uuid.UUID
 	Released    bool
 	Features    []Feature
-	Fixes       []Fix
+	Fixes       []KnownIssue
 }
 
 type Feature struct {
