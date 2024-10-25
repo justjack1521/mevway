@@ -41,7 +41,7 @@ func (r *PatchRepository) GetLatestPatch(ctx context.Context, environment uuid.U
 	}
 	var res = &dto.PatchGorm{}
 
-	if err := r.database.WithContext(ctx).Model(cond).Limit(1).Order("release_date DESC").First(res, cond).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Limit(1).Order("release_date DESC").First(res, cond).Error; err != nil {
 		return patch.Patch{}, err
 	}
 
