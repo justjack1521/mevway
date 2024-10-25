@@ -14,6 +14,7 @@ func NewKnowLIssueListResponse(p []patch.KnownIssue) KnownIssueListResponse {
 	var response = KnownIssueListResponse{Issues: make([]KnownIssue, len(p))}
 	for index, value := range p {
 		response.Issues[index] = NewKnownIssue(value)
+		response.Issues[index].Order = index
 	}
 	return response
 }
