@@ -20,11 +20,11 @@ func NewStatusService() *StatusService {
 
 func (s *StatusService) Status(address net.IP) error {
 
-	if os.Getenv("MAINTENANCE_MODE") != "true" {
+	if os.Getenv("MAINT_MODE") != "true" {
 		return nil
 	}
 
-	var allowed = os.Getenv("MAINTENANCE_MODE_WHITELIST")
+	var allowed = os.Getenv("MAINT_MODE_WHITELIST")
 
 	if allowed == "" {
 		return errServerMaintenance
