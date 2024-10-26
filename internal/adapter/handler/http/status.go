@@ -19,18 +19,18 @@ func (h *StatusHandler) Get(ctx *gin.Context) {
 
 	host, _, err := net.SplitHostPort(ctx.Request.RemoteAddr)
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithError(http.StatusServiceUnavailable, err)
 		return
 	}
 
 	var addr = net.ParseIP(host)
 	if addr == nil {
-		ctx.AbortWithStatus(http.StatusInternalServerError)
+		ctx.AbortWithStatus(http.StatusServiceUnavailable)
 		return
 	}
 
 	if err := h.svc.Status(addr); err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithError(http.StatusServiceUnavailable, err)
 		return
 	}
 
