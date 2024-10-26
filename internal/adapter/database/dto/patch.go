@@ -23,14 +23,31 @@ func (x *KnownIssueGorm) ToEntity() patch.KnownIssue {
 	}
 }
 
+type GameFeatureGorm struct {
+	SysID      uuid.UUID `gorm:"primaryKey;column:sys_id"`
+	Text       string    `gorm:"column:text"`
+	ReleasedBy uuid.UUID `gorm:"column:released_by"`
+}
+
+func (GameFeatureGorm) TableName() string {
+	return "system.game_feature"
+}
+
+func (x *GameFeatureGorm) ToEntity() patch.GameFeature {
+	return patch.GameFeature{
+		SysID: x.SysID,
+		Text:  x.Text,
+	}
+}
+
 type PatchGorm struct {
-	SysID       uuid.UUID           `gorm:"primaryKey;column:sys_id"`
-	ReleaseDate time.Time           `gorm:"column:release_date"`
-	Description string              `gorm:"column:description"`
-	Released    bool                `gorm:"column:released"`
-	Environment uuid.UUID           `gorm:"column:environment"`
-	Features    []*PatchFeatureGorm `gorm:"foreignKey:Patch"`
-	Fixes       []*KnownIssueGorm   `gorm:"foreignKey:FixedBy"`
+	SysID       uuid.UUID          `gorm:"primaryKey;column:sys_id"`
+	ReleaseDate time.Time          `gorm:"column:release_date"`
+	Description string             `gorm:"column:description"`
+	Released    bool               `gorm:"column:released"`
+	Environment uuid.UUID          `gorm:"column:environment"`
+	Features    []*GameFeatureGorm `gorm:"foreignKey:ReleasedBy"`
+	Fixes       []*KnownIssueGorm  `gorm:"foreignKey:FixedBy"`
 }
 
 func (PatchGorm) TableName() string {
@@ -47,7 +64,7 @@ func (x *PatchGorm) ToEntity() patch.Patch {
 	}
 
 	if x.Features != nil {
-		result.Features = make([]patch.Feature, len(x.Features))
+		result.Features = make([]patch.GameFeature, len(x.Features))
 		for index, feature := range x.Features {
 			result.Features[index] = feature.ToEntity()
 		}
@@ -61,21 +78,4 @@ func (x *PatchGorm) ToEntity() patch.Patch {
 	}
 
 	return result
-}
-
-type PatchFeatureGorm struct {
-	Patch uuid.UUID `gorm:"column:patch"`
-	Text  string    `gorm:"column:text"`
-	Order int       `gorm:"column:order"`
-}
-
-func (PatchFeatureGorm) TableName() string {
-	return "system.patch_feature"
-}
-
-func (x *PatchFeatureGorm) ToEntity() patch.Feature {
-	return patch.Feature{
-		Text:  x.Text,
-		Order: x.Order,
-	}
 }

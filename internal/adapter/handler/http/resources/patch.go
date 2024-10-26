@@ -45,11 +45,11 @@ func NewPatchListResponse(p []patch.Patch) PatchListResponse {
 }
 
 type Patch struct {
-	SysID       uuid.UUID      `json:"SysID"`
-	ReleaseDate time.Time      `json:"ReleaseDate"`
-	Description string         `json:"Description"`
-	Features    []PatchFeature `json:"Features"`
-	Fixes       []KnownIssue   `json:"Fixes"`
+	SysID       uuid.UUID     `json:"SysID"`
+	ReleaseDate time.Time     `json:"ReleaseDate"`
+	Description string        `json:"Description"`
+	Features    []GameFeature `json:"Features"`
+	Fixes       []KnownIssue  `json:"Fixes"`
 }
 
 func NewPatchResponse(p patch.Patch) Patch {
@@ -57,11 +57,12 @@ func NewPatchResponse(p patch.Patch) Patch {
 		SysID:       p.SysID,
 		ReleaseDate: p.ReleaseDate,
 		Description: p.Description,
-		Features:    make([]PatchFeature, len(p.Features)),
+		Features:    make([]GameFeature, len(p.Features)),
 		Fixes:       make([]KnownIssue, len(p.Fixes)),
 	}
 	for index, value := range p.Features {
 		response.Features[index] = NewPatchFeature(value)
+		response.Features[index].Order = index
 	}
 	for index, value := range p.Fixes {
 		response.Fixes[index] = NewKnownIssue(value)
@@ -70,14 +71,15 @@ func NewPatchResponse(p patch.Patch) Patch {
 	return response
 }
 
-type PatchFeature struct {
-	Text  string `json:"Text"`
-	Order int    `json:"Order"`
+type GameFeature struct {
+	SysID uuid.UUID `json:"SysID"`
+	Text  string    `json:"Text"`
+	Order int       `json:"Order"`
 }
 
-func NewPatchFeature(p patch.Feature) PatchFeature {
-	return PatchFeature{
+func NewPatchFeature(p patch.GameFeature) GameFeature {
+	return GameFeature{
+		SysID: p.SysID,
 		Text:  p.Text,
-		Order: p.Order,
 	}
 }

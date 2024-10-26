@@ -11,21 +11,16 @@ type Patch struct {
 	Description string
 	Environment uuid.UUID
 	Released    bool
-	Features    []Feature
+	Features    []GameFeature
 	Fixes       []KnownIssue
 }
 
-type Feature struct {
-	Text  string
-	Order int
-}
-
-type Fix struct {
-	Text  string
-	Order int
-}
-
 type KnownIssue struct {
+	SysID uuid.UUID
+	Text  string
+}
+
+type GameFeature struct {
 	SysID uuid.UUID
 	Text  string
 }
