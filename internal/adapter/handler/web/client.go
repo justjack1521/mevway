@@ -100,7 +100,7 @@ func (c *Client) Notify(data []byte) {
 	}
 }
 
-func (c *Client) error(message socket.Message, response socket.Response, transaction application.Transaction) {
+func (c *Client) error(message socket.Message, response socket.Response, transaction application.Segment) {
 	data, err := response.MarshallBinary()
 	if err != nil {
 		transaction.NoticeError(err)
@@ -114,7 +114,7 @@ func (c *Client) error(message socket.Message, response socket.Response, transac
 	c.Notify(send)
 }
 
-func (c *Client) response(message socket.Message, err error, transaction application.Transaction) {
+func (c *Client) response(message socket.Message, err error, transaction application.Segment) {
 	transaction.NoticeError(err)
 	var response = c.translator.Error(message, err)
 	send, err := response.MarshallBinary()

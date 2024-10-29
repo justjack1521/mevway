@@ -7,7 +7,11 @@ type TransactionTracer interface {
 }
 
 type Transaction interface {
+	Segment
 	AddAttribute(key string, val any)
+}
+
+type Segment interface {
 	NoticeError(err error)
 	End()
 }
