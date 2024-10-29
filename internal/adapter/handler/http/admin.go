@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/application"
@@ -49,19 +50,19 @@ func (h *AdminHandler) CreateSkillPanel(ctx *gin.Context) {
 	var panel = game.SkillPanel{
 		DefinitionType: request.Panel.DefinitionType,
 		Index:          request.Panel.Index,
-		ReferenceID:    request.Panel.ReferenceID,
+		ReferenceID:    uuid.FromStringOrNil(request.Panel.ReferenceID),
 		Value:          request.Panel.Value,
 		CostItems:      make([]game.CostItem, len(request.Panel.CostItems)),
 	}
 
 	for index, value := range request.Panel.CostItems {
 		panel.CostItems[index] = game.CostItem{
-			ItemID: value.ItemID,
+			ItemID: uuid.FromStringOrNil(value.ItemID),
 			Value:  value.Value,
 		}
 	}
 
-	if err := h.svc.CreateSkillPanel(actx, request.BaseJobID, request.PageIndex, panel); err != nil {
+	if err := h.svc.CreateSkillPanel(actx, uuid.FromStringOrNil(request.BaseJobID), request.PageIndex, panel); err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

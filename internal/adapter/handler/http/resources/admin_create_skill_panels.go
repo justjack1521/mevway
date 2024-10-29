@@ -1,9 +1,7 @@
 package resources
 
-import uuid "github.com/satori/go.uuid"
-
 type CreateSkillPanelRequest struct {
-	BaseJobID uuid.UUID  `json:"BaseJobID" binding:"required"`
+	BaseJobID string     `json:"BaseJobID" binding:"required"`
 	PageIndex int        `json:"PageIndex"`
 	Panel     SkillPanel `json:"Panel"`
 }
@@ -11,12 +9,12 @@ type CreateSkillPanelRequest struct {
 type SkillPanel struct {
 	DefinitionType string     `json:"DefinitionType" binding:"required"`
 	Index          int        `json:"Index"`
-	ReferenceID    uuid.UUID  `json:"ReferenceID"`
+	ReferenceID    string     `json:"ReferenceID"`
 	Value          int        `json:"Value"`
 	CostItems      []CostItem `json:"CostItems"`
 }
 
 type CostItem struct {
-	ItemID uuid.UUID `json:"ItemID" binding:"required"`
-	Value  int       `json:"Value"`
+	ItemID string `json:"ItemID" binding:"required"`
+	Value  int    `json:"Value"`
 }
