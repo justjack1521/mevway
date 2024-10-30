@@ -21,15 +21,13 @@ func NewGameAdminService(svc services.MeviusAdminServiceClient) *GameAdminServic
 
 func (s *GameAdminService) GrantItem(ctx context.Context, player uuid.UUID, item uuid.UUID, quantity int) error {
 
-	var md = application.MetadataFromContext(ctx)
-
 	var request = &protoadmin.GrantItemRequest{
 		PlayerId: player.String(),
 		ItemId:   item.String(),
 		Quantity: int32(quantity),
 	}
 
-	_, err := s.svc.GrantItem(mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID), request)
+	_, err := s.svc.GrantItem(s.context(ctx), request)
 	if err != nil {
 		return err
 	}
@@ -38,9 +36,26 @@ func (s *GameAdminService) GrantItem(ctx context.Context, player uuid.UUID, item
 
 }
 
-func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error) {
+func (s *GameAdminService) CreateBaseJob(ctx context.Context, job game.BaseJob) (bool, error) {
 
-	var md = application.MetadataFromContext(ctx)
+	var request = &protoadmin.CreateBaseJobCardRequest{
+		SysId:     job.SysID.String(),
+		Active:    job.Active,
+		JobNumber: job.Number,
+		JobName:   job.Name,
+		TypeId:    job.TypeID.String(),
+	}
+
+	response, err := s.svc.CreateBaseJobCard(s.context(ctx), request)
+	if err != nil {
+		return false, err
+	}
+
+	return response.Created, nil
+
+}
+
+func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error) {
 
 	var request = &protoadmin.CreateSkillPanelRequest{
 		BaseJobId:      job.String(),
@@ -59,11 +74,16 @@ func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, 
 		}
 	}
 
-	response, err := s.svc.CreateSkillPanel(mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID), request)
+	response, err := s.svc.CreateSkillPanel(s.context(ctx), request)
 	if err != nil {
 		return false, err
 	}
 
 	return response.Created, nil
 
+}
+
+func (s *GameAdminService) context(ctx context.Context) context.Context {
+	var md = application.MetadataFromContext(ctx)
+	return mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID)
 }

@@ -19,6 +19,63 @@ func NewAdminHandler(svc port.GameAdminService) *AdminHandler {
 	return &AdminHandler{svc: svc}
 }
 
+func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
+	var request = &resources.CreateBaseJobRequest{}
+
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	user, err := middleware.UserIDFromContext(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	player, err := middleware.PlayerIDFromContext(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var md = application.ContextMetadata{
+		UserID:   user,
+		PlayerID: player,
+	}
+
+	var actx = application.NewApplicationContext(ctx, md)
+
+	id, err := uuid.FromString(request.BaseJobID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	t, err := uuid.FromString(request.TypeID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var job = game.BaseJob{
+		SysID:  id,
+		Active: request.Active,
+		Name:   request.Name,
+		Number: request.Number,
+		TypeID: t,
+	}
+
+	response, err := h.svc.CreateBaseJob(actx, job)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, resources.CreateBaseJobResponse{Created: response})
+
+}
+
 func (h *AdminHandler) CreateSkillPanel(ctx *gin.Context) {
 
 	var request = &resources.CreateSkillPanelRequest{}
