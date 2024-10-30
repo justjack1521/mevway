@@ -38,7 +38,7 @@ func (s *GameAdminService) GrantItem(ctx context.Context, player uuid.UUID, item
 
 }
 
-func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) error {
+func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error) {
 
 	var md = application.MetadataFromContext(ctx)
 
@@ -59,11 +59,11 @@ func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, 
 		}
 	}
 
-	_, err := s.svc.CreateSkillPanel(mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID), request)
+	response, err := s.svc.CreateSkillPanel(mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID), request)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	return nil
+	return response.Created, nil
 
 }

@@ -8,5 +8,5 @@ import (
 
 type GameAdminService interface {
 	GrantItem(ctx context.Context, player uuid.UUID, item uuid.UUID, quantity int) error
-	CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) error
+	CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error)
 }

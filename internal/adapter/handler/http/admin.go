@@ -62,12 +62,13 @@ func (h *AdminHandler) CreateSkillPanel(ctx *gin.Context) {
 		}
 	}
 
-	if err := h.svc.CreateSkillPanel(actx, uuid.FromStringOrNil(request.BaseJobID), request.PageIndex, panel); err != nil {
+	response, err := h.svc.CreateSkillPanel(actx, uuid.FromStringOrNil(request.BaseJobID), request.PageIndex, panel)
+	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{})
+	ctx.JSON(http.StatusCreated, resources.CreateSkillPanelResponse{Created: response})
 
 }
 

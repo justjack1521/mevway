@@ -6,6 +6,10 @@ type CreateSkillPanelRequest struct {
 	Panel     SkillPanel `json:"Panel"`
 }
 
+type CreateSkillPanelResponse struct {
+	Created bool `json:"Created"`
+}
+
 type SkillPanel struct {
 	DefinitionType string     `json:"DefinitionType" binding:"required"`
 	Index          int        `json:"Index"`
