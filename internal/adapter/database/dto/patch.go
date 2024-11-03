@@ -43,9 +43,10 @@ func (x *GameFeatureGorm) ToEntity() patch.GameFeature {
 type PatchGorm struct {
 	SysID       uuid.UUID          `gorm:"primaryKey;column:sys_id"`
 	ReleaseDate time.Time          `gorm:"column:release_date"`
+	Application uuid.UUID          `gorm:"column:application"`
+	Version     string             `gorm:"column:version"`
 	Description string             `gorm:"column:description"`
 	Released    bool               `gorm:"column:released"`
-	Environment uuid.UUID          `gorm:"column:environment"`
 	Features    []*GameFeatureGorm `gorm:"foreignKey:ReleasedBy"`
 	Fixes       []*KnownIssueGorm  `gorm:"foreignKey:FixedBy"`
 }
@@ -57,10 +58,11 @@ func (PatchGorm) TableName() string {
 func (x *PatchGorm) ToEntity() patch.Patch {
 	var result = patch.Patch{
 		SysID:       x.SysID,
+		Application: x.Application,
+		Version:     x.Version,
 		ReleaseDate: x.ReleaseDate,
 		Description: x.Description,
 		Released:    x.Released,
-		Environment: x.Environment,
 	}
 
 	if x.Features != nil {

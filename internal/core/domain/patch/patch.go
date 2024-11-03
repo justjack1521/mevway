@@ -7,9 +7,10 @@ import (
 
 type Patch struct {
 	SysID       uuid.UUID
+	Application uuid.UUID
 	ReleaseDate time.Time
+	Version     string
 	Description string
-	Environment uuid.UUID
 	Released    bool
 	Features    []GameFeature
 	Fixes       []KnownIssue
