@@ -18,7 +18,13 @@ func NewPatchHandler(svc port.PatchService) *PatchHandler {
 
 func (h *PatchHandler) Recent(ctx *gin.Context) {
 
-	current, err := h.svc.GetCurrentPatch(ctx, uuid.Nil)
+	var application = ctx.Query("application")
+
+	if application == "" {
+		application = "game"
+	}
+
+	current, err := h.svc.GetCurrentPatch(ctx, application, uuid.Nil)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return

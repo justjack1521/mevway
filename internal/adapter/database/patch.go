@@ -34,10 +34,11 @@ func (r *PatchRepository) GetPatchList(ctx context.Context, environment uuid.UUI
 
 }
 
-func (r *PatchRepository) GetLatestPatch(ctx context.Context, environment uuid.UUID) (patch.Patch, error) {
+func (r *PatchRepository) GetLatestPatch(ctx context.Context, application string, environment uuid.UUID) (patch.Patch, error) {
 
 	var cond = &dto.PatchGorm{
-		Released: true,
+		Application: application,
+		Released:    true,
 	}
 	var res = &dto.PatchGorm{}
 

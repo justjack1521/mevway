@@ -1,13 +1,14 @@
 package patch
 
 import (
+	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
 type Patch struct {
 	SysID       uuid.UUID
-	Application uuid.UUID
+	Application string
 	ReleaseDate time.Time
 	Version     string
 	Description string
@@ -24,4 +25,14 @@ type KnownIssue struct {
 type GameFeature struct {
 	SysID uuid.UUID
 	Text  string
+}
+
+type Version struct {
+	Major int
+	Minor int
+	Patch int
+}
+
+func (v Version) ToString() string {
+	return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 }

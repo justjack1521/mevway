@@ -15,8 +15,8 @@ func NewPatchService(repository port.PatchRepository) *PatchService {
 	return &PatchService{repository: repository}
 }
 
-func (s *PatchService) GetCurrentPatch(ctx context.Context, environment uuid.UUID) (patch.Patch, error) {
-	return s.repository.GetLatestPatch(ctx, environment)
+func (s *PatchService) GetCurrentPatch(ctx context.Context, application string, environment uuid.UUID) (patch.Patch, error) {
+	return s.repository.GetLatestPatch(ctx, application, environment)
 }
 
 func (s *PatchService) ListPatches(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {

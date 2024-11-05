@@ -48,6 +48,7 @@ type Patch struct {
 	SysID       uuid.UUID     `json:"SysID"`
 	ReleaseDate time.Time     `json:"ReleaseDate"`
 	Description string        `json:"Description"`
+	Version     string        `json:"Version"`
 	Features    []GameFeature `json:"Features"`
 	Fixes       []KnownIssue  `json:"Fixes"`
 }
@@ -57,6 +58,7 @@ func NewPatchResponse(p patch.Patch) Patch {
 		SysID:       p.SysID,
 		ReleaseDate: p.ReleaseDate,
 		Description: p.Description,
+		Version:     p.Version,
 		Features:    make([]GameFeature, len(p.Features)),
 		Fixes:       make([]KnownIssue, len(p.Fixes)),
 	}

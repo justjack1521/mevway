@@ -43,7 +43,7 @@ func (x *GameFeatureGorm) ToEntity() patch.GameFeature {
 type PatchGorm struct {
 	SysID       uuid.UUID          `gorm:"primaryKey;column:sys_id"`
 	ReleaseDate time.Time          `gorm:"column:release_date"`
-	Application uuid.UUID          `gorm:"column:application"`
+	Application string             `gorm:"column:application"`
 	Version     string             `gorm:"column:version"`
 	Description string             `gorm:"column:description"`
 	Released    bool               `gorm:"column:released"`
