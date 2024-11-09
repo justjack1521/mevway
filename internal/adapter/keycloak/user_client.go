@@ -82,7 +82,7 @@ func (c *UserClient) IdentityFromUser(target *gocloak.User) (user.Identity, erro
 
 	csm, ok := attrs["customer"]
 	if ok == false {
-		return user.Identity{}, errFailedGetIdentityFromCustomerID(errProfileAttributeNotFound)
+		return user.Identity{}, errFailedGetIdentityFromCustomerID(errCustomerAttributeNotFound)
 	}
 
 	return user.Identity{
@@ -175,7 +175,9 @@ func (c *UserClient) LoginAdmin(ctx context.Context) (string, error) {
 
 var (
 	errUserMatchingCustomerIDNotFound  = errors.New("user matching customer id not found")
+	errUsernameAttributeNotFound       = errors.New("username attribute not found")
 	errProfileAttributeNotFound        = errors.New("profile attribute not found")
+	errCustomerAttributeNotFound       = errors.New("customer attribute not found")
 	errFailedGetIdentityFromCustomerID = func(err error) error {
 		return fmt.Errorf("failed to get identity from customer id: %w", err)
 	}

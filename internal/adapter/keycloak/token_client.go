@@ -44,24 +44,23 @@ func (c *TokenClient) VerifyIdentityToken(ctx context.Context, token string) (au
 	claims := jwt.MapClaims{}
 
 	_, err := c.client.DecodeAccessTokenCustomClaims(ctx, token, c.config.Realm(), claims)
-
 	if err != nil {
 		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
 	}
 
 	profile, ok := claims["profile"]
 	if ok == false {
-		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
+		return auth.IdentityClaims{}, errTokenExtractionFailed(errProfileAttributeNotFound)
 	}
 
 	username, ok := claims["preferred_username"]
 	if ok == false {
-		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
+		return auth.IdentityClaims{}, errTokenExtractionFailed(errUsernameAttributeNotFound)
 	}
 
 	customer, ok := claims["customer"]
 	if ok == false {
-		return auth.IdentityClaims{}, errTokenExtractionFailed(err)
+		return auth.IdentityClaims{}, errTokenExtractionFailed(errCustomerAttributeNotFound)
 	}
 
 	return auth.IdentityClaims{
