@@ -31,6 +31,7 @@ func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *Mul
 	router.routes[protomulti.MultiRequestType_PARTICIPANT_UNREADY] = router.ParticipantUnreadyRoute
 	router.routes[protomulti.MultiRequestType_PARTICIPANT_WATCH] = router.ParticipantWatchRoute
 	router.routes[protomulti.MultiRequestType_PARTICIPANT_UNWATCH] = router.ParticipantUnwatchRoute
+	router.routes[protomulti.MultiRequestType_PARTICIPANT_FIND] = router.ParticipantFindRoute
 
 	router.routes[protomulti.MultiRequestType_GET_GAME] = router.GetGameRoute
 	router.routes[protomulti.MultiRequestType_GAME_READY_PLAYER] = router.GameReadyPlayerRoute
@@ -196,6 +197,20 @@ func (r *MultiServiceClientRouter) ParticipantWatchRoute(ctx context.Context, by
 	}
 
 	result, err := r.service.ParticipantWatch(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) ParticipantFindRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewParticipantFindRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ParticipantFind(ctx, request)
 	if err != nil {
 		return nil, err
 	}
