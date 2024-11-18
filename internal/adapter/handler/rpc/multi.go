@@ -15,16 +15,23 @@ type MultiServiceClientRouter struct {
 
 func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *MultiServiceClientRouter {
 	var router = &MultiServiceClientRouter{service: service, routes: make(map[protomulti.MultiRequestType]handler)}
-	router.routes[protomulti.MultiRequestType_CREATE_SESSION] = router.CreateSessionRoute
-	router.routes[protomulti.MultiRequestType_END_SESSION] = router.EndSessionRoute
-	router.routes[protomulti.MultiRequestType_CREATE_LOBBY] = router.CreateLobbyRoute
-	router.routes[protomulti.MultiRequestType_CANCEL_LOBBY] = router.CancelLobbyRoute
-	router.routes[protomulti.MultiRequestType_SEARCH_LOBBY] = router.SearchLobbyRoute
-	router.routes[protomulti.MultiRequestType_WATCH_LOBBY] = router.WatchLobbyRoute
-	router.routes[protomulti.MultiRequestType_JOIN_LOBBY] = router.JoinLobbyRoute
-	router.routes[protomulti.MultiRequestType_READY_LOBBY] = router.ReadyLobbyRoute
-	router.routes[protomulti.MultiRequestType_SEND_STAMP] = router.SendStampRoute
-	router.routes[protomulti.MultiRequestType_START_LOBBY] = router.StartLobbyRoute
+	router.routes[protomulti.MultiRequestType_SESSION_CREATE] = router.SessionCreateRoute
+	router.routes[protomulti.MultiRequestType_SESSION_END] = router.SessionEndRoute
+
+	router.routes[protomulti.MultiRequestType_LOBBY_CREATE] = router.LobbyCreateRoute
+	router.routes[protomulti.MultiRequestType_LOBBY_CANCEL] = router.LobbyCancelRoute
+	router.routes[protomulti.MultiRequestType_LOBBY_READY] = router.LobbyReadyRoute
+	router.routes[protomulti.MultiRequestType_LOBBY_START] = router.LobbyStartRoute
+	router.routes[protomulti.MultiRequestType_LOBBY_STAMP] = router.LobbyStampRoute
+	router.routes[protomulti.MultiRequestType_LOBBY_SEARCH] = router.LobbySearchRoute
+
+	router.routes[protomulti.MultiRequestType_PARTICIPANT_JOIN] = router.ParticipantJoinRoute
+	router.routes[protomulti.MultiRequestType_PARTICIPANT_LEAVE] = router.ParticipantLeaveRoute
+	router.routes[protomulti.MultiRequestType_PARTICIPANT_READY] = router.ParticipantReadyRoute
+	router.routes[protomulti.MultiRequestType_PARTICIPANT_UNREADY] = router.ParticipantUnreadyRoute
+	router.routes[protomulti.MultiRequestType_PARTICIPANT_WATCH] = router.ParticipantWatchRoute
+	router.routes[protomulti.MultiRequestType_PARTICIPANT_UNWATCH] = router.ParticipantUnwatchRoute
+
 	router.routes[protomulti.MultiRequestType_GET_GAME] = router.GetGameRoute
 	router.routes[protomulti.MultiRequestType_GAME_READY_PLAYER] = router.GameReadyPlayerRoute
 	router.routes[protomulti.MultiRequestType_GAME_ENQUEUE_ACTION] = router.GameEnqueueActionRoute
@@ -112,27 +119,13 @@ func (r *MultiServiceClientRouter) GetGameRoute(ctx context.Context, bytes []byt
 	return result, nil
 }
 
-func (r *MultiServiceClientRouter) CreateSessionRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewCreateSessionRequest(bytes)
+func (r *MultiServiceClientRouter) SessionCreateRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewSessionCreateRequest(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := r.service.CreateSession(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (r *MultiServiceClientRouter) EndSessionRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewEndSessionRequest(bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	result, err := r.service.EndSession(ctx, request)
+	result, err := r.service.SessionCreate(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -140,27 +133,13 @@ func (r *MultiServiceClientRouter) EndSessionRoute(ctx context.Context, bytes []
 	return result, nil
 }
 
-func (r *MultiServiceClientRouter) SearchLobbyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewSearchLobbyRequest(bytes)
+func (r *MultiServiceClientRouter) SessionEndRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewSessionEndRequest(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := r.service.SearchLobby(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (r *MultiServiceClientRouter) StartLobbyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewStartLobbyRequest(bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	result, err := r.service.StartLobby(ctx, request)
+	result, err := r.service.SessionEnd(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -168,27 +147,13 @@ func (r *MultiServiceClientRouter) StartLobbyRoute(ctx context.Context, bytes []
 	return result, nil
 }
 
-func (r *MultiServiceClientRouter) WatchLobbyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewWatchLobbyRequest(bytes)
+func (r *MultiServiceClientRouter) LobbySearchRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewLobbySearchRequest(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := r.service.WatchLobby(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (r *MultiServiceClientRouter) CreateLobbyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewCreateLobbyRequest(bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	result, err := r.service.CreateLobby(ctx, request)
+	result, err := r.service.LobbySearch(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -196,27 +161,13 @@ func (r *MultiServiceClientRouter) CreateLobbyRoute(ctx context.Context, bytes [
 	return result, nil
 }
 
-func (r *MultiServiceClientRouter) CancelLobbyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewCancelLobbyRequest(bytes)
+func (r *MultiServiceClientRouter) LobbyReadyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewLobbyReadyRequest(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := r.service.CancelLobby(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (r *MultiServiceClientRouter) JoinLobbyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewJoinLobbyRequest(bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	result, err := r.service.JoinLobby(ctx, request)
+	result, err := r.service.LobbyReady(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -224,13 +175,13 @@ func (r *MultiServiceClientRouter) JoinLobbyRoute(ctx context.Context, bytes []b
 	return result, nil
 }
 
-func (r *MultiServiceClientRouter) ReadyLobbyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewReadyLobbyRequest(bytes)
+func (r *MultiServiceClientRouter) LobbyStartRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewLobbyStartRequest(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := r.service.ReadyLobby(ctx, request)
+	result, err := r.service.LobbyStart(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -238,13 +189,125 @@ func (r *MultiServiceClientRouter) ReadyLobbyRoute(ctx context.Context, bytes []
 	return result, nil
 }
 
-func (r *MultiServiceClientRouter) SendStampRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protomulti.NewSendStampRequest(bytes)
+func (r *MultiServiceClientRouter) ParticipantWatchRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewParticipantWatchRequest(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := r.service.SendStamp(ctx, request)
+	result, err := r.service.ParticipantWatch(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) ParticipantUnwatchRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewParticipantUnwatchRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ParticipantUnwatch(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) LobbyCreateRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewLobbyCreateRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.LobbyCreate(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) LobbyCancelRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewLobbyCancelRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.LobbyCancel(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) ParticipantJoinRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewParticipantJoinRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ParticipantJoin(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) ParticipantLeaveRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewParticipantLeaveRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ParticipantLeave(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) ParticipantReadyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewParticipantReadyRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ParticipantReady(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) ParticipantUnreadyRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewParticipantUnreadyRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ParticipantUnready(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) LobbyStampRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewLobbyStampRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.LobbyStamp(ctx, request)
 	if err != nil {
 		return nil, err
 	}
