@@ -19,7 +19,7 @@ func NewClientNotificationConsumer(app *ApplicationConnection, svc port.SocketSe
 		translator: translator,
 	}
 
-	consumer, err := mevrabbit.NewStandardConsumer(app.conn, mevrabbit.ClientUpdate, mevrabbit.ClientNotification, mevrabbit.Client, service.consume)
+	consumer, err := mevrabbit.NewStandardConsumer(app.conn, mevrabbit.ClientNotify, mevrabbit.ClientNotification, mevrabbit.Client, service.consume)
 
 	if err != nil {
 		panic(err)
