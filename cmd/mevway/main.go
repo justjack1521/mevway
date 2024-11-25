@@ -34,7 +34,7 @@ func main() {
 	var logger = logrus.New()
 	var slogger = slog.New(slogrus.Option{Level: slog.LevelDebug, Logger: logger}.NewLogrusHandler())
 
-	var events = mevent.NewPublisher(mevent.PublisherWithLogger(logger))
+	var events = mevent.NewPublisher(mevent.PublisherWithLogger(slogger))
 
 	db, err := database.NewPostgresConnection()
 	if err != nil {

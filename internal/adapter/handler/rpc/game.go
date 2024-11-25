@@ -31,6 +31,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_CLAIM_LOGIN_CAMPAIGN] = router.ClaimLoginCampaignRoute
 	router.routes[protogame.GameRequestType_CLAIM_EVENT_RANKING] = router.ClaimEventRoute
 	router.routes[protogame.GameRequestType_CLAIM_MAILBOX] = router.ClaimMailRoute
+	router.routes[protogame.GameRequestType_CLAIM_ALL_MAILBOX] = router.ClaimAllMailRoute
 	router.routes[protogame.GameRequestType_BATTLE_START] = router.BattleStartRoute
 	router.routes[protogame.GameRequestType_CARD_TRANSFER] = router.CardTransferRoute
 	router.routes[protogame.GameRequestType_EXPAND_CARD_SLOTS] = router.ExpandCardSlotsRoute
@@ -234,6 +235,20 @@ func (r *GameServiceClientRouter) ClaimMailRoute(ctx context.Context, bytes []by
 	}
 
 	result, err := r.service.ClaimMailboxItem(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) ClaimAllMailRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewClaimAllMailBoxItemRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ClaimAllMailboxItem(ctx, request)
 	if err != nil {
 		return nil, err
 	}
