@@ -101,18 +101,16 @@ func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth
 		return auth.AccessClaims{}, errTokenExtractionFailed(err)
 	}
 
-	var roles = make([]string, 0)
+	var roleStrs = make([]string, 0)
 
-	scope := claims["roles"]
-	if scope != nil {
-		slc, ok := scope.([]any)
-		if ok {
-			for _, s := range slc {
-				str, ok := s.(string)
-				if !ok {
-					continue
+	if resourceAccess, ok := claims["resource_access"].(map[string]interface{}); ok {
+		if account, ok := resourceAccess["account"].(map[string]interface{}); ok {
+			if roles, ok := account["roles"].([]interface{}); ok {
+				for _, role := range roles {
+					if roleStr, ok := role.(string); ok {
+						roleStrs = append(roleStrs, roleStr)
+					}
 				}
-				roles = append(roles, str)
 			}
 		}
 	}
@@ -120,7 +118,7 @@ func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth
 	c.logger.With(
 		slog.Group("token_arr",
 			slog.String("sub", sub),
-			slog.String("roles", strings.Join(roles, ",")),
+			slog.String("roles", strings.Join(roleStrs, ",")),
 		),
 	).InfoContext(ctx, "access token verified")
 
@@ -129,7 +127,7 @@ func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth
 		UserID:      usr,
 		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
 		Environment: "development",
-		Roles:       roles,
+		Roles:       roleStrs,
 	}, nil
 
 }
