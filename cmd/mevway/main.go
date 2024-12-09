@@ -91,6 +91,7 @@ func main() {
 	var userRepository = keycloak.NewUserClient(keyCloakClient, cloak)
 	var tokenRepository = keycloak.NewTokenClient(keyCloakClient, cloak, slogger)
 	var patchRepository = database.NewPatchRepository(db)
+	var contactRepository = database.NewContactRepository(db)
 	var clientRepository = memory.NewClientRepository(rds)
 	var socialRepository = external.NewSocialPlayerRepository(social)
 
@@ -124,6 +125,7 @@ func main() {
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
 	var adminHandler = http.NewAdminHandler(adminService)
+	var contactHandler = http.NewContactHandler(contactRepository)
 
 	subscriber.NewClientPersistenceSubscriber(events, clientRepository)
 
@@ -140,7 +142,7 @@ func main() {
 
 	go server.Run()
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))

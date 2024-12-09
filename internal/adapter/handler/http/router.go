@@ -18,6 +18,7 @@ func NewRouter(
 	socketHandler *SocketHandler,
 	playerHandler *PlayerHandler,
 	adminHandler *AdminHandler,
+	contactHandler *ContactHandler,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
 
@@ -51,6 +52,7 @@ func NewRouter(
 
 	var publicGroup = router.Group("/public")
 	{
+		publicGroup.POST("/contact", contactHandler.CreateContact)
 		var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise)
 		{
 			socketGroup.GET("/join", socketHandler.Join)
