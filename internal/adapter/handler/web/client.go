@@ -147,8 +147,8 @@ func (c *Client) Read() {
 		}
 
 		ctx, txn := c.instrumenter.Start(context.Background(), "socket/read")
-		txn.AddAttribute("user.id", c.client.UserID)
-		txn.AddAttribute("player.id", c.client.PlayerID)
+		txn.AddAttribute("user.id", c.client.UserID.String())
+		txn.AddAttribute("player.id", c.client.PlayerID.String())
 
 		request, err := c.translator.Message(c.client, message)
 		if err != nil {
@@ -198,8 +198,8 @@ func (c *Client) Write() {
 			}
 
 			_, txn := c.instrumenter.Start(context.Background(), "socket/write")
-			txn.AddAttribute("user.id", c.client.UserID)
-			txn.AddAttribute("player.id", c.client.PlayerID)
+			txn.AddAttribute("user.id", c.client.UserID.String())
+			txn.AddAttribute("player.id", c.client.PlayerID.String())
 
 			writer, err := c.connection.NextWriter(websocket.BinaryMessage)
 			if err != nil {
