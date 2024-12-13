@@ -57,8 +57,9 @@ func (s *SocketServer) Run() {
 		case n := <-s.notify:
 			s.mu.RLock()
 			for client := range s.clients {
-				if client.UserID == n.UserID {
+				if client.PlayerID == n.PlayerID {
 					s.clients[client].Notify(n.Data)
+					break
 				}
 			}
 			s.mu.RUnlock()
