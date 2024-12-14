@@ -34,7 +34,7 @@ func NewRouter(
 	}))
 	router.Use(middle...)
 
-	var privateGroup = router.Group("/private", authHandler.AccessTokenAuthorise)
+	var privateGroup = router.Group("/private", authHandler.AccessTokenAuthorise, middleware.AdminRoleMiddleware())
 	{
 		var gameGroup = privateGroup.Group("/game")
 		{
