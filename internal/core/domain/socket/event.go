@@ -3,7 +3,7 @@ package socket
 import (
 	"context"
 	uuid "github.com/satori/go.uuid"
-	"github.com/sirupsen/logrus"
+	"log/slog"
 )
 
 type ClientConnectedEvent struct {
@@ -37,12 +37,11 @@ func (e ClientConnectedEvent) Name() string {
 	return "event.client.connected"
 }
 
-func (e ClientConnectedEvent) ToLogFields() logrus.Fields {
-	return logrus.Fields{
-		"event.name": e.Name(),
-		"session.id": e.sessionID.String(),
-		"user.id":    e.userID.String(),
-		"player.id":  e.playerID.String(),
+func (e ClientConnectedEvent) ToSlogFields() []slog.Attr {
+	return []slog.Attr{
+		slog.String("session.id", e.sessionID.String()),
+		slog.String("user.id", e.userID.String()),
+		slog.String("player.id", e.playerID.String()),
 	}
 }
 
@@ -77,11 +76,10 @@ func (e ClientDisconnectedEvent) Name() string {
 	return "event.client.disconnected"
 }
 
-func (e ClientDisconnectedEvent) ToLogFields() logrus.Fields {
-	return logrus.Fields{
-		"event.name": e.Name(),
-		"session.id": e.sessionID.String(),
-		"user.id":    e.userID.String(),
-		"player.id":  e.playerID.String(),
+func (e ClientDisconnectedEvent) ToSlogFields() []slog.Attr {
+	return []slog.Attr{
+		slog.String("session.id", e.sessionID.String()),
+		slog.String("user.id", e.userID.String()),
+		slog.String("player.id", e.playerID.String()),
 	}
 }
