@@ -10,16 +10,6 @@ import (
 	"mevway/internal/core/domain/user"
 )
 
-var (
-	errTokenAuthoriseFailed = func(err error) error {
-		return fmt.Errorf("token authorisation failed: %w", err)
-	}
-	errTokenExtractionFailed = func(err error) error {
-		return fmt.Errorf("token extraction failed: %w", err)
-	}
-	errTokenInactive = errors.New("token no longer active")
-)
-
 type UserClient struct {
 	client *gocloak.GoCloak
 	config mevconn.KeyCloakConfig
