@@ -117,13 +117,11 @@ func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth
 
 	var roleStrings = make([]string, 0)
 
-	if resourceAccess, ok := claims["realm_access"].(map[string]interface{}); ok {
-		if account, ok := resourceAccess["account"].(map[string]interface{}); ok {
-			if roles, ok := account["roles"].([]interface{}); ok {
-				for _, role := range roles {
-					if roleStr, ok := role.(string); ok {
-						roleStrings = append(roleStrings, roleStr)
-					}
+	if access, ok := claims["realm_access"].(map[string]interface{}); ok {
+		if roles, ok := access["roles"].([]interface{}); ok {
+			for _, role := range roles {
+				if roleStr, ok := role.(string); ok {
+					roleStrings = append(roleStrings, roleStr)
 				}
 			}
 		}
