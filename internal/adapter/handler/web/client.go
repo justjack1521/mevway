@@ -157,6 +157,9 @@ func (c *Client) Read() {
 			continue
 		}
 
+		txn.AddAttribute("service.key", request.Service.ID)
+		txn.AddAttribute("service.operation", request.Operation.ID)
+
 		result, err := c.router.Route(ctx, request)
 		if err != nil {
 			c.response(request, err, txn)
