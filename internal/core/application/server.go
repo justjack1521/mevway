@@ -47,14 +47,22 @@ func (s *SocketServer) Reap() {
 	defer ticker.Stop()
 
 	for range ticker.C {
+
+		var inactive = make([]port.Client, 0)
 		s.mu.Lock()
 		var now = time.Now().UTC()
 		for _, value := range s.clients {
 			if now.Sub(value.LastMessage()) > 5*time.Minute {
 				value.Close()
+				inactive = append(inactive, value)
 			}
 		}
 		s.mu.Unlock()
+
+		for _, client := range inactive {
+			client.Close()
+		}
+
 	}
 
 }
