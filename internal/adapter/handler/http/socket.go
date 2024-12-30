@@ -84,7 +84,9 @@ func (h *SocketHandler) Join(ctx *gin.Context) {
 		return
 	}
 
-	h.svc.Register(c, client)
+	if err := h.svc.Register(c, client); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+	}
 
 	go client.Read()
 	go client.Write()

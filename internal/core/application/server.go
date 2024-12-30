@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
@@ -67,12 +68,22 @@ func (s *SocketServer) Run() {
 	}
 }
 
-func (s *SocketServer) Register(client socket.Client, notifier port.Client) {
+func (s *SocketServer) Register(client socket.Client, notifier port.Client) error {
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for key := range s.clients {
+		if key.UserID == client.UserID {
+			return errors.New("only one session is allowed per user")
+		}
+	}
+
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
-		return
+		return nil
 	default:
-		return
+		return nil
 	}
 }
 

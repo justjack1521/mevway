@@ -20,7 +20,7 @@ type ClientConnectionRepository interface {
 }
 
 type SocketServer interface {
-	Register(client socket.Client, notifier Client)
+	Register(client socket.Client, notifier Client) error
 	Unregister(client socket.Client)
 	Notify(ctx context.Context, message socket.Message)
 }
