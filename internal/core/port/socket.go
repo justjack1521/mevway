@@ -3,6 +3,7 @@ package port
 import (
 	"context"
 	"mevway/internal/core/domain/socket"
+	"time"
 )
 
 type Client interface {
@@ -10,6 +11,7 @@ type Client interface {
 	Write()
 	Notify(data []byte)
 	Close()
+	LastMessage() time.Time
 }
 
 type ClientConnectionRepository interface {

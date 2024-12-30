@@ -70,6 +70,11 @@ type Client struct {
 	instrumenter application.TransactionTracer
 	translator   application.MessageTranslator
 	connection   *Connection
+	lastMessage  time.Time
+}
+
+func (c *Client) LastMessage() time.Time {
+	return c.lastMessage
 }
 
 func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionTracer, translator application.MessageTranslator) *Client {
@@ -145,6 +150,8 @@ func (c *Client) Read() {
 			}
 			return
 		}
+
+		c.lastMessage = time.Now().UTC()
 
 		ctx, txn := c.instrumenter.Start(context.Background(), "socket/read")
 		txn.AddAttribute("user.id", c.client.UserID.String())

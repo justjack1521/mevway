@@ -7,6 +7,7 @@ import (
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
 	"sync"
+	"time"
 )
 
 type SocketClient struct {
@@ -38,6 +39,24 @@ func NewSocketServer(publisher *mevent.Publisher) *SocketServer {
 
 func (s *SocketServer) Start() {
 	go s.Run()
+	go s.Reap()
+}
+
+func (s *SocketServer) Reap() {
+	ticker := time.NewTicker(time.Minute * 3)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		s.mu.Lock()
+		var now = time.Now().UTC()
+		for _, value := range s.clients {
+			if now.Sub(value.LastMessage()) > 5*time.Minute {
+				value.Close()
+			}
+		}
+		s.mu.Unlock()
+	}
+
 }
 
 func (s *SocketServer) Run() {
