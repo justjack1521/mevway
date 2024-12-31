@@ -64,17 +64,14 @@ func (c *Connection) Close() {
 }
 
 type Client struct {
-	client       socket.Client
-	router       port.SocketMessageRouter
-	server       port.SocketServer
-	instrumenter application.TransactionTracer
-	translator   application.MessageTranslator
-	connection   *Connection
-	lastMessage  time.Time
-}
-
-func (c *Client) LastMessage() time.Time {
-	return c.lastMessage
+	client        socket.Client
+	router        port.SocketMessageRouter
+	server        port.SocketServer
+	instrumenter  application.TransactionTracer
+	translator    application.MessageTranslator
+	connection    *Connection
+	lastMessage   time.Time
+	closureReason socket.ClosureReason
 }
 
 func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketServer, router port.SocketMessageRouter, instrumenter application.TransactionTracer, translator application.MessageTranslator) *Client {
@@ -92,7 +89,8 @@ func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketSer
 	}
 }
 
-func (c *Client) Close() {
+func (c *Client) Close(reason socket.ClosureReason) {
+	c.closureReason = reason
 	c.server.Unregister(c.client)
 	c.connection.Close()
 }
@@ -134,7 +132,7 @@ func (c *Client) response(message socket.Message, err error, transaction applica
 func (c *Client) Read() {
 
 	defer func() {
-		c.Close()
+		c.Close(socket.ClosureReasonReadStop)
 	}()
 
 	c.connection.SetReadLimit(maxMessageSize)
@@ -187,7 +185,7 @@ func (c *Client) Write() {
 
 	defer func() {
 		ticker.Stop()
-		c.Close()
+		c.Close(socket.ClosureReasonWriteStop)
 	}()
 
 	for {
@@ -241,4 +239,12 @@ func (c *Client) Write() {
 
 func (c *Client) pong(x string) error {
 	return c.connection.SetReadDeadline(time.Now().Add(pongWait))
+}
+
+func (c *Client) ClosureReason() socket.ClosureReason {
+	return c.closureReason
+}
+
+func (c *Client) LastMessage() time.Time {
+	return c.lastMessage
 }

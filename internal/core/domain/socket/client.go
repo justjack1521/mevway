@@ -2,6 +2,15 @@ package socket
 
 import uuid "github.com/satori/go.uuid"
 
+type ClosureReason int
+
+const (
+	ClosureReasonDefault    = iota
+	ClosureReasonReadStop   = 1
+	ClosureReasonWriteStop  = 2
+	ClosureReasonServerStop = 3
+)
+
 type Client struct {
 	Session  uuid.UUID
 	UserID   uuid.UUID

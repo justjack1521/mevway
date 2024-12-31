@@ -10,7 +10,8 @@ type Client interface {
 	Read()
 	Write()
 	Notify(data []byte)
-	Close()
+	Close(reason socket.ClosureReason)
+	ClosureReason() socket.ClosureReason
 	LastMessage() time.Time
 }
 

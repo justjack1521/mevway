@@ -50,10 +50,11 @@ type ClientDisconnectedEvent struct {
 	sessionID uuid.UUID
 	userID    uuid.UUID
 	playerID  uuid.UUID
+	reason    ClosureReason
 }
 
-func NewClientDisconnectedEvent(ctx context.Context, session, user, player uuid.UUID) ClientDisconnectedEvent {
-	return ClientDisconnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player}
+func NewClientDisconnectedEvent(ctx context.Context, session, user, player uuid.UUID, reason ClosureReason) ClientDisconnectedEvent {
+	return ClientDisconnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player, reason: reason}
 }
 
 func (e ClientDisconnectedEvent) Context() context.Context {
@@ -81,5 +82,6 @@ func (e ClientDisconnectedEvent) ToSlogFields() []slog.Attr {
 		slog.String("session.id", e.sessionID.String()),
 		slog.String("user.id", e.userID.String()),
 		slog.String("player.id", e.playerID.String()),
+		slog.Int("closure.reason", int(e.reason)),
 	}
 }

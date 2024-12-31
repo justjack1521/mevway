@@ -53,14 +53,13 @@ func (s *SocketServer) Reap() {
 		var now = time.Now().UTC()
 		for _, value := range s.clients {
 			if now.Sub(value.LastMessage()) > 5*time.Minute {
-				value.Close()
 				inactive = append(inactive, value)
 			}
 		}
 		s.mu.Unlock()
 
 		for _, client := range inactive {
-			client.Close()
+			client.Close(socket.ClosureReasonServerStop)
 		}
 
 	}
@@ -77,8 +76,8 @@ func (s *SocketServer) Run() {
 			s.mu.Unlock()
 		case c := <-s.unregister:
 			s.mu.Lock()
-			if _, ok := s.clients[c]; ok {
-				s.publisher.Notify(socket.NewClientDisconnectedEvent(context.Background(), c.Session, c.UserID, c.PlayerID))
+			if value, ok := s.clients[c]; ok {
+				s.publisher.Notify(socket.NewClientDisconnectedEvent(context.Background(), c.Session, c.UserID, c.PlayerID, value.ClosureReason()))
 				delete(s.clients, c)
 			}
 			s.mu.Unlock()
