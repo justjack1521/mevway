@@ -23,5 +23,13 @@ func (m *RelicMiddleware) Handle(ctx *gin.Context) {
 	for _, err := range ctx.Errors {
 		txn.NoticeError(err)
 	}
+	user, err := UserIDFromContext(ctx)
+	if err == nil {
+		txn.AddAttribute("user.id", user.String())
+	}
+	player, err := PlayerIDFromContext(ctx)
+	if err == nil {
+		txn.AddAttribute("player.id", player.String())
+	}
 	writer.WriteHeader(ctx.Writer.Status())
 }
