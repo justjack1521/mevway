@@ -154,6 +154,8 @@ github.com/justjack1521/mevrabbit v0.0.0-20241120034927-1727a709432d h1:VaiQlw4g
 github.com/justjack1521/mevrabbit v0.0.0-20241120034927-1727a709432d/go.mod h1:bCRtWJi8cFxYNUqwm8s4vpsjtz7aj7Gaa5xnE3PlZbc=
 github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4 h1:+IduYXPLwUhVukbqClbuq3J1fAKh6wUNX5qsSGQgt1Q=
 github.com/justjack1521/mevrelic v0.0.0-20240325132633-a0690095f5c4/go.mod h1:l9/BJQk7g7K2JaT/l2s1VEmDmK4MrWYFZeCHaNsff6E=
+github.com/justjack1521/mevrelic v0.0.0-20241229155832-7e1ba0c52ef1 h1:U3Nd0TIyBfEPsimmOTunRDE6Q2MwBpfroV4wiGIu308=
+github.com/justjack1521/mevrelic v0.0.0-20241229155832-7e1ba0c52ef1/go.mod h1:Y9AuvZGTBwNnG1lSVIxu+Df8bKpqh4t571WTbfrvhH4=
 github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83 h1:0WOayrrSC5AW4MMGiK+UHnSmf9CMwu61mKc3LrDBS7Y=
 github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83/go.mod h1:JgJvjJr+HTGqAYQBOt3vGTZRe2xWUvwuJNIj2OVDsTI=
 github.com/k2io/hookingo v1.0.5 h1:MAuYIjpOf2IFs7UqEDrHntNBswWg7z7/I2XMQHogEio=
