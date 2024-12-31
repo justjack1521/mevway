@@ -98,13 +98,12 @@ func (s *SocketServer) Run() {
 func (s *SocketServer) Register(client socket.Client, notifier port.Client) error {
 
 	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	for key := range s.clients {
 		if key.UserID == client.UserID {
 			return errors.New("only one session is allowed per user")
 		}
 	}
+	s.mu.Unlock()
 
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
