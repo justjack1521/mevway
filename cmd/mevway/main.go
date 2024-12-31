@@ -140,7 +140,7 @@ func main() {
 		rmq.NewUserEventPublisher(rmqa, events, translate.NewProtobufUserEventTranslator()),
 	}
 
-	go server.Run()
+	server.Start()
 
 	events.Notify(application.NewStartEvent(ctx))
 
