@@ -14,7 +14,7 @@ type ClientPersistenceSubscriber struct {
 
 func NewClientPersistenceSubscriber(publisher *mevent.Publisher, repository port.ClientConnectionRepository) *ClientPersistenceSubscriber {
 	var consumer = &ClientPersistenceSubscriber{repository: repository}
-	publisher.Subscribe(consumer, socket.ClientConnectedEvent{}, socket.ClientDisconnectedEvent{}, application.ShutdownEvent{})
+	publisher.Subscribe(consumer, socket.ClientConnectedEvent{}, socket.ClientDisconnectedEvent{}, application.StartEvent{})
 	return consumer
 }
 
@@ -24,12 +24,12 @@ func (c *ClientPersistenceSubscriber) Notify(event mevent.Event) {
 		c.handleClientConnect(actual)
 	case socket.ClientDisconnectedEvent:
 		c.handleClientDisconnect(actual)
-	case application.ShutdownEvent:
-		c.handleApplicationShutdown(actual)
+	case application.StartEvent:
+		c.handleApplicationRestart(actual)
 	}
 }
 
-func (c *ClientPersistenceSubscriber) handleApplicationShutdown(evt application.ShutdownEvent) {
+func (c *ClientPersistenceSubscriber) handleApplicationRestart(evt application.StartEvent) {
 	if err := c.repository.RemoveAll(evt.Context()); err != nil {
 		fmt.Println(err)
 	}

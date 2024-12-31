@@ -142,8 +142,9 @@ func main() {
 
 	go server.Run()
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	events.Notify(application.NewStartEvent(ctx))
 
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))
 		for _, consumer := range consumers {

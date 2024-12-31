@@ -2,8 +2,23 @@ package application
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 )
+
+type StartEvent struct {
+	ctx context.Context
+}
+
+func NewStartEvent(ctx context.Context) StartEvent {
+	return StartEvent{ctx: ctx}
+}
+
+func (e StartEvent) Context() context.Context {
+	return e.ctx
+}
+
+func (e StartEvent) Name() string {
+	return "application.start"
+}
 
 type ShutdownEvent struct {
 	ctx context.Context
@@ -15,10 +30,6 @@ func NewShutdownEvent(ctx context.Context) ShutdownEvent {
 
 func (e ShutdownEvent) Name() string {
 	return "application.shutdown"
-}
-
-func (e ShutdownEvent) ToLogFields() logrus.Fields {
-	return logrus.Fields{}
 }
 
 func (e ShutdownEvent) Context() context.Context {
