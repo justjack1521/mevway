@@ -58,6 +58,8 @@ func (s *SocketServer) Reap() {
 		}
 		s.mu.Unlock()
 
+		s.publisher.Notify(socket.NewServerReapEvent(len(inactive)))
+
 		for _, client := range inactive {
 			client.Close(socket.ClosureReasonServerStop)
 		}

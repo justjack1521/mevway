@@ -85,3 +85,22 @@ func (e ClientDisconnectedEvent) ToSlogFields() []slog.Attr {
 		slog.Int("closure.reason", int(e.reason)),
 	}
 }
+
+type ServerReapEvent struct {
+	ctx   context.Context
+	count int
+}
+
+func NewServerReapEvent(count int) ServerReapEvent {
+	return ServerReapEvent{count: count}
+}
+
+func (e ServerReapEvent) Name() string {
+	return "event.server.reap"
+}
+
+func (e ServerReapEvent) ToSlogFields() []slog.Attr {
+	return []slog.Attr{
+		slog.Int("count", e.count),
+	}
+}
