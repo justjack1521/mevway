@@ -55,7 +55,7 @@ func NewRouter(
 		publicGroup.POST("/contact", contactHandler.CreateContact)
 		var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise)
 		{
-			socketGroup.GET("/join", socketHandler.Join)
+			socketGroup.GET("/join", statusHandler.Get, socketHandler.Join)
 			socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)
 		}
 
