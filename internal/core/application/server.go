@@ -52,7 +52,7 @@ func (s *SocketServer) reap() {
 		s.mu.Lock()
 		var now = time.Now().UTC()
 		for _, value := range s.clients {
-			if now.Sub(value.LastMessage()) > 5*time.Minute {
+			if now.Sub(value.LastMessage()) > 15*time.Minute {
 				inactive = append(inactive, value)
 			}
 		}
