@@ -88,6 +88,7 @@ func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketSer
 		router:       router,
 		instrumenter: instrumenter,
 		translator:   translator,
+		lastMessage:  time.Now().UTC(),
 	}
 }
 

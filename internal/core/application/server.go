@@ -43,7 +43,7 @@ func (s *SocketServer) Start() {
 }
 
 func (s *SocketServer) Reap() {
-	ticker := time.NewTicker(time.Minute * 3)
+	ticker := time.NewTicker(time.Minute * 1)
 	defer ticker.Stop()
 
 	for range ticker.C {
