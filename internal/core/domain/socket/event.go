@@ -101,6 +101,6 @@ func (e ServerReapEvent) Name() string {
 
 func (e ServerReapEvent) ToSlogFields() []slog.Attr {
 	return []slog.Attr{
-		slog.Int("count", e.count),
+		slog.Int("reap.count", e.count),
 	}
 }
