@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"errors"
 	"github.com/justjack1521/mevium/pkg/mevent"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
@@ -98,20 +97,20 @@ func (s *SocketServer) run() {
 
 func (s *SocketServer) Register(client socket.Client, notifier port.Client) error {
 
-	s.mu.Lock()
+	//s.mu.Lock()
+	//
+	//var connected = false
+	//for key := range s.clients {
+	//	if key.UserID == client.UserID {
+	//		connected = true
+	//		break
+	//	}
+	//}
+	//s.mu.Unlock()
 
-	var connected = false
-	for key := range s.clients {
-		if key.UserID == client.UserID {
-			connected = true
-			break
-		}
-	}
-	s.mu.Unlock()
-
-	if connected {
-		return errors.New("only one session is allowed per user")
-	}
+	//if connected {
+	//	return errors.New("only one session is allowed per user")
+	//}
 
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
