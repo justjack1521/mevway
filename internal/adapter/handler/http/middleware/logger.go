@@ -27,6 +27,16 @@ func (m *LoggingMiddleware) Handle(ctx *gin.Context) {
 
 	ctx.Next()
 
+	user, err := UserIDFromContext(ctx)
+	if err == nil {
+		entry.With(slog.String("user.id", user.String()))
+	}
+
+	player, err := PlayerIDFromContext(ctx)
+	if err == nil {
+		entry.With(slog.String("player.id", player.String()))
+	}
+
 	if len(ctx.Errors) == 0 {
 		entry.InfoContext(ctx, "request success")
 	} else {
