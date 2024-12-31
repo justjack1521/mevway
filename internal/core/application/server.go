@@ -38,11 +38,11 @@ func NewSocketServer(publisher *mevent.Publisher) *SocketServer {
 }
 
 func (s *SocketServer) Start() {
-	go s.Run()
-	go s.Reap()
+	go s.run()
+	go s.reap()
 }
 
-func (s *SocketServer) Reap() {
+func (s *SocketServer) reap() {
 	ticker := time.NewTicker(time.Minute * 1)
 	defer ticker.Stop()
 
@@ -68,7 +68,7 @@ func (s *SocketServer) Reap() {
 
 }
 
-func (s *SocketServer) Run() {
+func (s *SocketServer) run() {
 	for {
 		select {
 		case c := <-s.register:
@@ -99,12 +99,19 @@ func (s *SocketServer) Run() {
 func (s *SocketServer) Register(client socket.Client, notifier port.Client) error {
 
 	s.mu.Lock()
+
+	var connected = false
 	for key := range s.clients {
 		if key.UserID == client.UserID {
-			return errors.New("only one session is allowed per user")
+			connected = true
+			break
 		}
 	}
 	s.mu.Unlock()
+
+	if connected {
+		return errors.New("only one session is allowed per user")
+	}
 
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
