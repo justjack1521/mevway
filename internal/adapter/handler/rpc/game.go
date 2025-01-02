@@ -49,6 +49,8 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_SUMMON_ABILITY_CARD] = router.SummonAbilityCardRoute
 	router.routes[protogame.GameRequestType_EXECUTE_DIALOGUE] = router.ExecuteDialogueRoute
 	router.routes[protogame.GameRequestType_CLAIM_ITEM_DISTILLER] = router.ClaimDistillerRoute
+	router.routes[protogame.GameRequestType_CARD_AUTO_SELL] = router.CardAutoSellRoute
+
 	return router
 }
 
@@ -530,6 +532,20 @@ func (r *GameServiceClientRouter) ClaimDistillerRoute(ctx context.Context, bytes
 	}
 
 	result, err := r.service.ClaimItemDistiller(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) CardAutoSellRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewCardAutoSellRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.CardAutoSell(ctx, request)
 	if err != nil {
 		return nil, err
 	}
