@@ -11,6 +11,7 @@ type Client interface {
 	Write()
 	Notify(data []byte)
 	Close(reason socket.ClosureReason)
+	Terminate(reason socket.ClosureReason)
 	ClosureReason() socket.ClosureReason
 	LastMessage() time.Time
 }

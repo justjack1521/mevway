@@ -89,10 +89,26 @@ func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketSer
 	}
 }
 
-func (c *Client) Close(reason socket.ClosureReason) {
+func (c *Client) Terminate(reason socket.ClosureReason) {
 	c.closureReason = reason
 	c.server.Unregister(c.client)
 	c.connection.Close()
+}
+
+func (c *Client) Close(reason socket.ClosureReason) {
+
+	defer c.Terminate(reason)
+
+	var deadline = time.Now().UTC().Add(time.Minute)
+
+	if err := c.connection.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""), deadline); err != nil {
+		return
+	}
+
+	if err := c.connection.SetReadDeadline(time.Now().UTC().Add(5 * time.Second)); err != nil {
+		return
+	}
+
 }
 
 func (c *Client) Notify(data []byte) {
@@ -132,7 +148,7 @@ func (c *Client) response(message socket.Message, err error, transaction applica
 func (c *Client) Read() {
 
 	defer func() {
-		c.Close(socket.ClosureReasonReadStop)
+		c.Terminate(socket.ClosureReasonReadStop)
 	}()
 
 	c.connection.SetReadLimit(maxMessageSize)
@@ -185,7 +201,7 @@ func (c *Client) Write() {
 
 	defer func() {
 		ticker.Stop()
-		c.Close(socket.ClosureReasonWriteStop)
+		c.Terminate(socket.ClosureReasonWriteStop)
 	}()
 
 	for {
