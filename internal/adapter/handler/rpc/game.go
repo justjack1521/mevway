@@ -51,6 +51,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_CLAIM_ITEM_DISTILLER] = router.ClaimDistillerRoute
 	router.routes[protogame.GameRequestType_CARD_AUTO_SELL] = router.CardAutoSellRoute
 	router.routes[protogame.GameRequestType_UNLOCK_REGION_MAP] = router.UnlockRegionMapRoute
+	router.routes[protogame.GameRequestType_CLAIM_DUNGEON] = router.ClaimDungeonRoute
 
 	return router
 }
@@ -62,6 +63,20 @@ func (r *GameServiceClientRouter) Route(ctx context.Context, message socket.Mess
 		return nil, errFailedRoutingClientRequest(errMalformedRequest)
 	}
 	return route(out, message.Data)
+}
+
+func (r *GameServiceClientRouter) ClaimDungeonRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewClaimDungeonRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ClaimDungeon(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (r *GameServiceClientRouter) BattleCompleteRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
