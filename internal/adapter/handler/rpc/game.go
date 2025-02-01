@@ -45,7 +45,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_ABILITY_SHOP_PURCHASE] = router.AbilityShopRoute
 	router.routes[protogame.GameRequestType_CARD_AUGMENT] = router.CardAugmentRoute
 	router.routes[protogame.GameRequestType_CLAIM_DAILY_MISSION] = router.ClaimDailyMissionRoute
-	router.routes[protogame.GameRequestType_COMPLETE_REGION_MAP] = router.CompleteRegionMapRoute
+	router.routes[protogame.GameRequestType_COMPLETE_REGION_MAP] = router.ClaimRegionRoute
 	router.routes[protogame.GameRequestType_SUMMON_ABILITY_CARD] = router.SummonAbilityCardRoute
 	router.routes[protogame.GameRequestType_EXECUTE_DIALOGUE] = router.ExecuteDialogueRoute
 	router.routes[protogame.GameRequestType_CLAIM_ITEM_DISTILLER] = router.ClaimDistillerRoute
@@ -499,13 +499,13 @@ func (r *GameServiceClientRouter) SkillPanelUnlockRoute(ctx context.Context, byt
 	return result, nil
 }
 
-func (r *GameServiceClientRouter) CompleteRegionMapRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
-	request, err := protogame.NewCompleteRegionMapRequest(bytes)
+func (r *GameServiceClientRouter) ClaimRegionRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewClaimRegionMapRequest(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := r.service.CompleteRegion(ctx, request)
+	result, err := r.service.ClaimRegion(ctx, request)
 	if err != nil {
 		return nil, err
 	}
