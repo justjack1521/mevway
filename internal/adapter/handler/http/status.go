@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"mevway/internal/core/port"
 	"net"
@@ -20,32 +21,25 @@ func (h *StatusHandler) Get(ctx *gin.Context) {
 
 	var list = make([]net.IP, 0)
 
-	host, _, err := net.SplitHostPort(ctx.Request.RemoteAddr)
-	if err != nil {
-		ctx.AbortWithError(http.StatusServiceUnavailable, err)
-		return
-	}
-
-	var hostAddr = net.ParseIP(host)
-	if hostAddr == nil {
-		ctx.AbortWithStatus(http.StatusServiceUnavailable)
-		return
-	}
-
-	list = append(list, hostAddr)
-
 	var forward = ctx.GetHeader("X-Forwarded-For")
 
-	if forward != "" {
-		var ranges = strings.Split(forward, ",")
-		for _, addr := range ranges {
-			var ip = net.ParseIP(addr)
-			if ip == nil {
-				continue
-			}
-			list = append(list, ip)
-		}
+	if forward == "" {
+		ctx.AbortWithError(http.StatusServiceUnavailable, errors.New("ip address not found"))
+		return
 	}
+
+	var actual = strings.Split(forward, ",")
+	if len(actual) == 0 {
+		ctx.AbortWithError(http.StatusServiceUnavailable, errors.New("ip address not found"))
+		return
+	}
+
+	var ip = net.ParseIP(actual[0])
+	if ip == nil {
+		ctx.AbortWithError(http.StatusServiceUnavailable, errors.New("ip address not found"))
+		return
+	}
+	list = append(list, ip)
 
 	if err := h.svc.Status(list); err != nil {
 		ctx.AbortWithError(http.StatusServiceUnavailable, err)
