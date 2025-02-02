@@ -18,7 +18,7 @@ func NewStatusService() *StatusService {
 	return &StatusService{}
 }
 
-func (s *StatusService) Status(address net.IP) error {
+func (s *StatusService) Status(addresses []net.IP) error {
 
 	if os.Getenv("MAINT_MODE") != "true" {
 		return nil
@@ -42,8 +42,10 @@ func (s *StatusService) Status(address net.IP) error {
 	}
 
 	for _, value := range ips {
-		if value.Equal(address) {
-			return nil
+		for _, address := range addresses {
+			if value.Equal(address) {
+				return nil
+			}
 		}
 	}
 

@@ -5,5 +5,5 @@ import (
 )
 
 type SystemStatusService interface {
-	Status(address net.IP) error
+	Status(address []net.IP) error
 }
