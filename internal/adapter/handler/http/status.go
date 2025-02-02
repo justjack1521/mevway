@@ -1,11 +1,11 @@
 package http
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"mevway/internal/core/port"
 	"net"
 	"net/http"
+	"strings"
 )
 
 type StatusHandler struct {
@@ -37,18 +37,14 @@ func (h *StatusHandler) Get(ctx *gin.Context) {
 	var forward = ctx.GetHeader("X-Forwarded-For")
 
 	if forward != "" {
-		fmt.Println(fmt.Sprintf("Forwareded: %s", forward))
-		proxy, _, err := net.SplitHostPort(forward)
-		if err != nil {
-			ctx.AbortWithError(http.StatusServiceUnavailable, err)
-			return
+		var ranges = strings.Split(forward, ",")
+		for _, addr := range ranges {
+			var ip = net.ParseIP(addr)
+			if ip == nil {
+				continue
+			}
+			list = append(list, ip)
 		}
-		var proxyAddr = net.ParseIP(proxy)
-		if proxyAddr == nil {
-			ctx.AbortWithError(http.StatusServiceUnavailable, err)
-			return
-		}
-		list = append(list, proxyAddr)
 	}
 
 	if err := h.svc.Status(list); err != nil {
