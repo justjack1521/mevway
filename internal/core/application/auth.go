@@ -24,6 +24,10 @@ func NewAuthenticationService(publisher *mevent.Publisher, tokens port.TokenRepo
 
 func (s *AuthenticationService) Login(ctx context.Context, target user.User) (auth.LoginResult, error) {
 
+	if target.Username != "kollaps" {
+		return auth.LoginResult{}, errors.New("login failed")
+	}
+
 	if err := target.HasValidLoginCredentials(); err != nil {
 		return auth.LoginResult{}, err
 	}
