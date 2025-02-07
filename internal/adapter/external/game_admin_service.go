@@ -5,9 +5,7 @@ import (
 	"github.com/justjack1521/mevium/pkg/genproto/protoadmin"
 	"github.com/justjack1521/mevium/pkg/genproto/protogame"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
-	"github.com/justjack1521/mevrpc"
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/core/application"
 	"mevway/internal/core/domain/game"
 )
 
@@ -27,7 +25,7 @@ func (s *GameAdminService) GrantItem(ctx context.Context, player uuid.UUID, item
 		Quantity: int32(quantity),
 	}
 
-	_, err := s.svc.GrantItem(s.context(ctx), request)
+	_, err := s.svc.GrantItem(OutgoingContext(ctx), request)
 	if err != nil {
 		return err
 	}
@@ -46,7 +44,7 @@ func (s *GameAdminService) CreateBaseJob(ctx context.Context, job game.BaseJob) 
 		TypeId:    job.TypeID.String(),
 	}
 
-	response, err := s.svc.CreateBaseJobCard(s.context(ctx), request)
+	response, err := s.svc.CreateBaseJobCard(OutgoingContext(ctx), request)
 	if err != nil {
 		return false, err
 	}
@@ -74,16 +72,11 @@ func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, 
 		}
 	}
 
-	response, err := s.svc.CreateSkillPanel(s.context(ctx), request)
+	response, err := s.svc.CreateSkillPanel(OutgoingContext(ctx), request)
 	if err != nil {
 		return false, err
 	}
 
 	return response.Created, nil
 
-}
-
-func (s *GameAdminService) context(ctx context.Context) context.Context {
-	var md = application.MetadataFromContext(ctx)
-	return mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID)
 }

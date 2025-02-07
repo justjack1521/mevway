@@ -43,7 +43,7 @@ func (s *GameValidateService) ValidateAbilityCard(ctx context.Context, card game
 		},
 	}
 
-	_, err := s.svc.ValidateAbilityCard(ctx, request)
+	_, err := s.svc.ValidateAbilityCard(OutgoingContext(ctx), request)
 	if err != nil {
 		return err
 	}
