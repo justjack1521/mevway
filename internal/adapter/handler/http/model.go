@@ -30,11 +30,13 @@ func (h *ModelHandler) ValidateAbilityCard(ctx *gin.Context) {
 
 	var model = game.AbilityCard{
 		SysID:             uuid.FromStringOrNil(request.AbilityCard.SysID),
+		Active:            request.AbilityCard.Active,
 		OverrideAbilityID: uuid.FromStringOrNil(request.AbilityCard.OverrideAbilityID),
 		FusionEXPOverride: request.AbilityCard.FusionEXPOverride,
 		SaleGoldOverride:  request.AbilityCard.SaleGoldOverride,
 		BaseCard: game.BaseCard{
 			SysID:     uuid.FromStringOrNil(request.AbilityCard.BaseCard.SysID),
+			Active:    request.AbilityCard.BaseCard.Active,
 			Name:      request.AbilityCard.BaseCard.Name,
 			AbilityID: uuid.FromStringOrNil(request.AbilityCard.BaseCard.AbilityID),
 		},

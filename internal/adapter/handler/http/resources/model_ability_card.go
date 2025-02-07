@@ -6,6 +6,7 @@ type ValidateAbilityCard struct {
 
 type AbilityCard struct {
 	SysID             string   `json:"SysID"`
+	Active            bool     `json:"Active"`
 	BaseCard          BaseCard `json:"BaseCard"`
 	OverrideAbilityID string   `json:"OverrideAbilityID"`
 	FusionEXPOverride int      `json:"FusionEXPOverride"`
@@ -14,6 +15,7 @@ type AbilityCard struct {
 
 type BaseCard struct {
 	SysID     string `json:"SysID"`
+	Active    bool   `json:"Active"`
 	Name      string `json:"Name"`
 	AbilityID string `json:"AbilityID"`
 }
