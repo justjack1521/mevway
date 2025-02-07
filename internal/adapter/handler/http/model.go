@@ -21,12 +21,18 @@ func NewModelHandler(svc port.GameValidationService) *ModelHandler {
 func (h *ModelHandler) ValidateAbilityCard(ctx *gin.Context) {
 	var request = &resources.ValidateAbilityCard{}
 	if err := ctx.BindJSON(request); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.ValidateModelResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
 		return
 	}
 
 	var model = game.AbilityCard{
-		SysID: uuid.FromStringOrNil(request.AbilityCard.SysID),
+		SysID:             uuid.FromStringOrNil(request.AbilityCard.SysID),
+		OverrideAbilityID: uuid.FromStringOrNil(request.AbilityCard.OverrideAbilityID),
+		FusionEXPOverride: request.AbilityCard.FusionEXPOverride,
+		SaleGoldOverride:  request.AbilityCard.SaleGoldOverride,
 		BaseCard: game.BaseCard{
 			SysID:     uuid.FromStringOrNil(request.AbilityCard.BaseCard.SysID),
 			Name:      request.AbilityCard.BaseCard.Name,
@@ -36,14 +42,21 @@ func (h *ModelHandler) ValidateAbilityCard(ctx *gin.Context) {
 
 	actx, err := middleware.ApplicationContextFromMetadata(ctx)
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.ValidateModelResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
 		return
 	}
 
 	if err := h.svc.ValidateAbilityCard(actx, model); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.ValidateModelResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
 	}
 
-	ctx.JSON(200, gin.H{})
+	ctx.JSON(200, resources.ValidateModelResponse{Error: false})
 
 }

@@ -3,12 +3,27 @@ package game
 import uuid "github.com/satori/go.uuid"
 
 type AbilityCard struct {
-	SysID    uuid.UUID
-	BaseCard BaseCard
+	SysID             uuid.UUID
+	Active            bool
+	CardNumber        int
+	InShop            bool
+	BaseCard          BaseCard
+	OverrideAbilityID uuid.UUID
+	FusionEXPOverride int
+	SaleGoldOverride  int
 }
 
 type BaseCard struct {
-	SysID     uuid.UUID
-	Name      string
-	AbilityID uuid.UUID
+	SysID           uuid.UUID
+	Active          bool
+	Name            string
+	FiendCard       bool
+	SkillSeedOne    uuid.UUID
+	SkillSeedTwo    uuid.UUID
+	SkillSeedSplit  string
+	SeedFusionBoost int
+	AbilityID       uuid.UUID
+	Element         uuid.UUID
+	Category        string
+	FastLearner     bool
 }
