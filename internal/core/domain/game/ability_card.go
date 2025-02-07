@@ -17,7 +17,6 @@ type BaseCard struct {
 	SysID           uuid.UUID
 	Active          bool
 	Name            string
-	FiendCard       bool
 	SkillSeedOne    uuid.UUID
 	SkillSeedTwo    uuid.UUID
 	SkillSeedSplit  string

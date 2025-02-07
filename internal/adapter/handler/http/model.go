@@ -35,10 +35,12 @@ func (h *ModelHandler) ValidateAbilityCard(ctx *gin.Context) {
 		FusionEXPOverride: request.AbilityCard.FusionEXPOverride,
 		SaleGoldOverride:  request.AbilityCard.SaleGoldOverride,
 		BaseCard: game.BaseCard{
-			SysID:     uuid.FromStringOrNil(request.AbilityCard.BaseCard.SysID),
-			Active:    request.AbilityCard.BaseCard.Active,
-			Name:      request.AbilityCard.BaseCard.Name,
-			AbilityID: uuid.FromStringOrNil(request.AbilityCard.BaseCard.AbilityID),
+			SysID:        uuid.FromStringOrNil(request.AbilityCard.BaseCard.SysID),
+			Active:       request.AbilityCard.BaseCard.Active,
+			Name:         request.AbilityCard.BaseCard.Name,
+			AbilityID:    uuid.FromStringOrNil(request.AbilityCard.BaseCard.AbilityID),
+			SkillSeedOne: uuid.FromStringOrNil(request.AbilityCard.BaseCard.SkillSeedOne),
+			SkillSeedTwo: uuid.FromStringOrNil(request.AbilityCard.BaseCard.SkillSeedTwo),
 		},
 	}
 

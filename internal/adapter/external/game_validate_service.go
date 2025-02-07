@@ -27,7 +27,6 @@ func (s *GameValidateService) ValidateAbilityCard(ctx context.Context, card game
 				SysId:           card.BaseCard.SysID.String(),
 				Active:          card.BaseCard.Active,
 				Name:            card.BaseCard.Name,
-				FiendCard:       card.BaseCard.FiendCard,
 				SkillSeedOne:    card.BaseCard.SkillSeedOne.String(),
 				SkillSeedTwo:    card.BaseCard.SkillSeedTwo.String(),
 				SkillSeedSplit:  card.BaseCard.SkillSeedSplit,

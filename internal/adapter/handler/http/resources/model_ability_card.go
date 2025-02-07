@@ -14,10 +14,12 @@ type AbilityCard struct {
 }
 
 type BaseCard struct {
-	SysID     string `json:"SysID"`
-	Active    bool   `json:"Active"`
-	Name      string `json:"Name"`
-	AbilityID string `json:"AbilityID"`
+	SysID        string `json:"SysID"`
+	Active       bool   `json:"Active"`
+	Name         string `json:"Name"`
+	AbilityID    string `json:"AbilityID"`
+	SkillSeedOne string `json:"SkillSeedOne"`
+	SkillSeedTwo string `json:"SkillSeedTwo"`
 }
 
 type ValidateModelResponse struct {
