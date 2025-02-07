@@ -36,6 +36,13 @@ func NewRouter(
 
 	var privateGroup = router.Group("/private", authHandler.AccessTokenAuthorise, middleware.AdminRoleMiddleware())
 	{
+		var validateGroup = privateGroup.Group("/validate")
+		{
+			var abilityCardValidateGroup = validateGroup.Group("/ability_card")
+			{
+				abilityCardValidateGroup.POST("/base", adminHandler.ValidateBaseCard)
+			}
+		}
 		var gameGroup = privateGroup.Group("/game")
 		{
 			gameGroup.POST("/item/grant", adminHandler.GrantItem)

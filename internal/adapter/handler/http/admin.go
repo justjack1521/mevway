@@ -76,6 +76,15 @@ func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
 
 }
 
+func (h *AdminHandler) ValidateBaseCard(ctx *gin.Context) {
+	var request = &resources.ValidateBaseCardRequest{}
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	ctx.JSON(200, resources.ValidateBaseCardResponse{ErrorMessage: "No error :)"})
+}
+
 func (h *AdminHandler) CreateSkillPanel(ctx *gin.Context) {
 
 	var request = &resources.CreateSkillPanelRequest{}
