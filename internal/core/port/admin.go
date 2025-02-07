@@ -11,3 +11,7 @@ type GameAdminService interface {
 	CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error)
 	CreateBaseJob(ctx context.Context, job game.BaseJob) (bool, error)
 }
+
+type GameValidationService interface {
+	ValidateAbilityCard(ctx context.Context, card game.AbilityCard) error
+}

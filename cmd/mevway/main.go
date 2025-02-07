@@ -72,6 +72,11 @@ func main() {
 		panic(err)
 	}
 
+	model, err := rpc.DialToModelClient()
+	if err != nil {
+		panic(err)
+	}
+
 	social, err := rpc.DialToSocialClient()
 	if err != nil {
 		panic(err)
@@ -102,6 +107,7 @@ func main() {
 	serviceRouter.RegisterSubRouter(rpc.MultiClientRouteKey, rpc.NewMultiServiceClientRouter(multi))
 
 	var adminService = external.NewGameAdminService(admin)
+	var modelService = external.NewGameValidateService(model)
 
 	var server = application.NewSocketServer(events)
 	var tracer = relic.NewRelicTracer(nrl.Application)
@@ -125,6 +131,7 @@ func main() {
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
 	var adminHandler = http.NewAdminHandler(adminService)
+	var modelHandler = http.NewModelHandler(modelService)
 	var contactHandler = http.NewContactHandler(contactRepository)
 
 	subscriber.NewClientPersistenceSubscriber(events, clientRepository)
@@ -144,7 +151,7 @@ func main() {
 
 	events.Notify(application.NewStartEvent(ctx))
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))
 		for _, consumer := range consumers {

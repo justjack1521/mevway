@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
+	"mevway/internal/core/application"
 )
 
 const (
@@ -86,4 +88,20 @@ func PlayerIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
 		return uuid.Nil, errContextPlayerIDMalformed
 	}
 	return result, nil
+}
+
+func ApplicationContextFromMetadata(ctx *gin.Context) (context.Context, error) {
+	user, err := UserIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	player, err := PlayerIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var md = application.ContextMetadata{
+		UserID:   user,
+		PlayerID: player,
+	}
+	return application.NewApplicationContext(ctx, md), nil
 }

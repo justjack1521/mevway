@@ -1,6 +1,11 @@
 package resources
 
-type ValidateBaseCardRequest struct {
+type ValidateAbilityCard struct {
+	AbilityCard AbilityCard `json:"AbilityCard"`
+}
+
+type AbilityCard struct {
+	SysID    string   `json:"SysID"`
 	BaseCard BaseCard `json:"BaseCard"`
 }
 

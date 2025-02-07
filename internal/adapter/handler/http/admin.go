@@ -5,7 +5,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
-	"mevway/internal/core/application"
 	"mevway/internal/core/domain/game"
 	"mevway/internal/core/port"
 	"net/http"
@@ -27,24 +26,11 @@ func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
 		return
 	}
 
-	user, err := middleware.UserIDFromContext(ctx)
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
-	player, err := middleware.PlayerIDFromContext(ctx)
-	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	var md = application.ContextMetadata{
-		UserID:   user,
-		PlayerID: player,
-	}
-
-	var actx = application.NewApplicationContext(ctx, md)
 
 	id, err := uuid.FromString(request.BaseJobID)
 	if err != nil {
@@ -76,15 +62,6 @@ func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
 
 }
 
-func (h *AdminHandler) ValidateBaseCard(ctx *gin.Context) {
-	var request = &resources.ValidateBaseCardRequest{}
-	if err := ctx.BindJSON(request); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-	ctx.JSON(200, resources.ValidateBaseCardResponse{ErrorMessage: "No error :)"})
-}
-
 func (h *AdminHandler) CreateSkillPanel(ctx *gin.Context) {
 
 	var request = &resources.CreateSkillPanelRequest{}
@@ -94,24 +71,11 @@ func (h *AdminHandler) CreateSkillPanel(ctx *gin.Context) {
 		return
 	}
 
-	user, err := middleware.UserIDFromContext(ctx)
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
-	player, err := middleware.PlayerIDFromContext(ctx)
-	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	var md = application.ContextMetadata{
-		UserID:   user,
-		PlayerID: player,
-	}
-
-	var actx = application.NewApplicationContext(ctx, md)
 
 	var panel = game.SkillPanel{
 		DefinitionType: request.Panel.DefinitionType,
@@ -147,24 +111,11 @@ func (h *AdminHandler) GrantItem(ctx *gin.Context) {
 		return
 	}
 
-	user, err := middleware.UserIDFromContext(ctx)
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
-	player, err := middleware.PlayerIDFromContext(ctx)
-	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	var md = application.ContextMetadata{
-		UserID:   user,
-		PlayerID: player,
-	}
-
-	var actx = application.NewApplicationContext(ctx, md)
 
 	if err := h.svc.GrantItem(actx, request.PlayerID, request.ItemID, request.Quantity); err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)

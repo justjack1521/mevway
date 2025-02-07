@@ -18,6 +18,7 @@ func NewRouter(
 	socketHandler *SocketHandler,
 	playerHandler *PlayerHandler,
 	adminHandler *AdminHandler,
+	modelHandler *ModelHandler,
 	contactHandler *ContactHandler,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
@@ -38,10 +39,7 @@ func NewRouter(
 	{
 		var validateGroup = privateGroup.Group("/validate")
 		{
-			var abilityCardValidateGroup = validateGroup.Group("/ability_card")
-			{
-				abilityCardValidateGroup.POST("/base", adminHandler.ValidateBaseCard)
-			}
+			validateGroup.POST("/ability_card", modelHandler.ValidateAbilityCard)
 		}
 		var gameGroup = privateGroup.Group("/game")
 		{
