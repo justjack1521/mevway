@@ -32,7 +32,6 @@ func (s *GameValidateService) ValidateAbilityCard(ctx context.Context, card game
 				SkillSeedSplit:  card.BaseCard.SkillSeedSplit,
 				SeedFusionBoost: int32(card.BaseCard.SeedFusionBoost),
 				Ability:         card.BaseCard.AbilityID.String(),
-				Element:         card.BaseCard.Element.String(),
 				Category:        card.BaseCard.Category,
 				FastLearner:     card.BaseCard.FastLearner,
 			},
@@ -43,6 +42,27 @@ func (s *GameValidateService) ValidateAbilityCard(ctx context.Context, card game
 	}
 
 	_, err := s.svc.ValidateAbilityCard(OutgoingContext(ctx), request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (s *GameValidateService) ValidateBaseItem(ctx context.Context, model game.BaseItem) error {
+
+	var request = &protomodel.ValidateBaseItemRequest{
+		Item: &protomodel.BaseItem{
+			SysId:          model.SysID.String(),
+			Active:         model.Active,
+			Name:           model.Name,
+			Maximum:        int32(model.Maximum),
+			MonthlyMaximum: int32(model.MonthlyMaximum),
+		},
+	}
+
+	_, err := s.svc.ValidateBaseItem(OutgoingContext(ctx), request)
 	if err != nil {
 		return err
 	}

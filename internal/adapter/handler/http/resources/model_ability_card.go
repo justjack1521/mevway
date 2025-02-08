@@ -1,6 +1,6 @@
 package resources
 
-type ValidateAbilityCard struct {
+type ValidateAbilityCardRequest struct {
 	AbilityCard AbilityCard `json:"AbilityCard"`
 }
 
@@ -14,12 +14,16 @@ type AbilityCard struct {
 }
 
 type BaseCard struct {
-	SysID        string `json:"SysID"`
-	Active       bool   `json:"Active"`
-	Name         string `json:"Name"`
-	AbilityID    string `json:"AbilityID"`
-	SkillSeedOne string `json:"SkillSeedOne"`
-	SkillSeedTwo string `json:"SkillSeedTwo"`
+	SysID           string `json:"SysID"`
+	Active          bool   `json:"Active"`
+	Name            string `json:"Name"`
+	AbilityID       string `json:"AbilityID"`
+	SkillSeedOne    string `json:"SkillSeedOne"`
+	SkillSeedTwo    string `json:"SkillSeedTwo"`
+	SkillSeedSplit  string `json:"SkillSeedSplit"`
+	SeedFusionBoost int    `json:"SeedFusionBoost"`
+	Category        string `json:"Category"`
+	FastLearner     bool   `json:"FastLearner"`
 }
 
 type ValidateModelResponse struct {

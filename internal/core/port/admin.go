@@ -13,5 +13,6 @@ type GameAdminService interface {
 }
 
 type GameValidationService interface {
-	ValidateAbilityCard(ctx context.Context, card game.AbilityCard) error
+	ValidateAbilityCard(ctx context.Context, model game.AbilityCard) error
+	ValidateBaseItem(ctx context.Context, model game.BaseItem) error
 }

@@ -22,7 +22,6 @@ type BaseCard struct {
 	SkillSeedSplit  string
 	SeedFusionBoost int
 	AbilityID       uuid.UUID
-	Element         uuid.UUID
 	Category        string
 	FastLearner     bool
 }

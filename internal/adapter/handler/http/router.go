@@ -39,6 +39,7 @@ func NewRouter(
 	{
 		var validateGroup = privateGroup.Group("/validate")
 		{
+			validateGroup.POST("/item", modelHandler.ValidateBaseItem)
 			validateGroup.POST("/ability_card", modelHandler.ValidateAbilityCard)
 		}
 		var gameGroup = privateGroup.Group("/game")
