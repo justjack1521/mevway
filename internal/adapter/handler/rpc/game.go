@@ -52,8 +52,8 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_CARD_AUTO_SELL] = router.CardAutoSellRoute
 	router.routes[protogame.GameRequestType_UNLOCK_REGION_MAP] = router.UnlockRegionMapRoute
 	router.routes[protogame.GameRequestType_UNLOCK_REGION_NODE] = router.UnlockRegionNodeRoute
-
 	router.routes[protogame.GameRequestType_CLAIM_DUNGEON] = router.ClaimDungeonRoute
+	router.routes[protogame.GameRequestType_PURCHASE_COMPANION] = router.PurchaseCompanionRoute
 
 	return router
 }
@@ -592,6 +592,20 @@ func (r *GameServiceClientRouter) UnlockRegionNodeRoute(ctx context.Context, byt
 	}
 
 	result, err := r.service.UnlockRegionNode(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) PurchaseCompanionRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewPurchaseCompanionRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.PurchaseCompanion(ctx, request)
 	if err != nil {
 		return nil, err
 	}
