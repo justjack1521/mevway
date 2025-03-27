@@ -54,6 +54,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_UNLOCK_REGION_NODE] = router.UnlockRegionNodeRoute
 	router.routes[protogame.GameRequestType_CLAIM_DUNGEON] = router.ClaimDungeonRoute
 	router.routes[protogame.GameRequestType_PURCHASE_COMPANION] = router.PurchaseCompanionRoute
+	router.routes[protogame.GameRequestType_PURCHASE_GIFT_BOX] = router.PurchaseGiftBoxRoute
 
 	return router
 }
@@ -606,6 +607,20 @@ func (r *GameServiceClientRouter) PurchaseCompanionRoute(ctx context.Context, by
 	}
 
 	result, err := r.service.PurchaseCompanion(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) PurchaseGiftBoxRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewPurchaseGiftBoxRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.PurchaseGiftBox(ctx, request)
 	if err != nil {
 		return nil, err
 	}
