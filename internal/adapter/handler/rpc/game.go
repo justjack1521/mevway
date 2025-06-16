@@ -55,6 +55,8 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_CLAIM_DUNGEON] = router.ClaimDungeonRoute
 	router.routes[protogame.GameRequestType_PURCHASE_COMPANION] = router.PurchaseCompanionRoute
 	router.routes[protogame.GameRequestType_PURCHASE_GIFT_BOX] = router.PurchaseGiftBoxRoute
+	router.routes[protogame.GameRequestType_STAMINA_DEPOSIT] = router.DepositStaminaRoute
+	router.routes[protogame.GameRequestType_STAMINA_CONVERT] = router.ConvertStaminaRoute
 
 	return router
 }
@@ -621,6 +623,34 @@ func (r *GameServiceClientRouter) PurchaseGiftBoxRoute(ctx context.Context, byte
 	}
 
 	result, err := r.service.PurchaseGiftBox(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) DepositStaminaRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewStaminaDepositRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.DepositStamina(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) ConvertStaminaRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewStaminaConvertRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ConvertStamina(ctx, request)
 	if err != nil {
 		return nil, err
 	}

@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+const (
+	ReapTickerInterval time.Duration = time.Minute * 1
+	ReapDuration       time.Duration = 30 * time.Minute
+)
+
 type SocketClient struct {
 	client   socket.Client
 	notifier port.Client
@@ -42,7 +47,7 @@ func (s *SocketServer) Start() {
 }
 
 func (s *SocketServer) reap() {
-	ticker := time.NewTicker(time.Minute * 1)
+	ticker := time.NewTicker(ReapTickerInterval)
 	defer ticker.Stop()
 
 	for range ticker.C {
@@ -51,7 +56,7 @@ func (s *SocketServer) reap() {
 		s.mu.Lock()
 		var now = time.Now().UTC()
 		for _, value := range s.clients {
-			if now.Sub(value.LastMessage()) > 15*time.Minute {
+			if now.Sub(value.LastMessage()) > ReapDuration {
 				inactive = append(inactive, value)
 			}
 		}
