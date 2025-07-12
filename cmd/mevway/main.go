@@ -99,8 +99,9 @@ func main() {
 	var contactRepository = database.NewContactRepository(db)
 	var clientRepository = memory.NewClientRepository(rds)
 	var socialRepository = external.NewSocialPlayerRepository(social)
+	var requestRepository = memory.NewRequestMemoryRepository(rds)
 
-	var serviceRouter = application.NewServiceRouter(slogger)
+	var serviceRouter = application.NewServiceRouter(slogger, requestRepository)
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
 	serviceRouter.RegisterSubRouter(rpc.SocialClientRouteKey, rpc.NewSocialServiceClientRouter(social))
 	serviceRouter.RegisterSubRouter(rpc.RankingClientRouteKey, rpc.NewRankServiceClientRouter(rank))

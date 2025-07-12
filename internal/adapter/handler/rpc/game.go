@@ -85,6 +85,7 @@ func (r *GameServiceClientRouter) ClaimDungeonRoute(ctx context.Context, bytes [
 }
 
 func (r *GameServiceClientRouter) BattleCompleteRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+
 	request, err := protogame.NewBattleCompleteRequest(bytes)
 	if err != nil {
 		return nil, err

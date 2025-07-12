@@ -2,6 +2,7 @@ package port
 
 import (
 	"context"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/socket"
 	"time"
 )
@@ -21,6 +22,10 @@ type ClientConnectionRepository interface {
 	Remove(ctx context.Context, client socket.Client) error
 	RemoveAll(ctx context.Context) error
 	List(ctx context.Context) ([]socket.Client, error)
+}
+
+type ClientRequestRepository interface {
+	Create(ctx context.Context, player uuid.UUID, data []byte) error
 }
 
 type SocketServer interface {

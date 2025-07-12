@@ -18,14 +18,16 @@ var (
 )
 
 type ServiceRouter struct {
-	logger   *slog.Logger
-	services map[socket.ServiceIdentifier]port.SocketMessageRouter
+	logger     *slog.Logger
+	services   map[socket.ServiceIdentifier]port.SocketMessageRouter
+	repository port.ClientRequestRepository
 }
 
-func NewServiceRouter(logger *slog.Logger) *ServiceRouter {
+func NewServiceRouter(logger *slog.Logger, repository port.ClientRequestRepository) *ServiceRouter {
 	return &ServiceRouter{
-		logger:   logger,
-		services: make(map[socket.ServiceIdentifier]port.SocketMessageRouter),
+		logger:     logger,
+		services:   make(map[socket.ServiceIdentifier]port.SocketMessageRouter),
+		repository: repository,
 	}
 }
 
@@ -58,6 +60,8 @@ func (r *ServiceRouter) Route(ctx context.Context, message socket.Message) (resp
 	if exists == false {
 		return nil, errFailedRouteRequest(errServiceNotFound(message.Service))
 	}
+
+	r.repository.Create(ctx, message.PlayerID, message.Data)
 
 	response, err = service.Route(ctx, message)
 	if err != nil {
