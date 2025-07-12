@@ -61,8 +61,6 @@ func (r *ServiceRouter) Route(ctx context.Context, message socket.Message) (resp
 		return nil, errFailedRouteRequest(errServiceNotFound(message.Service))
 	}
 
-	r.repository.Create(ctx, message.PlayerID, message.Data)
-
 	response, err = service.Route(ctx, message)
 	if err != nil {
 		return nil, errFailedRouteRequest(err)
