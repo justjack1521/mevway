@@ -6,8 +6,9 @@ type SocialPlayer struct {
 	Player
 	Loadout
 	RentalCard
-	CompanionID uuid.UUID
-	LastOnline  int64
+	CompanionID   uuid.UUID
+	LastOnline    int64
+	FollowerCount int
 }
 
 type Player struct {

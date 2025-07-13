@@ -16,6 +16,7 @@ type PlayerSearchResponse struct {
 	PlayerComment   string                         `json:"PlayerComment" binding:"required"`
 	CompanionID     uuid.UUID                      `json:"CompanionID" binding:"required"`
 	LastOnline      int64                          `json:"LastOnline"`
+	FollowerCount   int                            `json:"FollowerCount"`
 	JobCardID       uuid.UUID                      `json:"JobCardID"`
 	SubJobIndex     int                            `json:"SubJobIndex"`
 	CrownLevel      int                            `json:"CrownLevel"`
@@ -37,6 +38,7 @@ func NewPlayerSearchResponse(player player.SocialPlayer) PlayerSearchResponse {
 		WeaponID:        player.WeaponID,
 		SubWeaponUnlock: player.SubWeaponUnlock,
 		LastOnline:      player.LastOnline,
+		FollowerCount:   player.FollowerCount,
 		RentalCard:      NewPlayerSearchResponseRentalCard(player.RentalCard),
 	}
 	return response

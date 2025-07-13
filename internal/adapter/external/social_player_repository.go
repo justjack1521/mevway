@@ -34,8 +34,9 @@ func (r *SocialPlayerRepository) GetByID(ctx context.Context, id uuid.UUID) (pla
 			Level:   int(search.PlayerInfo.PlayerInfo.PlayerLevel),
 			Comment: search.PlayerInfo.PlayerInfo.PlayerComment,
 		},
-		CompanionID: uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.CompanionId),
-		LastOnline:  search.PlayerInfo.LastOnline,
+		CompanionID:   uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.CompanionId),
+		LastOnline:    search.PlayerInfo.LastOnline,
+		FollowerCount: int(search.PlayerInfo.FollowerCount),
 		Loadout: player.Loadout{
 			JobCardID:       uuid.FromStringOrNil(search.PlayerInfo.PlayerInfo.JobCardId),
 			SubJobIndex:     int(search.PlayerInfo.PlayerInfo.SubJobIndex),
