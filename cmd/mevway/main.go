@@ -100,6 +100,7 @@ func main() {
 	var clientRepository = memory.NewClientRepository(rds)
 	var socialRepository = external.NewSocialPlayerRepository(social)
 	var requestRepository = memory.NewRequestMemoryRepository(rds)
+	var progressRepository = database.NewProgressRepository(db)
 
 	var serviceRouter = application.NewServiceRouter(slogger, requestRepository)
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
@@ -120,6 +121,7 @@ func main() {
 	var authService = application.NewAuthenticationService(events, tokenRepository)
 	var userService = application.NewUserService(events, userRepository)
 	var patchService = application.NewPatchService(patchRepository)
+	var progressService = application.NewProgressService(progressRepository)
 	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
 
 	var loggerMiddleware = middleware.NewLoggingMiddleware(slogger)
@@ -129,6 +131,7 @@ func main() {
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
 	var userHandler = http.NewUserHandler(userService)
 	var patchHandler = http.NewPatchHandler(patchService)
+	var progressHandler = http.NewProgressHandler(progressService)
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
 	var adminHandler = http.NewAdminHandler(adminService)
@@ -152,7 +155,7 @@ func main() {
 
 	events.Notify(application.NewStartEvent(ctx))
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, progressHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))
 		for _, consumer := range consumers {
