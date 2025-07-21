@@ -57,6 +57,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_PURCHASE_GIFT_BOX] = router.PurchaseGiftBoxRoute
 	router.routes[protogame.GameRequestType_STAMINA_DEPOSIT] = router.DepositStaminaRoute
 	router.routes[protogame.GameRequestType_STAMINA_CONVERT] = router.ConvertStaminaRoute
+	router.routes[protogame.GameRequestType_ARENA_START] = router.StartArenaRoute
 
 	return router
 }
@@ -652,6 +653,20 @@ func (r *GameServiceClientRouter) ConvertStaminaRoute(ctx context.Context, bytes
 	}
 
 	result, err := r.service.ConvertStamina(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) StartArenaRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewArenaStartRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.StartArena(ctx, request)
 	if err != nil {
 		return nil, err
 	}
