@@ -10,6 +10,7 @@ type GameAdminService interface {
 	GrantItem(ctx context.Context, player uuid.UUID, item uuid.UUID, quantity int) error
 	CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error)
 	CreateBaseJob(ctx context.Context, job game.BaseJob) (bool, error)
+	CreateAugmentMaterials(ctx context.Context, id uuid.UUID, materials []game.AugmentMaterial) error
 }
 
 type GameValidationService interface {

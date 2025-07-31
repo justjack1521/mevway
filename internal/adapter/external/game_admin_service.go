@@ -80,3 +80,23 @@ func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, 
 	return response.Created, nil
 
 }
+
+func (s *GameAdminService) CreateAugmentMaterials(ctx context.Context, id uuid.UUID, materials []game.AugmentMaterial) error {
+
+	var request = &protoadmin.CreateAugmentMaterialRequest{
+		AbilityCardId: id.String(),
+		Materials:     make(map[string]int32, 0),
+	}
+
+	for _, value := range materials {
+		request.Materials[value.SysID.String()] = int32(value.Quantity)
+	}
+
+	_, err := s.svc.CreateAugmentMaterials(OutgoingContext(ctx), request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}

@@ -62,6 +62,47 @@ func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
 
 }
 
+func (h *AdminHandler) CreateAugmentMaterials(ctx *gin.Context) {
+
+	var request = &resources.CreateAugmentMaterialsRequest{}
+
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.CreateAugmentMaterialsResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.CreateAugmentMaterialsResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	var materials = make([]game.AugmentMaterial, len(request.Materials))
+	for index, value := range request.Materials {
+		materials[index] = game.AugmentMaterial{
+			SysID:    uuid.FromStringOrNil(value.SysID),
+			Quantity: value.Quantity,
+		}
+	}
+
+	if err := h.svc.CreateAugmentMaterials(actx, uuid.FromStringOrNil(request.AbilityCardID), materials); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, resources.CreateAugmentMaterialsResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(200, resources.CreateAugmentMaterialsResponse{})
+
+}
+
 func (h *AdminHandler) CreateSkillPanel(ctx *gin.Context) {
 
 	var request = &resources.CreateSkillPanelRequest{}

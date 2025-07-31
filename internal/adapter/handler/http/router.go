@@ -48,6 +48,7 @@ func NewRouter(
 			gameGroup.POST("/item/grant", adminHandler.GrantItem)
 			gameGroup.POST("/job", adminHandler.CreateBaseJob)
 			gameGroup.POST("/job/panel", adminHandler.CreateSkillPanel)
+			gameGroup.POST("/card/augment", adminHandler.CreateAugmentMaterials)
 		}
 		var userGroup = privateGroup.Group("/user")
 		{

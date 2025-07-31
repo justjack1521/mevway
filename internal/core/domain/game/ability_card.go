@@ -25,3 +25,8 @@ type BaseCard struct {
 	Category        string
 	FastLearner     bool
 }
+
+type AugmentMaterial struct {
+	SysID    uuid.UUID
+	Quantity int
+}
