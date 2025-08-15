@@ -2,13 +2,15 @@ package port
 
 import (
 	"context"
-	"mevway/internal/core/domain/progress"
+	"mevway/internal/core/domain/content"
 )
 
 type ProgressRepository interface {
-	GetProgressList(ctx context.Context) ([]progress.GameFeature, error)
+	GetReleaseList(ctx context.Context) ([]content.GameFeatureRelease, error)
+	GetProgressList(ctx context.Context) ([]content.GameFeature, error)
 }
 
 type ProgressService interface {
-	ListProgress(ctx context.Context) ([]progress.GameFeature, error)
+	ListRelease(ctx context.Context) ([]content.GameFeatureRelease, error)
+	ListProgress(ctx context.Context) ([]content.GameFeature, error)
 }

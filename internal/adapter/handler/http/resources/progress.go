@@ -2,14 +2,14 @@ package resources
 
 import (
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/core/domain/progress"
+	"mevway/internal/core/domain/content"
 )
 
 type ProgressListResponse struct {
 	Features []Progress `json:"Features"`
 }
 
-func NewProgressListResponse(p []progress.GameFeature) ProgressListResponse {
+func NewProgressListResponse(p []content.GameFeature) ProgressListResponse {
 	var response = ProgressListResponse{Features: make([]Progress, len(p))}
 	for index, value := range p {
 		response.Features[index] = NewProgress(value)
@@ -23,7 +23,7 @@ type Progress struct {
 	Metrics []ProgressMetric `json:"Metrics"`
 }
 
-func NewProgress(p progress.GameFeature) Progress {
+func NewProgress(p content.GameFeature) Progress {
 	var response = Progress{
 		SysID:   p.SysID,
 		Title:   p.Title,
@@ -42,7 +42,7 @@ type ProgressMetric struct {
 	Total int       `json:"Total"`
 }
 
-func NewProgressMetric(m progress.GameFeatureMetric) ProgressMetric {
+func NewProgressMetric(m content.GameFeatureMetric) ProgressMetric {
 	return ProgressMetric{
 		SysID: m.SysID,
 		Title: m.Title,

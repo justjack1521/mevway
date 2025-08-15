@@ -7,15 +7,15 @@ import (
 	"net/http"
 )
 
-type ProgressHandler struct {
+type FeatureHandler struct {
 	svc port.ProgressService
 }
 
-func NewProgressHandler(svc port.ProgressService) *ProgressHandler {
-	return &ProgressHandler{svc: svc}
+func NewFeatureHandler(svc port.ProgressService) *FeatureHandler {
+	return &FeatureHandler{svc: svc}
 }
 
-func (h *ProgressHandler) List(ctx *gin.Context) {
+func (h *FeatureHandler) ListProgress(ctx *gin.Context) {
 
 	list, err := h.svc.ListProgress(ctx)
 	if err != nil {
@@ -24,5 +24,17 @@ func (h *ProgressHandler) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, resources.NewProgressListResponse(list))
+
+}
+
+func (h *FeatureHandler) ListRelease(ctx *gin.Context) {
+
+	list, err := h.svc.ListRelease(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(200, resources.NewFeatureReleaseListResponse(list))
 
 }

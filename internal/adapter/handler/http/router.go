@@ -15,7 +15,7 @@ func NewRouter(
 	userHandler *UserHandler,
 	statusHandler *StatusHandler,
 	patchHandler *PatchHandler,
-	progressHandler *ProgressHandler,
+	progressHandler *FeatureHandler,
 	socketHandler *SocketHandler,
 	playerHandler *PlayerHandler,
 	adminHandler *AdminHandler,
@@ -87,7 +87,12 @@ func NewRouter(
 
 		var progress = publicGroup.Group("/progress")
 		{
-			progress.GET("/list", progressHandler.List)
+			progress.GET("/list", progressHandler.ListProgress)
+		}
+
+		var feature = publicGroup.Group("/feature")
+		{
+			feature.GET("/list", progressHandler.ListRelease)
 		}
 
 		var player = publicGroup.Group("/player")

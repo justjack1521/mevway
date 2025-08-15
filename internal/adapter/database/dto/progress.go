@@ -2,7 +2,7 @@ package dto
 
 import (
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/core/domain/progress"
+	"mevway/internal/core/domain/content"
 )
 
 type GameFeatureProgressGorm struct {
@@ -16,13 +16,13 @@ func (GameFeatureProgressGorm) TableName() string {
 	return "system.game_feature_progress"
 }
 
-func (x *GameFeatureProgressGorm) ToEntity() progress.GameFeature {
-	var result = progress.GameFeature{
+func (x *GameFeatureProgressGorm) ToEntity() content.GameFeature {
+	var result = content.GameFeature{
 		SysID: x.SysID,
 		Title: x.Title,
 	}
 	if x.Metrics != nil {
-		result.Metrics = make([]progress.GameFeatureMetric, len(x.Metrics))
+		result.Metrics = make([]content.GameFeatureMetric, len(x.Metrics))
 		for index, value := range x.Metrics {
 			result.Metrics[index] = value.ToEntity()
 		}
@@ -38,8 +38,8 @@ type GameFeatureProgressMetricGorm struct {
 	Total  int       `gorm:"column:total"`
 }
 
-func (x *GameFeatureProgressMetricGorm) ToEntity() progress.GameFeatureMetric {
-	return progress.GameFeatureMetric{
+func (x *GameFeatureProgressMetricGorm) ToEntity() content.GameFeatureMetric {
+	return content.GameFeatureMetric{
 		SysID: x.SysID,
 		Title: x.Title,
 		Value: x.Value,

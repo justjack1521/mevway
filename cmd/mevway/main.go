@@ -131,7 +131,7 @@ func main() {
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
 	var userHandler = http.NewUserHandler(userService)
 	var patchHandler = http.NewPatchHandler(patchService)
-	var progressHandler = http.NewProgressHandler(progressService)
+	var progressHandler = http.NewFeatureHandler(progressService)
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
 	var adminHandler = http.NewAdminHandler(adminService)

@@ -1,4 +1,4 @@
-package progress
+package content
 
 import uuid "github.com/satori/go.uuid"
 
