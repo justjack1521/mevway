@@ -42,7 +42,7 @@ func (r *ProgressRepository) GetProgressList(ctx context.Context) ([]content.Gam
 
 	var res []dto.GameFeatureProgressGorm
 
-	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Find(&res, cond).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Order("created_at").Find(&res, cond).Error; err != nil {
 		return nil, err
 	}
 

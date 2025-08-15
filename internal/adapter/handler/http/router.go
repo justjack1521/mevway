@@ -90,9 +90,9 @@ func NewRouter(
 			progress.GET("/list", progressHandler.ListProgress)
 		}
 
-		var feature = publicGroup.Group("/feature")
+		var release = publicGroup.Group("/release")
 		{
-			feature.GET("/list", progressHandler.ListRelease)
+			release.GET("/list", progressHandler.ListRelease)
 		}
 
 		var player = publicGroup.Group("/player")
