@@ -22,7 +22,7 @@ func (r *ProgressRepository) GetReleaseList(ctx context.Context) ([]content.Game
 
 	var res []dto.GameFeatureReleaseContentGorm
 
-	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Order("created_at").Find(&res, cond).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Order("created_at desc").Find(&res, cond).Error; err != nil {
 		return nil, err
 	}
 
