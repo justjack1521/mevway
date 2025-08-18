@@ -12,6 +12,7 @@ type GameFeatureReleaseContentGorm struct {
 	Banner    string                               `gorm:"column:banner"`
 	CreatedAt time.Time                            `gorm:"column:created_at"`
 	Items     []*GameFeatureReleaseContentItemGorm `gorm:"foreignKey:Parent"`
+	Active    bool                                 `gorm:"column:active"`
 }
 
 func (GameFeatureReleaseContentGorm) TableName() string {

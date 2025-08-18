@@ -18,7 +18,7 @@ func NewProgressRepository(database *gorm.DB) *ProgressRepository {
 
 func (r *ProgressRepository) GetReleaseList(ctx context.Context) ([]content.GameFeatureRelease, error) {
 
-	var cond = &dto.GameFeatureReleaseContentGorm{}
+	var cond = &dto.GameFeatureReleaseContentGorm{Active: true}
 
 	var res []dto.GameFeatureReleaseContentGorm
 
