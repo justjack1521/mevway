@@ -3,13 +3,16 @@ package dto
 import (
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/content"
+	"time"
 )
 
 type GameFeatureProgressGorm struct {
-	SysID   uuid.UUID                        `gorm:"primaryKey;column:sys_id"`
-	Active  bool                             `gorm:"column:active"`
-	Title   string                           `gorm:"column:title"`
-	Metrics []*GameFeatureProgressMetricGorm `gorm:"foreignKey:Parent"`
+	SysID     uuid.UUID                        `gorm:"primaryKey;column:sys_id"`
+	Active    bool                             `gorm:"column:active"`
+	Title     string                           `gorm:"column:title"`
+	CreatedAt time.Time                        `gorm:"column:created_at"`
+	UpdatedAt time.Time                        `gorm:"column:updated_at"`
+	Metrics   []*GameFeatureProgressMetricGorm `gorm:"foreignKey:Parent"`
 }
 
 func (GameFeatureProgressGorm) TableName() string {
@@ -18,8 +21,10 @@ func (GameFeatureProgressGorm) TableName() string {
 
 func (x *GameFeatureProgressGorm) ToEntity() content.GameFeature {
 	var result = content.GameFeature{
-		SysID: x.SysID,
-		Title: x.Title,
+		SysID:     x.SysID,
+		Title:     x.Title,
+		CreatedAt: x.CreatedAt,
+		UpdatedAt: x.UpdatedAt,
 	}
 	if x.Metrics != nil {
 		result.Metrics = make([]content.GameFeatureMetric, len(x.Metrics))

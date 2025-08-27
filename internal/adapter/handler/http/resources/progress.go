@@ -3,6 +3,7 @@ package resources
 import (
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/content"
+	"time"
 )
 
 type ProgressListResponse struct {
@@ -18,16 +19,20 @@ func NewProgressListResponse(p []content.GameFeature) ProgressListResponse {
 }
 
 type Progress struct {
-	SysID   uuid.UUID        `json:"SysID"`
-	Title   string           `json:"Title"`
-	Metrics []ProgressMetric `json:"Metrics"`
+	SysID     uuid.UUID        `json:"SysID"`
+	Title     string           `json:"Title"`
+	CreatedAt time.Time        `json:"CreatedAt"`
+	UpdatedAt time.Time        `json:"UpdatedAt"`
+	Metrics   []ProgressMetric `json:"Metrics"`
 }
 
 func NewProgress(p content.GameFeature) Progress {
 	var response = Progress{
-		SysID:   p.SysID,
-		Title:   p.Title,
-		Metrics: make([]ProgressMetric, len(p.Metrics)),
+		SysID:     p.SysID,
+		Title:     p.Title,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+		Metrics:   make([]ProgressMetric, len(p.Metrics)),
 	}
 	for index, value := range p.Metrics {
 		response.Metrics[index] = NewProgressMetric(value)
