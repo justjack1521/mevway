@@ -2,6 +2,7 @@ package http
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mevway/internal/core/port"
 	"net"
@@ -42,7 +43,7 @@ func (h *StatusHandler) Get(ctx *gin.Context) {
 	list = append(list, ip)
 
 	if err := h.svc.Status(list); err != nil {
-		ctx.AbortWithError(http.StatusServiceUnavailable, err)
+		ctx.AbortWithError(http.StatusServiceUnavailable, fmt.Errorf("%s failed to connect to server: %w", ip, err))
 		return
 	}
 
