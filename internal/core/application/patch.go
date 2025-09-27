@@ -23,6 +23,10 @@ func (s *PatchService) ListPatches(ctx context.Context, environment uuid.UUID, l
 	return s.repository.GetPatchList(ctx, environment, limit)
 }
 
+func (s *PatchService) ListAllowPatches(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error) {
+	return s.repository.GetAllowedPatchList(ctx, application, environment)
+}
+
 func (s *PatchService) ListOpenIssues(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error) {
 	return s.repository.GetOpenIssuesList(ctx, environment)
 }

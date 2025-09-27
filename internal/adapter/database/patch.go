@@ -26,7 +26,7 @@ func (r *PatchRepository) GetPatchList(ctx context.Context, environment uuid.UUI
 		return nil, err
 	}
 
-	dest := make([]patch.Patch, len(res))
+	var dest = make([]patch.Patch, len(res))
 	for i, v := range res {
 		dest[i] = v.ToEntity()
 	}
@@ -47,6 +47,26 @@ func (r *PatchRepository) GetLatestPatch(ctx context.Context, application string
 	}
 
 	return res.ToEntity(), nil
+
+}
+
+func (r *PatchRepository) GetAllowedPatchList(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error) {
+	var cond = &dto.PatchGorm{
+		Application: application,
+		Allowed:     true,
+	}
+
+	var res []dto.PatchGorm
+
+	if err := r.database.WithContext(ctx).Model(cond).Order("release_date DESC").Find(&res, cond).Error; err != nil {
+		return nil, err
+	}
+
+	var dest = make([]patch.Patch, len(res))
+	for i, v := range res {
+		dest[i] = v.ToEntity()
+	}
+	return dest, nil
 
 }
 

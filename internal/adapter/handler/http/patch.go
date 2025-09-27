@@ -34,6 +34,37 @@ func (h *PatchHandler) Recent(ctx *gin.Context) {
 
 }
 
+func (h *PatchHandler) Allow(ctx *gin.Context) {
+
+	target, err := uuid.FromString(ctx.Query("current"))
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var application = ctx.Query("application")
+
+	if application == "" {
+		application = "game"
+	}
+
+	allowed, err := h.svc.ListAllowPatches(ctx, application, uuid.Nil)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	for _, value := range allowed {
+		if uuid.Equal(value.SysID, target) {
+			ctx.Status(200)
+			return
+		}
+	}
+
+	ctx.AbortWithStatus(http.StatusNotFound)
+
+}
+
 func (h *PatchHandler) List(ctx *gin.Context) {
 
 	list, err := h.svc.ListPatches(ctx, uuid.Nil, 5)

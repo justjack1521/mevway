@@ -47,6 +47,7 @@ type PatchGorm struct {
 	Version     string             `gorm:"column:version"`
 	Description string             `gorm:"column:description"`
 	Released    bool               `gorm:"column:released"`
+	Allowed     bool               `gorm:"column:allowed"`
 	Features    []*GameFeatureGorm `gorm:"foreignKey:ReleasedBy"`
 	Fixes       []*KnownIssueGorm  `gorm:"foreignKey:FixedBy"`
 }
@@ -63,6 +64,7 @@ func (x *PatchGorm) ToEntity() patch.Patch {
 		ReleaseDate: x.ReleaseDate,
 		Description: x.Description,
 		Released:    x.Released,
+		Allowed:     x.Allowed,
 	}
 
 	if x.Features != nil {

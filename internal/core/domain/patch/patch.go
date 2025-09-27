@@ -13,6 +13,7 @@ type Patch struct {
 	Version     string
 	Description string
 	Released    bool
+	Allowed     bool
 	Features    []GameFeature
 	Fixes       []KnownIssue
 }
