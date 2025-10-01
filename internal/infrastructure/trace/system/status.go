@@ -2,6 +2,7 @@ package system
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -43,6 +44,8 @@ func (s *StatusService) Status(addresses []net.IP) error {
 
 	for _, value := range ips {
 		for _, address := range addresses {
+			fmt.Println(value)
+			fmt.Println(addresses)
 			if value.Equal(address) {
 				return nil
 			}
