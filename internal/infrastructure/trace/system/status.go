@@ -36,10 +36,12 @@ func (s *StatusService) Status(addresses []net.IP) error {
 		return errServerMaintenance
 	}
 
-	var ips = make([]net.IP, len(list))
-
-	for index, value := range list {
-		ips[index] = net.ParseIP(value)
+	var ips = make([]net.IP, 0)
+	for _, value := range list {
+		var ip = net.ParseIP(value)
+		if ip != nil {
+			ips = append(ips, ip)
+		}
 	}
 
 	for _, value := range ips {
