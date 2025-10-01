@@ -44,8 +44,7 @@ func (s *StatusService) Status(addresses []net.IP) error {
 
 	for _, value := range ips {
 		for _, address := range addresses {
-			fmt.Println(value)
-			fmt.Println(addresses)
+			fmt.Println(fmt.Sprintf("Check %s against %s", value, addresses))
 			if value.Equal(address) {
 				return nil
 			}
