@@ -6,8 +6,9 @@ type LoginRequest struct {
 }
 
 type LoginResult struct {
-	IDToken      string
-	AccessToken  string
-	RefreshToken string
-	ExpiresIn    int
+	IDToken          string
+	AccessToken      string
+	RefreshToken     string
+	AccessExpiresIn  int
+	RefreshExpiresIn int
 }

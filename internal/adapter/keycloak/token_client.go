@@ -32,10 +32,11 @@ func (c *TokenClient) CreateToken(ctx context.Context, target user.User) (auth.L
 	}
 
 	return auth.LoginResult{
-		IDToken:      tkn.IDToken,
-		AccessToken:  tkn.AccessToken,
-		RefreshToken: tkn.RefreshToken,
-		ExpiresIn:    tkn.ExpiresIn,
+		IDToken:          tkn.IDToken,
+		AccessToken:      tkn.AccessToken,
+		RefreshToken:     tkn.RefreshToken,
+		AccessExpiresIn:  tkn.ExpiresIn,
+		RefreshExpiresIn: tkn.RefreshExpiresIn,
 	}, nil
 
 }

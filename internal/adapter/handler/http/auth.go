@@ -45,9 +45,11 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, resources.UserLoginResponse{
-		IDToken:      result.IDToken,
-		AccessToken:  result.AccessToken,
-		RefreshToken: result.RefreshToken,
+		IDToken:             result.IDToken,
+		AccessToken:         result.AccessToken,
+		AccessTokenExpires:  result.AccessExpiresIn,
+		RefreshToken:        result.RefreshToken,
+		RefreshTokenExpires: result.RefreshExpiresIn,
 	})
 
 }
