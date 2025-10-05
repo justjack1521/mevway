@@ -10,11 +10,12 @@ import (
 )
 
 const (
-	SessionIDContextKey string = "SessionIDContextKey"
-	UserIDContextKey    string = "UserIDContextKey"
-	PlayerIDContextKey  string = "PlayerIDContextKey"
-	UserEnvironmentKey  string = "UserEnvironmentKey"
-	UserRoleContextKey  string = "UserRoleContextKey"
+	SessionIDContextKey    string = "SessionIDContextKey"
+	UserIDContextKey       string = "UserIDContextKey"
+	PlayerIDContextKey     string = "PlayerIDContextKey"
+	UserEnvironmentKey     string = "UserEnvironmentKey"
+	UserRoleContextKey     string = "UserRoleContextKey"
+	PatchVersionContextKey string = "PatchVersionContextKey"
 )
 
 var (
@@ -104,4 +105,21 @@ func ApplicationContextFromMetadata(ctx *gin.Context) (context.Context, error) {
 		PlayerID: player,
 	}
 	return application.NewApplicationContext(ctx, md), nil
+}
+
+var (
+	errContextMissingPatchID   = errors.New("context missing patch id")
+	errContextPatchIDMalformed = errors.New("context patch id malformed")
+)
+
+func PatchIDFromContext(ctx *gin.Context) (uuid.UUID, error) {
+	var value = ctx.GetString(PatchVersionContextKey)
+	if value == "" {
+		return uuid.Nil, errContextMissingPatchID
+	}
+	result, err := uuid.FromString(value)
+	if err != nil || result == uuid.Nil {
+		return uuid.Nil, errContextPatchIDMalformed
+	}
+	return result, nil
 }

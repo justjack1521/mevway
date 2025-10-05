@@ -126,6 +126,7 @@ func main() {
 
 	var loggerMiddleware = middleware.NewLoggingMiddleware(slogger)
 	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
+	var patchMiddleware = middleware.NewPatchMiddleware()
 
 	var statusHandler = http.NewStatusHandler(statusService)
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
@@ -155,7 +156,7 @@ func main() {
 
 	events.Notify(application.NewStartEvent(ctx))
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, progressHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, progressHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle, patchMiddleware.Handle)
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))
 		for _, consumer := range consumers {

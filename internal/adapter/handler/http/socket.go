@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"mevway/internal/adapter/handler/http/middleware"
@@ -77,7 +78,16 @@ func (h *SocketHandler) Join(ctx *gin.Context) {
 		return
 	}
 
+	patch, err := middleware.PatchIDFromContext(ctx)
+	if err != nil {
+		fmt.Println(fmt.Sprintf("No patch ID for user %s", player.String()))
+		//ctx.AbortWithError(http.StatusInternalServerError, err)
+		//return
+	}
+
 	var c = socket.NewClient(session, user, player)
+	c.PatchID = patch
+
 	client, err := h.factory.Create(ctx, c, conn)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)

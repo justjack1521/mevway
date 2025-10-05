@@ -78,7 +78,7 @@ func (s *SocketServer) run() {
 		case c := <-s.register:
 			s.mu.Lock()
 			s.clients[c.client] = c.notifier
-			s.publisher.Notify(socket.NewClientConnectedEvent(context.Background(), c.client.Session, c.client.UserID, c.client.PlayerID))
+			s.publisher.Notify(socket.NewClientConnectedEvent(context.Background(), c.client.Session, c.client.UserID, c.client.PlayerID, c.client.PatchID))
 			s.mu.Unlock()
 		case c := <-s.unregister:
 			s.mu.Lock()

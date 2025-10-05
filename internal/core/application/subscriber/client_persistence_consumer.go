@@ -36,13 +36,19 @@ func (c *ClientPersistenceSubscriber) handleApplicationRestart(evt application.S
 }
 
 func (c *ClientPersistenceSubscriber) handleClientConnect(evt socket.ClientConnectedEvent) {
-	if err := c.repository.Add(evt.Context(), socket.NewClient(evt.SessionID(), evt.UserID(), evt.PlayerID())); err != nil {
+
+	var client = socket.NewClient(evt.SessionID(), evt.UserID(), evt.PlayerID())
+	client.PatchID = evt.PatchID()
+
+	if err := c.repository.Add(evt.Context(), client); err != nil {
 		fmt.Println(err)
 	}
 }
 
 func (c *ClientPersistenceSubscriber) handleClientDisconnect(evt socket.ClientDisconnectedEvent) {
-	if err := c.repository.Remove(evt.Context(), socket.NewClient(evt.SessionID(), evt.UserID(), evt.PlayerID())); err != nil {
+	var client = socket.NewClient(evt.SessionID(), evt.UserID(), evt.PlayerID())
+	if err := c.repository.Remove(evt.Context(), client); err != nil {
 		fmt.Println(err)
 	}
+
 }

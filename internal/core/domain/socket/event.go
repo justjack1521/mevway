@@ -11,10 +11,11 @@ type ClientConnectedEvent struct {
 	sessionID uuid.UUID
 	userID    uuid.UUID
 	playerID  uuid.UUID
+	patchID   uuid.UUID
 }
 
-func NewClientConnectedEvent(ctx context.Context, session, user, player uuid.UUID) ClientConnectedEvent {
-	return ClientConnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player}
+func NewClientConnectedEvent(ctx context.Context, session, user, player, patch uuid.UUID) ClientConnectedEvent {
+	return ClientConnectedEvent{ctx: ctx, sessionID: session, userID: user, playerID: player, patchID: patch}
 }
 
 func (e ClientConnectedEvent) Context() context.Context {
@@ -31,6 +32,10 @@ func (e ClientConnectedEvent) UserID() uuid.UUID {
 
 func (e ClientConnectedEvent) PlayerID() uuid.UUID {
 	return e.playerID
+}
+
+func (e ClientConnectedEvent) PatchID() uuid.UUID {
+	return e.patchID
 }
 
 func (e ClientConnectedEvent) Name() string {

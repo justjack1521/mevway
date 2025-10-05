@@ -15,8 +15,13 @@ type Client struct {
 	Session  uuid.UUID
 	UserID   uuid.UUID
 	PlayerID uuid.UUID
+	PatchID  uuid.UUID
 }
 
-func NewClient(session uuid.UUID, user uuid.UUID, player uuid.UUID) Client {
-	return Client{Session: session, UserID: user, PlayerID: player}
+func NewClient(session, user, player uuid.UUID) Client {
+	return Client{
+		Session:  session,
+		UserID:   user,
+		PlayerID: player,
+	}
 }

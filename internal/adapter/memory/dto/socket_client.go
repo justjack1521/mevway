@@ -6,6 +6,7 @@ type SocketClientRedis struct {
 	SessionID string `redis:"SessionID" json:"SessionID"`
 	UserID    string `redis:"UserID" json:"UserID"`
 	PlayerID  string `redis:"PlayerID" json:"PlayerID"`
+	PatchID   string `redis:"PatchID" json:"PatchID"`
 }
 
 func (s SocketClientRedis) ToMapStringInterface() map[string]interface{} {
@@ -13,6 +14,7 @@ func (s SocketClientRedis) ToMapStringInterface() map[string]interface{} {
 		"SessionID": s.SessionID,
 		"UserID":    s.UserID,
 		"PlayerID":  s.PlayerID,
+		"PatchID":   s.PatchID,
 	}
 }
 
