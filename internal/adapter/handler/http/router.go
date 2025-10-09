@@ -104,6 +104,12 @@ func NewRouter(
 			player.GET("/me", authHandler.IdentityTokenAuthorise)
 			player.GET("/search/:customer_id", authHandler.AccessTokenAuthorise, playerHandler.Search)
 		}
+
+		var rank = publicGroup.GET("/ranking")
+		{
+			rank.GET("/top/:code", rankHandler.Top)
+		}
+
 	}
 
 	return &Router{router}, nil
