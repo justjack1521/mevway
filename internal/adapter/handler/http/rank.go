@@ -2,6 +2,8 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
+	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/port"
 	"net/http"
@@ -16,6 +18,9 @@ func NewRankHandler(svc port.RankService) *RankHandler {
 }
 
 func (h *RankHandler) Top(ctx *gin.Context) {
+
+	ctx.Set(middleware.UserIDContextKey, uuid.NewV4())
+	ctx.Set(middleware.PlayerIDContextKey, uuid.NewV4())
 
 	results, err := h.svc.ListTopRankings(ctx, ctx.Param("code"))
 	if err != nil {
