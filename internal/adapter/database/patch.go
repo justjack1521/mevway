@@ -92,13 +92,9 @@ func (r *PatchRepository) GetOpenIssuesList(ctx context.Context, environment uui
 
 func (r *PatchRepository) GetTopLevelIssueList(ctx context.Context) ([]patch.Issue, error) {
 
-	var cond = &dto.IssueSubmissionGorm{
-		Category: int(patch.IssueCategoryGame),
-	}
-
 	var res []dto.IssueSubmissionGorm
 
-	if err := r.database.WithContext(ctx).Model(&dto.IssueSubmissionGorm{}).Not("state IN ?", patch.ClosedStates).Where(cond).Find(&res).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(&dto.IssueSubmissionGorm{}).Not("state IN ?", patch.ClosedStates).Where("category = ?", int(patch.IssueCategoryGame)).Find(&res).Error; err != nil {
 		return nil, err
 	}
 
