@@ -7,6 +7,7 @@ import (
 )
 
 type IssueSubmissionGorm struct {
+	Number      int       `gorm:"column:number"`
 	SysID       uuid.UUID `gorm:"primaryKey;column:sys_id"`
 	Description string    `gorm:"column:description"`
 	Category    int       `gorm:"column:category"`
@@ -16,11 +17,12 @@ type IssueSubmissionGorm struct {
 }
 
 func (IssueSubmissionGorm) TableName() string {
-	return "system.issue_submission"
+	return "system.issue"
 }
 
 func (x *IssueSubmissionGorm) ToEntity() patch.Issue {
 	return patch.Issue{
+		Number:      x.Number,
 		SysID:       x.SysID,
 		Description: x.Description,
 		State:       x.State,

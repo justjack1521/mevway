@@ -29,6 +29,7 @@ const (
 )
 
 type Issue struct {
+	Number      int
 	SysID       uuid.UUID
 	Description string
 	State       int

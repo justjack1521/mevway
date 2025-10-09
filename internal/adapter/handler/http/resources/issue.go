@@ -18,11 +18,19 @@ func NewIssueListResponse(p []patch.Issue) IssueListResponse {
 }
 
 type Issue struct {
-	SysID uuid.UUID `json:"SysID"`
+	SysID       uuid.UUID `json:"SysID"`
+	Number      int       `json:"Number"`
+	Description string    `json:"Description"`
+	Category    int       `json:"Category"`
+	State       int       `json:"State"`
 }
 
 func NewIssue(p patch.Issue) Issue {
 	return Issue{
-		SysID: p.SysID,
+		SysID:       p.SysID,
+		Number:      p.Number,
+		Description: p.Description,
+		Category:    p.Category,
+		State:       p.State,
 	}
 }
