@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type IssueSubmissionGorm struct {
+type IssueGorm struct {
 	Number      int       `gorm:"column:number"`
 	SysID       uuid.UUID `gorm:"primaryKey;column:sys_id"`
 	Description string    `gorm:"column:description"`
@@ -16,11 +16,11 @@ type IssueSubmissionGorm struct {
 	State       int       `gorm:"column:state"`
 }
 
-func (IssueSubmissionGorm) TableName() string {
+func (IssueGorm) TableName() string {
 	return "system.issue"
 }
 
-func (x *IssueSubmissionGorm) ToEntity() patch.Issue {
+func (x *IssueGorm) ToEntity() patch.Issue {
 	return patch.Issue{
 		Number:      x.Number,
 		SysID:       x.SysID,

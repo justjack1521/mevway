@@ -90,11 +90,24 @@ func (r *PatchRepository) GetOpenIssuesList(ctx context.Context, environment uui
 
 }
 
+func (r *PatchRepository) GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error) {
+
+	var cond = &dto.IssueGorm{SysID: id}
+	var res = &dto.IssueGorm{}
+
+	if err := r.database.WithContext(ctx).Model(cond).First(res, cond).Error; err != nil {
+		return patch.Issue{}, err
+	}
+
+	return res.ToEntity(), nil
+
+}
+
 func (r *PatchRepository) GetTopLevelIssueList(ctx context.Context) ([]patch.Issue, error) {
 
-	var res []dto.IssueSubmissionGorm
+	var res []dto.IssueGorm
 
-	if err := r.database.WithContext(ctx).Model(&dto.IssueSubmissionGorm{}).Not("state IN ?", patch.ClosedStates).Where("category = ?", int(patch.IssueCategoryGame)).Order("number DESC").Find(&res).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(&dto.IssueGorm{}).Not("state IN ?", patch.ClosedStates).Where("category = ?", int(patch.IssueCategoryGame)).Order("number DESC").Find(&res).Error; err != nil {
 		return nil, err
 	}
 

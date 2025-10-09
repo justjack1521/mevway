@@ -85,6 +85,7 @@ func NewRouter(
 			patch.GET("/issues", patchHandler.Issues)
 			patch.GET("/issues/top", patchHandler.Top)
 			patch.GET("/allow", patchHandler.Allow)
+			patch.GET("/issues/:id", patchHandler.Get)
 		}
 
 		var progress = publicGroup.Group("/progress")

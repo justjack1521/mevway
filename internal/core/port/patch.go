@@ -11,6 +11,7 @@ type PatchRepository interface {
 	GetPatchList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error)
 	GetAllowedPatchList(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error)
 	GetOpenIssuesList(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error)
+	GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error)
 	GetTopLevelIssueList(ctx context.Context) ([]patch.Issue, error)
 }
 
@@ -20,4 +21,5 @@ type PatchService interface {
 	ListAllowPatches(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error)
 	ListOpenIssues(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error)
 	ListTopIssues(ctx context.Context) ([]patch.Issue, error)
+	GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error)
 }

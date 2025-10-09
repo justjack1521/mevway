@@ -34,3 +34,7 @@ func (s *PatchService) ListOpenIssues(ctx context.Context, environment uuid.UUID
 func (s *PatchService) ListTopIssues(ctx context.Context) ([]patch.Issue, error) {
 	return s.repository.GetTopLevelIssueList(ctx)
 }
+
+func (s *PatchService) GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error) {
+	return s.repository.GetIssue(ctx, id)
+}
