@@ -30,10 +30,9 @@ func (r RankingRepository) QueryTopRankings(ctx context.Context, code string) ([
 			Rank:  int(value.Rank),
 			Score: int64(value.Score),
 			Player: player.Player{
-				ID:      uuid.FromStringOrNil(value.Identity.PlayerId),
-				Name:    value.Identity.PlayerName,
-				Level:   int(value.Identity.PlayerLevel),
-				Comment: value.Identity.PlayerComment,
+				ID:    uuid.FromStringOrNil(value.PlayerId),
+				Name:  value.PlayerName,
+				Level: int(value.PlayerLevel),
 			},
 			Loadout: player.Loadout{
 				JobCardID:       uuid.FromStringOrNil(value.PrimaryLoadout.JobCard.JobCardId),
