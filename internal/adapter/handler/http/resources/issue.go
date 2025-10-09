@@ -3,6 +3,7 @@ package resources
 import (
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/patch"
+	"time"
 )
 
 type IssueListResponse struct {
@@ -23,6 +24,7 @@ type Issue struct {
 	Description string    `json:"Description"`
 	Category    int       `json:"Category"`
 	State       int       `json:"State"`
+	CreatedAt   time.Time `json:"CreatedAt"`
 }
 
 func NewIssue(p patch.Issue) Issue {
@@ -32,5 +34,6 @@ func NewIssue(p patch.Issue) Issue {
 		Description: p.Description,
 		Category:    p.Category,
 		State:       p.State,
+		CreatedAt:   p.CreatedAt,
 	}
 }
