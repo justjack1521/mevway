@@ -88,3 +88,13 @@ func (h *PatchHandler) Issues(ctx *gin.Context) {
 	ctx.JSON(200, resources.NewKnowLIssueListResponse(list))
 
 }
+
+func (h *PatchHandler) Top(ctx *gin.Context) {
+	list, err := h.svc.ListTopIssues(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(200, resources.NewIssueListResponse(list))
+}

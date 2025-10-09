@@ -83,6 +83,7 @@ func NewRouter(
 			patch.GET("/recent", patchHandler.Recent)
 			patch.GET("/list", patchHandler.List)
 			patch.GET("/issues", patchHandler.Issues)
+			patch.GET("/issues/top", patchHandler.Top)
 			patch.GET("/allow", patchHandler.Allow)
 		}
 
