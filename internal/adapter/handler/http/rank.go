@@ -3,8 +3,8 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
+	"mevway/internal/core/application"
 	"mevway/internal/core/port"
 	"net/http"
 )
@@ -19,10 +19,12 @@ func NewRankHandler(svc port.RankService) *RankHandler {
 
 func (h *RankHandler) Top(ctx *gin.Context) {
 
-	ctx.Set(middleware.UserIDContextKey, uuid.NewV4())
-	ctx.Set(middleware.PlayerIDContextKey, uuid.NewV4())
+	var md = application.ContextMetadata{
+		UserID:   uuid.NewV4(),
+		PlayerID: uuid.NewV4(),
+	}
 
-	results, err := h.svc.ListTopRankings(ctx, ctx.Param("code"))
+	results, err := h.svc.ListTopRankings(application.NewApplicationContext(ctx, md), ctx.Param("code"))
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
