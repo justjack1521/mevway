@@ -94,7 +94,7 @@ func (r *PatchRepository) GetTopLevelIssueList(ctx context.Context) ([]patch.Iss
 
 	var res []dto.IssueSubmissionGorm
 
-	if err := r.database.WithContext(ctx).Model(&dto.IssueSubmissionGorm{}).Not("state IN ?", patch.ClosedStates).Where("category = ?", int(patch.IssueCategoryGame)).Find(&res).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(&dto.IssueSubmissionGorm{}).Not("state IN ?", patch.ClosedStates).Where("category = ?", int(patch.IssueCategoryGame)).Order("number DESC").Find(&res).Error; err != nil {
 		return nil, err
 	}
 
