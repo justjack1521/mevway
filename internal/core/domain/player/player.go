@@ -33,3 +33,10 @@ type RentalCard struct {
 	ExtraSkillUnlock int
 	OverboostLevel   int
 }
+
+type RankPlayer struct {
+	Rank  int
+	Score int64
+	Player
+	Loadout
+}

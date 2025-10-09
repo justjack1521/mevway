@@ -101,6 +101,7 @@ func main() {
 	var socialRepository = external.NewSocialPlayerRepository(social)
 	var requestRepository = memory.NewRequestMemoryRepository(rds)
 	var progressRepository = database.NewProgressRepository(db)
+	var rankRepository = external.NewRankingRepository(rank)
 
 	var serviceRouter = application.NewServiceRouter(slogger, requestRepository)
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
@@ -123,6 +124,7 @@ func main() {
 	var patchService = application.NewPatchService(patchRepository)
 	var progressService = application.NewProgressService(progressRepository)
 	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
+	var rankService = application.NewRankQueryService(rankRepository)
 
 	var loggerMiddleware = middleware.NewLoggingMiddleware(slogger)
 	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
@@ -138,6 +140,7 @@ func main() {
 	var adminHandler = http.NewAdminHandler(adminService)
 	var modelHandler = http.NewModelHandler(modelService)
 	var contactHandler = http.NewContactHandler(contactRepository)
+	var rankHandler = http.NewRankHandler(rankService)
 
 	subscriber.NewClientPersistenceSubscriber(events, clientRepository)
 
@@ -156,7 +159,7 @@ func main() {
 
 	events.Notify(application.NewStartEvent(ctx))
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, progressHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, loggerMiddleware.Handle, relicMiddleware.Handle, patchMiddleware.Handle)
+	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, progressHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, rankHandler, loggerMiddleware.Handle, relicMiddleware.Handle, patchMiddleware.Handle)
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))
 		for _, consumer := range consumers {

@@ -21,6 +21,7 @@ func NewRouter(
 	adminHandler *AdminHandler,
 	modelHandler *ModelHandler,
 	contactHandler *ContactHandler,
+	rankHandler *RankHandler,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
 
