@@ -50,7 +50,7 @@ func (h *UserHandler) ChangePassword(ctx *gin.Context) {
 	}
 
 	_, err = h.auth.Login(ctx, user.User{
-		Username: identity.Username,
+		Identity: identity,
 		Password: request.CurrentPassword,
 	})
 	if err != nil {

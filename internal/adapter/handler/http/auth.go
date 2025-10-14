@@ -36,7 +36,7 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 	}
 
 	result, err := h.svc.Login(ctx, user.User{
-		Username: request.Username,
+		Identity: user.Identity{Username: request.Username},
 		Password: request.Password,
 	})
 

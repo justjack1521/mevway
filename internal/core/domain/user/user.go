@@ -21,7 +21,6 @@ type Identity struct {
 
 type User struct {
 	Identity
-	Username string
 	Password string
 }
 
@@ -46,8 +45,8 @@ func NewUser(username string, password string) (*User, error) {
 			ID:         uuid.NewV4(),
 			PlayerID:   uuid.NewV4(),
 			CustomerID: fmt.Sprintf("%x-%x-%x", b[0:2], b[2:4], b[4:]),
+			Username:   username,
 		},
-		Username: username,
 		Password: password,
 	}, nil
 }

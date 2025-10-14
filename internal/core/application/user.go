@@ -31,12 +31,12 @@ func (s *UserService) ChangePassword(ctx context.Context, target user.Identity, 
 		return errPasswordConfirmMismatch
 	}
 
-	usr, err := user.NewUser(target.CustomerID, password)
-	if err != nil {
-		return err
+	var temp = &user.User{
+		Identity: target,
+		Password: password,
 	}
 
-	if err := s.users.ChangePassword(ctx, usr); err != nil {
+	if err := s.users.ChangePassword(ctx, temp); err != nil {
 		return err
 	}
 
