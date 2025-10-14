@@ -72,6 +72,7 @@ func NewRouter(
 		{
 			authGroup.POST("/login", authHandler.Login)
 			authGroup.POST("/register", userHandler.Register)
+			authGroup.POST("/password/change", userHandler.ChangePassword)
 		}
 
 		var systemGroup = publicGroup.Group("/system")

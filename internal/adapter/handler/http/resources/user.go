@@ -36,3 +36,9 @@ func NewUserIdentityResponse(identity user.Identity) UserIdentityResponse {
 		CustomerID: identity.CustomerID,
 	}
 }
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"CurrentPassword"`
+	NewPassword     string `json:"NewPassword"`
+	ConfirmPassword string `json:"ConfirmPassword"`
+}

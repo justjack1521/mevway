@@ -13,12 +13,35 @@ type UserService struct {
 	users     port.UserRepository
 }
 
+func NewUserService(publisher *mevent.Publisher, users port.UserRepository) *UserService {
+	return &UserService{publisher: publisher, users: users}
+}
+
+func (s *UserService) Get(ctx context.Context, id uuid.UUID) (user.Identity, error) {
+	return s.users.GetUser(ctx, id)
+}
+
 func (s *UserService) List(ctx context.Context, count, offset int) ([]user.Identity, error) {
 	return s.users.GetAllUsers(ctx, count, offset)
 }
 
-func NewUserService(publisher *mevent.Publisher, users port.UserRepository) *UserService {
-	return &UserService{publisher: publisher, users: users}
+func (s *UserService) ChangePassword(ctx context.Context, target user.Identity, password, confirm string) error {
+
+	if password != confirm {
+		return errPasswordConfirmMismatch
+	}
+
+	usr, err := user.NewUser(target.CustomerID, password)
+	if err != nil {
+		return err
+	}
+
+	if err := s.users.ChangePassword(ctx, usr); err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func (s *UserService) Register(ctx context.Context, username, password, confirm string) (*user.User, error) {

@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	sessionHeaderKey       = "X-API-SESSION"
 	authorizationHeaderKey = "authorization"
 	authorizationType      = "bearer"
 )
@@ -84,7 +85,7 @@ func (h *AuthenticationHandler) AccessTokenAuthorise(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(middleware.SessionIDContextKey, claims.SessionID.String())
+	ctx.Set(middleware.SessionIDContextKey, ctx.GetHeader(sessionHeaderKey))
 	ctx.Set(middleware.UserIDContextKey, claims.UserID.String())
 	ctx.Set(middleware.PlayerIDContextKey, claims.PlayerID.String())
 	ctx.Set(middleware.UserEnvironmentKey, claims.Environment)
@@ -99,6 +100,7 @@ var (
 )
 
 func (h *AuthenticationHandler) getAuthorisationToken(ctx *gin.Context) (string, error) {
+
 	var header = ctx.GetHeader(authorizationHeaderKey)
 
 	if len(header) == 0 {

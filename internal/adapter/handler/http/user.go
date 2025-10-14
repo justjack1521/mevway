@@ -2,17 +2,20 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
+	"mevway/internal/core/domain/user"
 	"mevway/internal/core/port"
 	"net/http"
 )
 
 type UserHandler struct {
-	svc port.UserService
+	svc  port.UserService
+	auth port.AuthenticationService
 }
 
-func NewUserHandler(svc port.UserService) *UserHandler {
-	return &UserHandler{svc: svc}
+func NewUserHandler(svc port.UserService, auth port.AuthenticationService) *UserHandler {
+	return &UserHandler{svc: svc, auth: auth}
 }
 
 func (h *UserHandler) List(ctx *gin.Context) {
@@ -23,6 +26,41 @@ func (h *UserHandler) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, resources.NewUserIdentityListResponse(users))
+
+}
+
+func (h *UserHandler) ChangePassword(ctx *gin.Context) {
+
+	var request = &resources.ChangePasswordRequest{}
+
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	id, err := middleware.UserIDFromContext(ctx)
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	identity, err := h.svc.Get(ctx, id)
+	if err != nil {
+		return
+	}
+
+	_, err = h.auth.Login(ctx, user.User{
+		Username: identity.Username,
+		Password: request.CurrentPassword,
+	})
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	if err := h.svc.ChangePassword(ctx, identity, request.NewPassword, request.ConfirmPassword); err != nil {
+		return
+	}
 
 }
 

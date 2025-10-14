@@ -15,6 +15,7 @@ var (
 type Identity struct {
 	ID         uuid.UUID
 	PlayerID   uuid.UUID
+	Username   string
 	CustomerID string
 }
 

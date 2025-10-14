@@ -28,6 +28,27 @@ var (
 	}
 )
 
+func (c *UserClient) GetUser(ctx context.Context, id uuid.UUID) (user.Identity, error) {
+
+	token, err := c.LoginAdmin(ctx)
+	if err != nil {
+		return user.Identity{}, err
+	}
+
+	result, err := c.client.GetUserByID(ctx, token, c.config.Realm(), id.String())
+	if err != nil {
+		return user.Identity{}, err
+	}
+
+	identity, err := c.IdentityFromUser(result)
+	if err != nil {
+		return user.Identity{}, err
+	}
+
+	return identity, nil
+
+}
+
 func (c *UserClient) GetAllUsers(ctx context.Context, count, offset int) ([]user.Identity, error) {
 
 	token, err := c.LoginAdmin(ctx)
@@ -78,8 +99,10 @@ func (c *UserClient) IdentityFromUser(target *gocloak.User) (user.Identity, erro
 	return user.Identity{
 		ID:         id,
 		PlayerID:   pid,
+		Username:   *target.Username,
 		CustomerID: fmt.Sprintf("%s", csm),
 	}, nil
+
 }
 
 func (c *UserClient) DeleteUser(ctx context.Context, target user.Identity) error {
@@ -91,6 +114,21 @@ func (c *UserClient) DeleteUser(ctx context.Context, target user.Identity) error
 
 	if err := c.client.DeleteUser(ctx, token, c.config.Realm(), target.ID.String()); err != nil {
 		return errFailedDeleteUser(err)
+	}
+
+	return nil
+
+}
+
+func (c *UserClient) ChangePassword(ctx context.Context, target *user.User) error {
+
+	token, err := c.LoginAdmin(ctx)
+	if err != nil {
+		return errFailedToCreateUser(err)
+	}
+
+	if err := c.client.SetPassword(ctx, token, target.ID.String(), c.config.Realm(), target.Password, false); err != nil {
+		return errFailedToCreateUser(err)
 	}
 
 	return nil
