@@ -59,6 +59,7 @@ func (h *UserHandler) ChangePassword(ctx *gin.Context) {
 	}
 
 	if err := h.svc.ChangePassword(ctx, identity, request.NewPassword, request.ConfirmPassword); err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
