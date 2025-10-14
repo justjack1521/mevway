@@ -39,9 +39,8 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 		Identity: user.Identity{Username: request.Username},
 		Password: request.Password,
 	})
-
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithError(http.StatusUnauthorized, err)
 		return
 	}
 
