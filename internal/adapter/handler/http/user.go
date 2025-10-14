@@ -34,13 +34,13 @@ func (h *UserHandler) ChangePassword(ctx *gin.Context) {
 	var request = &resources.ChangePasswordRequest{}
 
 	if err := ctx.BindJSON(request); err != nil {
-		ctx.AbortWithStatus(http.StatusBadRequest)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	id, err := middleware.UserIDFromContext(ctx)
 	if err != nil {
-		ctx.AbortWithStatus(http.StatusBadRequest)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -54,12 +54,12 @@ func (h *UserHandler) ChangePassword(ctx *gin.Context) {
 		Password: request.CurrentPassword,
 	})
 	if err != nil {
-		ctx.AbortWithStatus(http.StatusBadRequest)
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	if err := h.svc.ChangePassword(ctx, identity, request.NewPassword, request.ConfirmPassword); err != nil {
-		ctx.AbortWithStatus(http.StatusBadRequest)
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
