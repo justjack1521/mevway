@@ -75,13 +75,13 @@ func (h *PatchHandler) List(ctx *gin.Context) {
 	var limit = 5
 
 	if o != "" {
-		if v, err := strconv.Atoi(o); err != nil {
+		if v, err := strconv.Atoi(o); err == nil {
 			offset = v
 		}
 	}
 
 	if l != "" {
-		if v, err := strconv.Atoi(l); err != nil {
+		if v, err := strconv.Atoi(l); err == nil {
 			limit = v
 		}
 	}
