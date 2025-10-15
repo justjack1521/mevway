@@ -8,6 +8,7 @@ import (
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -47,20 +48,25 @@ type Connection struct {
 	*websocket.Conn
 	send   chan []byte
 	mu     sync.Mutex
-	closed bool
+	closed atomic.Bool
 }
 
 func (c *Connection) Close() {
 
+	if c.closed.Swap(true) {
+		return
+	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if c.closed == false {
-		close(c.send)
-		c.Conn.Close()
-		c.closed = true
-	}
+	close(c.send)
+	c.Conn.Close()
 
+}
+
+func (c *Connection) IsClosed() bool {
+	return c.closed.Load()
 }
 
 type Client struct {
@@ -79,7 +85,7 @@ func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketSer
 		client: client,
 		connection: &Connection{
 			Conn: conn,
-			send: make(chan []byte),
+			send: make(chan []byte, 16),
 		},
 		server:       server,
 		router:       router,
@@ -90,12 +96,19 @@ func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketSer
 }
 
 func (c *Client) Terminate(reason socket.ClosureReason) {
+	if c.connection.IsClosed() {
+		return
+	}
 	c.closureReason = reason
 	c.server.Unregister(c.client)
 	c.connection.Close()
 }
 
 func (c *Client) Close(reason socket.ClosureReason) {
+
+	if c.connection.IsClosed() {
+		return
+	}
 
 	defer c.Terminate(reason)
 
@@ -112,11 +125,12 @@ func (c *Client) Close(reason socket.ClosureReason) {
 }
 
 func (c *Client) Notify(data []byte) {
+	if c.connection.IsClosed() {
+		return
+	}
 	select {
 	case c.connection.send <- data:
-		return
 	default:
-		return
 	}
 }
 
@@ -206,9 +220,16 @@ func (c *Client) Write() {
 
 	for {
 
+		if c.connection.IsClosed() {
+			return
+		}
+
 		select {
 
 		case <-ticker.C:
+			if c.connection.IsClosed() {
+				return
+			}
 			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
@@ -216,11 +237,16 @@ func (c *Client) Write() {
 
 		case message, ok := <-c.connection.send:
 
-			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
 			if ok == false {
 				c.connection.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
+
+			if c.connection.IsClosed() {
+				return
+			}
+
+			c.connection.SetWriteDeadline(time.Now().Add(writeWait))
 
 			_, txn := c.instrumenter.Start(context.Background(), "socket/write")
 			txn.AddAttribute("user.id", c.client.UserID.String())

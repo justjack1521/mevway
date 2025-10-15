@@ -9,6 +9,9 @@ const (
 	ClosureReasonReadStop   = 1
 	ClosureReasonWriteStop  = 2
 	ClosureReasonServerStop = 3
+	ClosureReasonInactivity = 4
+	ClosureReasonTakeover   = 5
+	ClosureReasonRejected   = 5
 )
 
 type Client struct {

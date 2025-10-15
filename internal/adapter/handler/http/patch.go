@@ -6,6 +6,7 @@ import (
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/port"
 	"net/http"
+	"strconv"
 )
 
 type PatchHandler struct {
@@ -67,7 +68,25 @@ func (h *PatchHandler) Allow(ctx *gin.Context) {
 
 func (h *PatchHandler) List(ctx *gin.Context) {
 
-	list, err := h.svc.ListPatches(ctx, uuid.Nil, 5)
+	var o = ctx.Param("offset")
+	var l = ctx.Param("limit")
+
+	var offset = 0
+	var limit = 5
+
+	if o != "" {
+		if v, err := strconv.Atoi(o); err != nil {
+			offset = v
+		}
+	}
+
+	if l != "" {
+		if v, err := strconv.Atoi(l); err != nil {
+			limit = v
+		}
+	}
+
+	list, err := h.svc.ListPatches(ctx, uuid.Nil, offset, limit)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -75,41 +94,4 @@ func (h *PatchHandler) List(ctx *gin.Context) {
 
 	ctx.JSON(200, resources.NewPatchListResponse(list))
 
-}
-
-func (h *PatchHandler) Issues(ctx *gin.Context) {
-
-	list, err := h.svc.ListOpenIssues(ctx, uuid.Nil)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	ctx.JSON(200, resources.NewKnowLIssueListResponse(list))
-
-}
-
-func (h *PatchHandler) Top(ctx *gin.Context) {
-	list, err := h.svc.ListTopIssues(ctx)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	ctx.JSON(200, resources.NewIssueListResponse(list))
-}
-
-func (h *PatchHandler) Get(ctx *gin.Context) {
-	id, err := uuid.FromString(ctx.Param("id"))
-	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-	list, err := h.svc.GetIssue(ctx, id)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	ctx.JSON(200, resources.NewIssue(list))
 }

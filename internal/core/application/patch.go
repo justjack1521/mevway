@@ -7,6 +7,10 @@ import (
 	"mevway/internal/core/port"
 )
 
+const (
+	maxListLimit = 10
+)
+
 type PatchService struct {
 	repository port.PatchRepository
 }
@@ -19,22 +23,19 @@ func (s *PatchService) GetCurrentPatch(ctx context.Context, application string, 
 	return s.repository.GetLatestPatch(ctx, application, environment)
 }
 
-func (s *PatchService) ListPatches(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {
-	return s.repository.GetPatchList(ctx, environment, limit)
+func (s *PatchService) ListPatches(ctx context.Context, environment uuid.UUID, offset, limit int) ([]patch.Patch, error) {
+
+	if limit < 0 || limit > maxListLimit {
+		limit = maxListLimit
+	}
+
+	if offset < 0 {
+		offset = 0
+	}
+
+	return s.repository.GetPatchList(ctx, environment, offset, limit)
 }
 
 func (s *PatchService) ListAllowPatches(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error) {
 	return s.repository.GetAllowedPatchList(ctx, application, environment)
-}
-
-func (s *PatchService) ListOpenIssues(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error) {
-	return s.repository.GetOpenIssuesList(ctx, environment)
-}
-
-func (s *PatchService) ListTopIssues(ctx context.Context) ([]patch.Issue, error) {
-	return s.repository.GetTopLevelIssueList(ctx)
-}
-
-func (s *PatchService) GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error) {
-	return s.repository.GetIssue(ctx, id)
 }

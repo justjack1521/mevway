@@ -96,6 +96,7 @@ func main() {
 	var userRepository = keycloak.NewUserClient(keyCloakClient, cloak)
 	var tokenRepository = keycloak.NewTokenClient(keyCloakClient, cloak, slogger)
 	var patchRepository = database.NewPatchRepository(db)
+	var issueRepository = database.NewIssueRepository(db)
 	var contactRepository = database.NewContactRepository(db)
 	var clientRepository = memory.NewClientRepository(rds)
 	var socialRepository = external.NewSocialPlayerRepository(social)
@@ -122,6 +123,7 @@ func main() {
 	var authService = application.NewAuthenticationService(events, tokenRepository)
 	var userService = application.NewUserService(events, userRepository)
 	var patchService = application.NewPatchService(patchRepository)
+	var issueService = application.NewIssueService(issueRepository)
 	var progressService = application.NewProgressService(progressRepository)
 	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
 	var rankService = application.NewRankQueryService(rankRepository)
@@ -134,6 +136,7 @@ func main() {
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
 	var userHandler = http.NewUserHandler(userService, authService)
 	var patchHandler = http.NewPatchHandler(patchService)
+	var issueHandler = http.NewIssueHandler(issueService)
 	var progressHandler = http.NewFeatureHandler(progressService)
 	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
 	var searchHandler = http.NewSearchHandler(searchService)
@@ -159,7 +162,21 @@ func main() {
 
 	events.Notify(application.NewStartEvent(ctx))
 
-	router, err := http.NewRouter(authHandler, userHandler, statusHandler, patchHandler, progressHandler, socketHandler, searchHandler, adminHandler, modelHandler, contactHandler, rankHandler, loggerMiddleware.Handle, relicMiddleware.Handle, patchMiddleware.Handle)
+	router, err := http.NewRouter(
+		authHandler,
+		userHandler,
+		statusHandler,
+		patchHandler,
+		issueHandler,
+		progressHandler,
+		socketHandler,
+		searchHandler,
+		adminHandler,
+		modelHandler,
+		contactHandler,
+		rankHandler,
+		loggerMiddleware.Handle, relicMiddleware.Handle, patchMiddleware.Handle,
+	)
 	if err := router.Serve(":8080"); err != nil {
 		events.Notify(application.NewShutdownEvent(ctx))
 		for _, consumer := range consumers {

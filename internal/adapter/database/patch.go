@@ -17,12 +17,14 @@ func NewPatchRepository(db *gorm.DB) *PatchRepository {
 	return &PatchRepository{database: db}
 }
 
-func (r *PatchRepository) GetPatchList(ctx context.Context, environment uuid.UUID, limit int) ([]patch.Patch, error) {
+func (r *PatchRepository) GetPatchList(ctx context.Context, environment uuid.UUID, offset, limit int) ([]patch.Patch, error) {
+
 	var cond = &dto.PatchGorm{
 		Released: true,
 	}
+
 	var res []dto.PatchGorm
-	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Limit(limit).Order("release_date DESC").Find(&res, cond).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).Offset(offset).Limit(limit).Order("release_date DESC").Find(&res, cond).Error; err != nil {
 		return nil, err
 	}
 
@@ -67,55 +69,5 @@ func (r *PatchRepository) GetAllowedPatchList(ctx context.Context, application s
 		dest[i] = v.ToEntity()
 	}
 	return dest, nil
-
-}
-
-func (r *PatchRepository) GetOpenIssuesList(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error) {
-
-	var results []dto.KnownIssueGorm
-	if err := r.database.WithContext(ctx).Table("system.known_issues AS issue").
-		Select("issue.*").
-		Joins("LEFT JOIN system.patch AS patch ON issue.fixed_by = patch.sys_id").
-		Where("issue.fixed_by IS NULL OR patch.released = false").
-		Find(&results).Error; err != nil {
-		return nil, err
-	}
-
-	var dest = make([]patch.KnownIssue, len(results))
-	for index, value := range results {
-		dest[index] = value.ToEntity()
-	}
-
-	return dest, nil
-
-}
-
-func (r *PatchRepository) GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error) {
-
-	var cond = &dto.IssueGorm{SysID: id}
-	var res = &dto.IssueGorm{}
-
-	if err := r.database.WithContext(ctx).Model(cond).First(res, cond).Error; err != nil {
-		return patch.Issue{}, err
-	}
-
-	return res.ToEntity(), nil
-
-}
-
-func (r *PatchRepository) GetTopLevelIssueList(ctx context.Context) ([]patch.Issue, error) {
-
-	var res []dto.IssueGorm
-
-	if err := r.database.WithContext(ctx).Model(&dto.IssueGorm{}).Not("state IN ?", patch.ClosedStates).Where("category = ?", int(patch.IssueCategoryGame)).Order("number DESC").Find(&res).Error; err != nil {
-		return nil, err
-	}
-
-	var results = make([]patch.Issue, len(res))
-	for index, value := range res {
-		results[index] = value.ToEntity()
-	}
-
-	return results, nil
 
 }

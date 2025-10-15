@@ -109,3 +109,72 @@ func (e ServerReapEvent) ToSlogFields() []slog.Attr {
 		slog.Int("reap.count", e.count),
 	}
 }
+
+type ConnectionTerminateEvent struct {
+	ctx  context.Context
+	user uuid.UUID
+}
+
+func NewConnectionTerminateEvent(ctx context.Context, user uuid.UUID) ConnectionTerminateEvent {
+	return ConnectionTerminateEvent{
+		ctx:  ctx,
+		user: user,
+	}
+}
+
+func (e ConnectionTerminateEvent) Name() string {
+	return "event.connection.terminate"
+}
+
+func (e ConnectionTerminateEvent) ToSlogFields() []slog.Attr {
+	return []slog.Attr{
+		slog.String("user.id", e.user.String()),
+	}
+}
+
+func (e ConnectionTerminateEvent) Context() context.Context {
+	return e.ctx
+}
+
+func (e ConnectionTerminateEvent) UserID() uuid.UUID {
+	return e.user
+}
+
+type SuspiciousConnectionEvent struct {
+	ctx      context.Context
+	user     uuid.UUID
+	existing uuid.UUID
+	attempt  uuid.UUID
+}
+
+func NewSuspiciousConnectionEvent(ctx context.Context, user, existing, attempt uuid.UUID) SuspiciousConnectionEvent {
+	return SuspiciousConnectionEvent{ctx: ctx, user: user, existing: existing, attempt: attempt}
+}
+
+func (e SuspiciousConnectionEvent) Name() string {
+	return "event.connection.suspicious"
+}
+
+func (e SuspiciousConnectionEvent) ToSlogFields() []slog.Attr {
+	return []slog.Attr{
+		slog.String("user.id", e.user.String()),
+		slog.String("existing.id", e.existing.String()),
+		slog.String("attempted.id", e.attempt.String()),
+	}
+}
+
+func (e SuspiciousConnectionEvent) Context() context.Context {
+	return e.ctx
+}
+
+func (e SuspiciousConnectionEvent) UserID() uuid.UUID {
+	return e.user
+}
+
+func (e SuspiciousConnectionEvent) ExistingSessionID() uuid.UUID {
+	return e.existing
+}
+
+func (e SuspiciousConnectionEvent) NewSessionID() uuid.UUID {
+	return e.attempt
+}
