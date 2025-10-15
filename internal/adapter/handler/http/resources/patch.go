@@ -34,10 +34,11 @@ func NewKnownIssue(p patch.KnownIssue) KnownIssue {
 
 type PatchListResponse struct {
 	Patches []Patch `json:"Patches"`
+	Total   int     `json:"Total"`
 }
 
-func NewPatchListResponse(p []patch.Patch) PatchListResponse {
-	var response = PatchListResponse{Patches: make([]Patch, len(p))}
+func NewPatchListResponse(p []patch.Patch, c int) PatchListResponse {
+	var response = PatchListResponse{Patches: make([]Patch, len(p)), Total: c}
 	for index, value := range p {
 		response.Patches[index] = NewPatchResponse(value)
 	}

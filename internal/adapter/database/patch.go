@@ -17,10 +17,30 @@ func NewPatchRepository(db *gorm.DB) *PatchRepository {
 	return &PatchRepository{database: db}
 }
 
+func (r *PatchRepository) GetPatchListCount(ctx context.Context) (int, error) {
+
+	var cond = &dto.PatchGorm{
+		Released:    true,
+		Show:        true,
+		Application: "game",
+	}
+
+	var count int64
+
+	if err := r.database.WithContext(ctx).Model(cond).Where(count).Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
+
+}
+
 func (r *PatchRepository) GetPatchList(ctx context.Context, environment uuid.UUID, offset, limit int) ([]patch.Patch, error) {
 
 	var cond = &dto.PatchGorm{
-		Released: true,
+		Released:    true,
+		Show:        true,
+		Application: "game",
 	}
 
 	var res []dto.PatchGorm

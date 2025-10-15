@@ -92,6 +92,12 @@ func (h *PatchHandler) List(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, resources.NewPatchListResponse(list))
+	count, err := h.svc.ListPatchCount(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(200, resources.NewPatchListResponse(list, count))
 
 }

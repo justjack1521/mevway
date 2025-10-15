@@ -36,6 +36,10 @@ func (s *PatchService) ListPatches(ctx context.Context, environment uuid.UUID, o
 	return s.repository.GetPatchList(ctx, environment, offset, limit)
 }
 
+func (s *PatchService) ListPatchCount(ctx context.Context) (int, error) {
+	return s.repository.GetPatchListCount(ctx)
+}
+
 func (s *PatchService) ListAllowPatches(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error) {
 	return s.repository.GetAllowedPatchList(ctx, application, environment)
 }

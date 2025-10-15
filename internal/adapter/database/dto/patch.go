@@ -48,6 +48,7 @@ type PatchGorm struct {
 	Description string             `gorm:"column:description"`
 	Released    bool               `gorm:"column:released"`
 	Allowed     bool               `gorm:"column:allowed"`
+	Show        bool               `gorm:"column:show"`
 	Features    []*GameFeatureGorm `gorm:"foreignKey:ReleasedBy"`
 	Fixes       []*KnownIssueGorm  `gorm:"foreignKey:FixedBy"`
 }
