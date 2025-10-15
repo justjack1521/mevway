@@ -68,8 +68,8 @@ func (h *PatchHandler) Allow(ctx *gin.Context) {
 
 func (h *PatchHandler) List(ctx *gin.Context) {
 
-	var o = ctx.Param("offset")
-	var l = ctx.Param("limit")
+	var o = ctx.Query("offset")
+	var l = ctx.Query("limit")
 
 	var offset = 0
 	var limit = 5
