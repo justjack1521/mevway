@@ -27,7 +27,7 @@ func (r *PatchRepository) GetPatchListCount(ctx context.Context) (int, error) {
 
 	var count int64
 
-	if err := r.database.WithContext(ctx).Model(cond).Where(count).Count(&count).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(cond).Where(cond).Count(&count).Error; err != nil {
 		return 0, err
 	}
 
