@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	errLoginFailed             = errors.New("login failed")
 	errPasswordConfirmMismatch = errors.New("passwords do not match")
 )
 
@@ -30,7 +31,7 @@ func (s *AuthenticationService) Login(ctx context.Context, target user.User) (au
 
 	login, err := s.tokens.CreateToken(ctx, target)
 	if err != nil {
-		return auth.LoginResult{}, err
+		return auth.LoginResult{}, errLoginFailed
 	}
 	return login, nil
 }

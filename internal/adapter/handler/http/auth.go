@@ -31,7 +31,7 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 	var request = &resources.UserLoginRequest{}
 
 	if err := ctx.BindJSON(request); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		RespondWithError(ctx, resources.ErrInvalidRequestResponse)
 		return
 	}
 
@@ -39,8 +39,12 @@ func (h *AuthenticationHandler) Login(ctx *gin.Context) {
 		Identity: user.Identity{Username: request.Username},
 		Password: request.Password,
 	})
+
 	if err != nil {
-		ctx.AbortWithError(http.StatusUnauthorized, err)
+		RespondWithError(ctx, resources.ErrorResponse{
+			Code:    http.StatusUnauthorized,
+			Message: err.Error(),
+		})
 		return
 	}
 
