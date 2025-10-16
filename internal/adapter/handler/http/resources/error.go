@@ -11,7 +11,6 @@ var (
 
 type ErrorResponse struct {
 	Code    int    `json:"Code"`
-	Slug    string `json:"Slug"`
 	Message string `json:"Message"`
 }
 
