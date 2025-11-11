@@ -45,19 +45,19 @@ func NewRouter(
 			validateGroup.POST("/item", modelHandler.ValidateBaseItem)
 			validateGroup.POST("/ability_card", modelHandler.ValidateAbilityCard)
 		}
-		var gameGroup = privateGroup.Group("/game")
-		{
-			gameGroup.POST("/item/grant", adminHandler.GrantItem)
-			gameGroup.POST("/job", adminHandler.CreateBaseJob)
-			gameGroup.POST("/job/panel", adminHandler.CreateSkillPanel)
-			gameGroup.POST("/card/augment", adminHandler.CreateAugmentMaterials)
-		}
-		var userGroup = privateGroup.Group("/user")
-		{
-			userGroup.GET("/list", userHandler.List)
-			userGroup.POST("/ban")
-			userGroup.POST("/delete", userHandler.Delete)
-		}
+		//var gameGroup = privateGroup.Group("/game")
+		//{
+		//	gameGroup.POST("/item/grant", adminHandler.GrantItem)
+		//	gameGroup.POST("/job", adminHandler.CreateBaseJob)
+		//	gameGroup.POST("/job/panel", adminHandler.CreateSkillPanel)
+		//	gameGroup.POST("/card/augment", adminHandler.CreateAugmentMaterials)
+		//}
+		//var userGroup = privateGroup.Group("/user")
+		//{
+		//	userGroup.GET("/list", userHandler.List)
+		//	userGroup.POST("/ban")
+		//	userGroup.POST("/delete", userHandler.Delete)
+		//}
 	}
 
 	var publicGroup = router.Group("/public")

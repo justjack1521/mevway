@@ -80,6 +80,8 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 		return
 	}
 
+	ctx.Set(middleware.UserIDContextKey, result.ID)
+
 	ctx.JSON(200, resources.UserRegisterResponse{SysUser: result.ID})
 
 }
