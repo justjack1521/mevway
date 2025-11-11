@@ -124,31 +124,31 @@ func (s *SocketServer) HandleRegister(c *SocketClient) {
 
 	userID := c.client.UserID
 
-	if session, exists := s.sessionRegister[userID]; exists {
-
-		if c.client.Session == session {
-
-			if client, ok := s.userRegister[userID]; ok {
-				if notifier, found := s.clientRegister[client]; found {
-					go notifier.Close(socket.ClosureReasonTakeover)
-					delete(s.clientRegister, client)
-				}
-			}
-
-		} else {
-
-			s.publisher.Notify(socket.NewSuspiciousConnectionEvent(
-				context.Background(),
-				userID,
-				session,
-				c.client.Session,
-			))
-
-			go c.notifier.Close(socket.ClosureReasonRejected)
-			return
-
-		}
-	}
+	//if session, exists := s.sessionRegister[userID]; exists {
+	//
+	//	if c.client.Session == session {
+	//
+	//		if client, ok := s.userRegister[userID]; ok {
+	//			if notifier, found := s.clientRegister[client]; found {
+	//				go notifier.Close(socket.ClosureReasonTakeover)
+	//				delete(s.clientRegister, client)
+	//			}
+	//		}
+	//
+	//	} else {
+	//
+	//		s.publisher.Notify(socket.NewSuspiciousConnectionEvent(
+	//			context.Background(),
+	//			userID,
+	//			session,
+	//			c.client.Session,
+	//		))
+	//
+	//		go c.notifier.Close(socket.ClosureReasonRejected)
+	//		return
+	//
+	//	}
+	//}
 
 	s.clientRegister[c.client] = c.notifier
 	s.userRegister[userID] = c.client
