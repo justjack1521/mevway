@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/application"
@@ -59,11 +60,11 @@ func (h *SocketHandler) Join(ctx *gin.Context) {
 		return
 	}
 
-	session, err := middleware.SessionIDFromContext(ctx)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+	//session, err := middleware.SessionIDFromContext(ctx)
+	//if err != nil {
+	//	ctx.AbortWithError(http.StatusInternalServerError, err)
+	//	return
+	//}
 
 	user, err := middleware.UserIDFromContext(ctx)
 	if err != nil {
@@ -83,7 +84,7 @@ func (h *SocketHandler) Join(ctx *gin.Context) {
 		return
 	}
 
-	var c = socket.NewClient(session, user, player)
+	var c = socket.NewClient(uuid.NewV4(), user, player)
 	c.PatchID = patch
 
 	client, err := h.factory.Create(ctx, c, conn)
