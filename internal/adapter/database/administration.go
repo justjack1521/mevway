@@ -17,7 +17,7 @@ func NewAdministrationRepository(database *gorm.DB) *AdministrationRepository {
 
 func (r *AdministrationRepository) IPAddressBlacklisted(ctx context.Context, ip net.IP) (bool, error) {
 	var count int64
-	if err := r.database.WithContext(ctx).Model(&dto.IPAddressBlacklistGorm{}).Where("ip_range >>= ?::inet", ip.String()).Count(&count).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(&dto.IPAddressBlacklistGorm{}).Where("ip_range = ?::inet", ip.String()).Count(&count).Error; err != nil {
 		return false, err
 	}
 	return count > 0, nil
