@@ -60,6 +60,7 @@ func (s *StatusService) Status(ctx context.Context, addresses []net.IP) error {
 	}
 
 	for _, address := range addresses {
+
 		blacklisted, err := s.AdministrationRepository.IPAddressBlacklisted(ctx, address)
 		if err != nil {
 			return err
@@ -67,6 +68,7 @@ func (s *StatusService) Status(ctx context.Context, addresses []net.IP) error {
 		if blacklisted {
 			return errServerMaintenance
 		}
+
 	}
 
 	return errServerMaintenance
