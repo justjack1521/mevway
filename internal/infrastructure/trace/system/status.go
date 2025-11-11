@@ -26,6 +26,17 @@ func NewStatusService(admin port.AdministrationRepository) *StatusService {
 
 func (s *StatusService) Status(ctx context.Context, addresses []net.IP) error {
 
+	for _, address := range addresses {
+		fmt.Println(fmt.Sprintf("Check against %s", addresses))
+		blacklisted, err := s.AdministrationRepository.IPAddressBlacklisted(ctx, address)
+		if err != nil {
+			return err
+		}
+		if blacklisted {
+			return errServerMaintenance
+		}
+	}
+
 	if os.Getenv("MAINT_MODE") != "true" {
 		return nil
 	}
@@ -57,18 +68,6 @@ func (s *StatusService) Status(ctx context.Context, addresses []net.IP) error {
 				return nil
 			}
 		}
-	}
-
-	for _, address := range addresses {
-
-		blacklisted, err := s.AdministrationRepository.IPAddressBlacklisted(ctx, address)
-		if err != nil {
-			return err
-		}
-		if blacklisted {
-			return errServerMaintenance
-		}
-
 	}
 
 	return errServerMaintenance
