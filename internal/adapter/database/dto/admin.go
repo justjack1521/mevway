@@ -2,7 +2,7 @@ package dto
 
 type IPAddressBlacklistGorm struct {
 	ID      uint   `gorm:"column:id;primaryKey;autoIncrement"`
-	IPRange string `gorm:"column:ip_range;type:inet"`
+	IPRange string `gorm:"column:ip_range"`
 }
 
 func (IPAddressBlacklistGorm) TableName() string {
