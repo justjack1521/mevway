@@ -20,6 +20,7 @@ func (m *LoggingMiddleware) Handle(ctx *gin.Context) {
 			slog.String("uri", ctx.Request.RequestURI),
 			slog.String("method", ctx.Request.Method),
 			slog.String("addr", ctx.Request.RemoteAddr),
+			slog.String("client.ip", IPFromContext(ctx).String()),
 		),
 	)
 

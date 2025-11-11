@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"github.com/justjack1521/mevium/pkg/mevent"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
 	"sync"
@@ -20,11 +21,14 @@ type SocketClient struct {
 }
 
 type SocketServer struct {
-	clients map[socket.Client]port.Client
+	clientRegister  map[socket.Client]port.Client
+	userRegister    map[uuid.UUID]socket.Client
+	sessionRegister map[uuid.UUID]uuid.UUID
 
 	register   chan *SocketClient
 	unregister chan socket.Client
 	notify     chan socket.Message
+	terminate  chan uuid.UUID
 
 	publisher *mevent.Publisher
 
@@ -33,11 +37,14 @@ type SocketServer struct {
 
 func NewSocketServer(publisher *mevent.Publisher) *SocketServer {
 	return &SocketServer{
-		publisher:  publisher,
-		clients:    make(map[socket.Client]port.Client),
-		register:   make(chan *SocketClient),
-		unregister: make(chan socket.Client),
-		notify:     make(chan socket.Message),
+		publisher:       publisher,
+		clientRegister:  make(map[socket.Client]port.Client),
+		userRegister:    make(map[uuid.UUID]socket.Client),
+		sessionRegister: make(map[uuid.UUID]uuid.UUID),
+		register:        make(chan *SocketClient),
+		unregister:      make(chan socket.Client),
+		terminate:       make(chan uuid.UUID),
+		notify:          make(chan socket.Message),
 	}
 }
 
@@ -47,7 +54,8 @@ func (s *SocketServer) Start() {
 }
 
 func (s *SocketServer) reap() {
-	ticker := time.NewTicker(ReapTickerInterval)
+
+	var ticker = time.NewTicker(ReapTickerInterval)
 	defer ticker.Stop()
 
 	for range ticker.C {
@@ -55,17 +63,21 @@ func (s *SocketServer) reap() {
 		var inactive = make([]port.Client, 0)
 		s.mu.Lock()
 		var now = time.Now().UTC()
-		for _, value := range s.clients {
+
+		for _, value := range s.clientRegister {
 			if now.Sub(value.LastMessage()) > ReapDuration {
 				inactive = append(inactive, value)
 			}
 		}
+
 		s.mu.Unlock()
 
-		s.publisher.Notify(socket.NewServerReapEvent(len(inactive)))
+		if len(inactive) > 0 {
+			s.publisher.Notify(socket.NewServerReapEvent(len(inactive)))
+		}
 
 		for _, client := range inactive {
-			client.Terminate(socket.ClosureReasonServerStop)
+			client.Terminate(socket.ClosureReasonInactivity)
 		}
 
 	}
@@ -76,46 +88,119 @@ func (s *SocketServer) run() {
 	for {
 		select {
 		case c := <-s.register:
-			s.mu.Lock()
-			s.clients[c.client] = c.notifier
-			s.publisher.Notify(socket.NewClientConnectedEvent(context.Background(), c.client.Session, c.client.UserID, c.client.PlayerID, c.client.PatchID))
-			s.mu.Unlock()
+			s.HandleRegister(c)
 		case c := <-s.unregister:
-			s.mu.Lock()
-			if value, ok := s.clients[c]; ok {
-				s.publisher.Notify(socket.NewClientDisconnectedEvent(context.Background(), c.Session, c.UserID, c.PlayerID, value.ClosureReason()))
-				delete(s.clients, c)
-			}
-			s.mu.Unlock()
+			s.HandleUnregister(c)
+		case c := <-s.terminate:
+			s.HandleTerminate(c)
 		case n := <-s.notify:
-			s.mu.RLock()
-			for client := range s.clients {
-				if client.PlayerID == n.PlayerID {
-					s.clients[client].Notify(n.Data)
-					break
+			s.HandleNotify(n)
+		}
+	}
+}
+
+func (s *SocketServer) HandleTerminate(id uuid.UUID) {
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if client, ok := s.userRegister[id]; ok {
+		if notifier, found := s.clientRegister[client]; found {
+			go notifier.Close(socket.ClosureReasonServerStop)
+			delete(s.clientRegister, client)
+			delete(s.userRegister, id)
+		}
+	}
+
+	delete(s.sessionRegister, id)
+
+	s.publisher.Notify(socket.NewConnectionTerminateEvent(context.Background(), id))
+
+}
+
+func (s *SocketServer) HandleRegister(c *SocketClient) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	userID := c.client.UserID
+
+	if session, exists := s.sessionRegister[userID]; exists {
+
+		if c.client.Session == session {
+
+			if client, ok := s.userRegister[userID]; ok {
+				if notifier, found := s.clientRegister[client]; found {
+					go notifier.Close(socket.ClosureReasonTakeover)
+					delete(s.clientRegister, client)
 				}
 			}
-			s.mu.RUnlock()
+
+		} else {
+
+			s.publisher.Notify(socket.NewSuspiciousConnectionEvent(
+				context.Background(),
+				userID,
+				session,
+				c.client.Session,
+			))
+
+			go c.notifier.Close(socket.ClosureReasonRejected)
+			return
+
+		}
+	}
+
+	s.clientRegister[c.client] = c.notifier
+	s.userRegister[userID] = c.client
+	s.sessionRegister[userID] = c.client.Session
+
+	s.publisher.Notify(socket.NewClientConnectedEvent(
+		context.Background(),
+		c.client.Session,
+		c.client.UserID,
+		c.client.PlayerID,
+		c.client.PatchID,
+	))
+
+}
+
+func (s *SocketServer) HandleUnregister(c socket.Client) {
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if value, ok := s.clientRegister[c]; ok {
+		s.publisher.Notify(socket.NewClientDisconnectedEvent(
+			context.Background(),
+			c.Session,
+			c.UserID,
+			c.PlayerID,
+			value.ClosureReason(),
+		))
+
+		delete(s.clientRegister, c)
+
+		if current, exists := s.userRegister[c.UserID]; exists && current.Session == c.Session {
+			delete(s.userRegister, c.UserID)
+		}
+
+	}
+
+}
+
+func (s *SocketServer) HandleNotify(n socket.Message) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for client := range s.clientRegister {
+		if client.PlayerID == n.PlayerID {
+			s.clientRegister[client].Notify(n.Data)
+			break
 		}
 	}
 }
 
 func (s *SocketServer) Register(client socket.Client, notifier port.Client) error {
-
-	//s.mu.Lock()
-	//
-	//var connected = false
-	//for key := range s.clients {
-	//	if key.UserID == client.UserID {
-	//		connected = true
-	//		break
-	//	}
-	//}
-	//s.mu.Unlock()
-
-	//if connected {
-	//	return errors.New("only one session is allowed per user")
-	//}
 
 	select {
 	case s.register <- &SocketClient{client: client, notifier: notifier}:
@@ -134,6 +219,13 @@ func (s *SocketServer) Unregister(client socket.Client) {
 	}
 }
 
+func (s *SocketServer) Terminate(id uuid.UUID) {
+	select {
+	case s.terminate <- id:
+	default:
+	}
+}
+
 func (s *SocketServer) Notify(ctx context.Context, message socket.Message) {
 	select {
 	case s.notify <- message:
@@ -141,4 +233,12 @@ func (s *SocketServer) Notify(ctx context.Context, message socket.Message) {
 	default:
 		return
 	}
+}
+
+func (s *SocketServer) IsUserConnected(id uuid.UUID) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	_, exists := s.userRegister[id]
+	return exists
 }

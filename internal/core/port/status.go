@@ -1,9 +1,10 @@
 package port
 
 import (
+	"context"
 	"net"
 )
 
 type SystemStatusService interface {
-	Status(address []net.IP) error
+	Status(ctx context.Context, address []net.IP) error
 }

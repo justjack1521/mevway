@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/application"
+	"net"
+	"strings"
 )
 
 const (
@@ -24,6 +26,21 @@ var (
 		return fmt.Errorf("context missing role %s", role)
 	}
 )
+
+func IPFromContext(ctx *gin.Context) net.IP {
+	var forward = ctx.GetHeader("X-Forwarded-For")
+
+	var ip net.IP
+	if forward != "" {
+		parts := strings.Split(forward, ",")
+		ip = net.ParseIP(strings.TrimSpace(parts[0]))
+	} else {
+		ip = net.ParseIP(ctx.ClientIP())
+	}
+
+	return ip
+
+}
 
 func RoleFromContext(ctx *gin.Context, role string) error {
 	var values = ctx.GetStringSlice(UserRoleContextKey)

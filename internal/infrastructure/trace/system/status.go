@@ -1,8 +1,10 @@
 package system
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"mevway/internal/core/port"
 	"net"
 	"os"
 	"strings"
@@ -13,13 +15,16 @@ var (
 )
 
 type StatusService struct {
+	AdministrationRepository port.AdministrationRepository
 }
 
-func NewStatusService() *StatusService {
-	return &StatusService{}
+func NewStatusService(admin port.AdministrationRepository) *StatusService {
+	return &StatusService{
+		AdministrationRepository: admin,
+	}
 }
 
-func (s *StatusService) Status(addresses []net.IP) error {
+func (s *StatusService) Status(ctx context.Context, addresses []net.IP) error {
 
 	if os.Getenv("MAINT_MODE") != "true" {
 		return nil
@@ -45,11 +50,22 @@ func (s *StatusService) Status(addresses []net.IP) error {
 	}
 
 	for _, value := range ips {
+
 		for _, address := range addresses {
 			fmt.Println(fmt.Sprintf("Check %s against %s", value, addresses))
 			if value.Equal(address) {
 				return nil
 			}
+		}
+	}
+
+	for _, address := range addresses {
+		blacklisted, err := s.AdministrationRepository.IPAddressBlacklisted(ctx, address)
+		if err != nil {
+			return err
+		}
+		if blacklisted {
+			return errServerMaintenance
 		}
 	}
 

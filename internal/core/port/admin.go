@@ -4,6 +4,7 @@ import (
 	"context"
 	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/game"
+	"net"
 )
 
 type GameAdminService interface {
@@ -16,4 +17,8 @@ type GameAdminService interface {
 type GameValidationService interface {
 	ValidateAbilityCard(ctx context.Context, model game.AbilityCard) error
 	ValidateBaseItem(ctx context.Context, model game.BaseItem) error
+}
+
+type AdministrationRepository interface {
+	IPAddressBlacklisted(ctx context.Context, ip net.IP) (bool, error)
 }

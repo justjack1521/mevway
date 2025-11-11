@@ -103,6 +103,7 @@ func main() {
 	var requestRepository = memory.NewRequestMemoryRepository(rds)
 	var progressRepository = database.NewProgressRepository(db)
 	var rankRepository = external.NewRankingRepository(rank)
+	var adminRepository = database.NewAdministrationRepository(db)
 
 	var serviceRouter = application.NewServiceRouter(slogger, requestRepository)
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
@@ -119,7 +120,7 @@ func main() {
 	var messageTranslator = translate.NewProtobufSocketMessageTranslator()
 	var socketFactory = web.NewClientFactory(server, serviceRouter, tracer, messageTranslator)
 
-	var statusService = system.NewStatusService()
+	var statusService = system.NewStatusService(adminRepository)
 	var authService = application.NewAuthenticationService(events, tokenRepository)
 	var userService = application.NewUserService(events, userRepository)
 	var patchService = application.NewPatchService(patchRepository)
