@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"gorm.io/gorm"
 	"mevway/internal/adapter/database/dto"
 	"net"
@@ -20,5 +21,7 @@ func (r *AdministrationRepository) IPAddressBlacklisted(ctx context.Context, ip 
 	if err := r.database.WithContext(ctx).Model(&dto.IPAddressBlacklistGorm{}).Where("ip_range = ?", ip.String()).Count(&count).Error; err != nil {
 		return false, err
 	}
+	fmt.Println(fmt.Sprintf("TEST: %s", ip.String()))
+	fmt.Println(fmt.Sprintf("TEST: %v", count > 0))
 	return count > 0, nil
 }
