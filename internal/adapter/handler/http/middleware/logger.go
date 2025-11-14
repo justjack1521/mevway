@@ -35,6 +35,7 @@ func (m *LoggingMiddleware) Handle(ctx *gin.Context) {
 	if user, err := UserIDFromContext(ctx); err == nil {
 		entry = entry.With(slog.String("user.id", user.String()))
 	}
+
 	if player, err := PlayerIDFromContext(ctx); err == nil {
 		entry = entry.With(slog.String("player.id", player.String()))
 	}
