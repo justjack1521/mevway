@@ -11,7 +11,7 @@ require (
 	github.com/justjack1521/mevconn v0.0.0-20240930091432-610652e91304
 	github.com/justjack1521/mevium v0.0.0-20251009133043-1f83732dc250
 	github.com/justjack1521/mevrabbit v0.0.0-20241120034927-1727a709432d
-	github.com/justjack1521/mevrelic v0.0.0-20251114171534-6eae7eb5dd63
+	github.com/justjack1521/mevrelic v0.0.0-20251114174959-41cf07147187
 	github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83
 	github.com/newrelic/go-agent/v3 v3.33.1
 	github.com/newrelic/go-agent/v3/integrations/nrgrpc v1.4.2
