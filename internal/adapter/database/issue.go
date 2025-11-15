@@ -4,6 +4,7 @@ import (
 	"context"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"mevway/internal/adapter/database/dto"
 	"mevway/internal/core/domain/patch"
 )
@@ -41,7 +42,7 @@ func (r *IssueRepository) GetIssue(ctx context.Context, id uuid.UUID) (patch.Iss
 	var cond = &dto.IssueGorm{SysID: id}
 	var res = &dto.IssueGorm{}
 
-	if err := r.database.WithContext(ctx).Model(cond).First(res, cond).Error; err != nil {
+	if err := r.database.WithContext(ctx).Model(cond).Preload(clause.Associations).First(res, cond).Error; err != nil {
 		return patch.Issue{}, err
 	}
 

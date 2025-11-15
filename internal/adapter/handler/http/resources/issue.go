@@ -41,21 +41,39 @@ func NewIssueSummary(p patch.IssueSummary) IssueSummary {
 }
 
 type Issue struct {
+	SysID       uuid.UUID         `json:"SysID"`
+	Number      int               `json:"Number"`
+	Description string            `json:"Description"`
+	Category    int               `json:"Category"`
+	State       int               `json:"State"`
+	CreatedAt   time.Time         `json:"CreatedAt"`
+	Workarounds []IssueWorkaround `json:"Workarounds"`
+}
+
+type IssueWorkaround struct {
 	SysID       uuid.UUID `json:"SysID"`
-	Number      int       `json:"Number"`
 	Description string    `json:"Description"`
-	Category    int       `json:"Category"`
-	State       int       `json:"State"`
-	CreatedAt   time.Time `json:"CreatedAt"`
+}
+
+func NewIssueWorkaround(p patch.IssueWorkaround) IssueWorkaround {
+	return IssueWorkaround{
+		SysID:       p.SysID,
+		Description: p.Description,
+	}
 }
 
 func NewIssue(p patch.Issue) Issue {
-	return Issue{
+	var result = Issue{
 		SysID:       p.SysID,
 		Number:      p.Number,
 		Description: p.Description,
 		Category:    p.Category,
 		State:       p.State,
 		CreatedAt:   p.CreatedAt,
+		Workarounds: make([]IssueWorkaround, len(p.Workarounds)),
 	}
+	for index, value := range p.Workarounds {
+		result.Workarounds[index] = NewIssueWorkaround(value)
+	}
+	return result
 }

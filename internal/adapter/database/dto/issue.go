@@ -7,13 +7,14 @@ import (
 )
 
 type IssueGorm struct {
-	Number      int       `gorm:"column:number"`
-	SysID       uuid.UUID `gorm:"primaryKey;column:sys_id"`
-	Description string    `gorm:"column:description"`
-	Category    int       `gorm:"column:category"`
-	CreatedAt   time.Time `gorm:"column:created_at"`
-	ParentIssue uuid.UUID `gorm:"column:parent_issue"`
-	State       int       `gorm:"column:state"`
+	Number      int                    `gorm:"column:number"`
+	SysID       uuid.UUID              `gorm:"primaryKey;column:sys_id"`
+	Description string                 `gorm:"column:description"`
+	Category    int                    `gorm:"column:category"`
+	CreatedAt   time.Time              `gorm:"column:created_at"`
+	ParentIssue uuid.UUID              `gorm:"column:parent_issue"`
+	State       int                    `gorm:"column:state"`
+	Workarounds []*IssueWorkaroundGorm `gorm:"foreignKey:IssueID"`
 }
 
 func (IssueGorm) TableName() string {
@@ -21,7 +22,7 @@ func (IssueGorm) TableName() string {
 }
 
 func (x *IssueGorm) ToEntity() patch.Issue {
-	return patch.Issue{
+	var result = patch.Issue{
 		Number:      x.Number,
 		SysID:       x.SysID,
 		Description: x.Description,
@@ -29,7 +30,12 @@ func (x *IssueGorm) ToEntity() patch.Issue {
 		Category:    x.Category,
 		ParentIssue: x.ParentIssue,
 		CreatedAt:   x.CreatedAt,
+		Workarounds: make([]patch.IssueWorkaround, len(x.Workarounds)),
 	}
+	for index, value := range x.Workarounds {
+		result.Workarounds[index] = value.ToEntity()
+	}
+	return result
 }
 
 type IssueWorkaroundGorm struct {

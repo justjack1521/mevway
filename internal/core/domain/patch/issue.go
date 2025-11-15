@@ -36,6 +36,7 @@ type Issue struct {
 	Category    int
 	ParentIssue uuid.UUID
 	CreatedAt   time.Time
+	Workarounds []IssueWorkaround
 }
 
 type IssueWorkaround struct {
