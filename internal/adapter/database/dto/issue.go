@@ -39,7 +39,7 @@ type IssueWorkaroundGorm struct {
 }
 
 func (IssueWorkaroundGorm) TableName() string {
-	return "system.workaround"
+	return "system.issue_workaround"
 }
 
 func (x *IssueWorkaroundGorm) ToEntity() patch.IssueWorkaround {
