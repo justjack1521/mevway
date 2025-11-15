@@ -37,3 +37,18 @@ type Issue struct {
 	ParentIssue uuid.UUID
 	CreatedAt   time.Time
 }
+
+type IssueWorkaround struct {
+	SysID       uuid.UUID
+	Description string
+}
+
+type IssueSummary struct {
+	Number        int
+	SysID         uuid.UUID
+	Description   string
+	State         int
+	Category      int
+	CreatedAt     time.Time
+	HasWorkaround bool
+}

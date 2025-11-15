@@ -10,10 +10,11 @@ type IssueRepository interface {
 	GetOpenIssuesList(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error)
 	GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error)
 	GetTopLevelIssueList(ctx context.Context) ([]patch.Issue, error)
+	IssueHasWorkaround(ctx context.Context, id uuid.UUID) (bool, error)
 }
 
 type IssueService interface {
 	ListOpenIssues(ctx context.Context, environment uuid.UUID) ([]patch.KnownIssue, error)
-	ListTopIssues(ctx context.Context) ([]patch.Issue, error)
+	ListTopIssues(ctx context.Context) ([]patch.IssueSummary, error)
 	GetIssue(ctx context.Context, id uuid.UUID) (patch.Issue, error)
 }

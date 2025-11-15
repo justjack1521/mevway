@@ -65,3 +65,11 @@ func (r *IssueRepository) GetTopLevelIssueList(ctx context.Context) ([]patch.Iss
 	return results, nil
 
 }
+
+func (r IssueRepository) IssueHasWorkaround(ctx context.Context, id uuid.UUID) (bool, error) {
+	var count int64 = 0
+	if err := r.database.WithContext(ctx).Model(&dto.IssueWorkaroundGorm{}).Where("issue_id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

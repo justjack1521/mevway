@@ -34,8 +34,7 @@ func (h *IssueHandler) Top(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-
-	ctx.JSON(200, resources.NewIssueListResponse(list))
+	ctx.JSON(200, resources.NewIssueSummaryListResponse(list))
 }
 
 func (h *IssueHandler) Get(ctx *gin.Context) {

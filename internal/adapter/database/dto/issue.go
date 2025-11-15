@@ -31,3 +31,20 @@ func (x *IssueGorm) ToEntity() patch.Issue {
 		CreatedAt:   x.CreatedAt,
 	}
 }
+
+type IssueWorkaroundGorm struct {
+	SysID       uuid.UUID `gorm:"primaryKey;column:sys_id"`
+	IssueID     uuid.UUID `gorm:"column:issue_id"`
+	Description string    `gorm:"column:description"`
+}
+
+func (IssueWorkaroundGorm) TableName() string {
+	return "system.workaround"
+}
+
+func (x *IssueWorkaroundGorm) ToEntity() patch.IssueWorkaround {
+	return patch.IssueWorkaround{
+		SysID:       x.SysID,
+		Description: x.Description,
+	}
+}
