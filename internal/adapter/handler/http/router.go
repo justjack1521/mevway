@@ -1,9 +1,10 @@
 package http
 
 import (
+	"mevway/internal/adapter/handler/http/middleware"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"mevway/internal/adapter/handler/http/middleware"
 )
 
 type Router struct {
@@ -85,6 +86,7 @@ func NewRouter(
 		{
 			patch.GET("/recent", patchHandler.Recent)
 			patch.GET("/list", patchHandler.List)
+			patch.GET("/versions", patchHandler.ListAllVersions)
 			patch.GET("/issues", issueHandler.Issues)
 			patch.GET("/issues/top", issueHandler.Top)
 			patch.GET("/allow", patchHandler.Allow)

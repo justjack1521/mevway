@@ -103,7 +103,7 @@ func (h *PatchHandler) List(ctx *gin.Context) {
 
 }
 
-func (h *PatchHandler) ListAll(ctx *gin.Context) {
+func (h *PatchHandler) ListAllVersions(ctx *gin.Context) {
 
 	list, err := h.svc.ListALlPatchVersions(ctx, ctx.Query("application"))
 	if err != nil {
