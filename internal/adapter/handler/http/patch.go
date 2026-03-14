@@ -1,12 +1,13 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/port"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 type PatchHandler struct {
@@ -99,5 +100,17 @@ func (h *PatchHandler) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(200, resources.NewPatchListResponse(list, count))
+
+}
+
+func (h *PatchHandler) ListAll(ctx *gin.Context) {
+
+	list, err := h.svc.ListALlPatchVersions(ctx, ctx.Query("application"))
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(200, list)
 
 }

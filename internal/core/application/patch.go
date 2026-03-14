@@ -2,9 +2,10 @@ package application
 
 import (
 	"context"
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/patch"
 	"mevway/internal/core/port"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -13,6 +14,10 @@ const (
 
 type PatchService struct {
 	repository port.PatchRepository
+}
+
+func (s *PatchService) ListALlPatchVersions(ctx context.Context, application string) ([]string, error) {
+	return s.repository.GetAllPatchVersionList(ctx, application)
 }
 
 func NewPatchService(repository port.PatchRepository) *PatchService {

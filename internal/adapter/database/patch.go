@@ -2,15 +2,38 @@ package database
 
 import (
 	"context"
+	"mevway/internal/adapter/database/dto"
+	"mevway/internal/core/domain/patch"
+
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"mevway/internal/adapter/database/dto"
-	"mevway/internal/core/domain/patch"
 )
 
 type PatchRepository struct {
 	database *gorm.DB
+}
+
+func (r *PatchRepository) GetAllPatchVersionList(ctx context.Context, application string) ([]string, error) {
+
+	var cond = &dto.PatchGorm{
+		Released:    true,
+		Application: application,
+	}
+
+	var res []dto.PatchGorm
+
+	if err := r.database.WithContext(ctx).Model(cond).Order("release_date DESC").Find(&res, cond).Error; err != nil {
+		return nil, err
+	}
+
+	var dest = make([]string, len(res))
+	for index, value := range res {
+		dest[index] = value.Version
+	}
+
+	return dest, nil
+
 }
 
 func NewPatchRepository(db *gorm.DB) *PatchRepository {

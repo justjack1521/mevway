@@ -2,8 +2,9 @@ package port
 
 import (
 	"context"
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/patch"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type PatchRepository interface {
@@ -11,6 +12,7 @@ type PatchRepository interface {
 	GetPatchListCount(ctx context.Context) (int, error)
 	GetPatchList(ctx context.Context, environment uuid.UUID, offset, limit int) ([]patch.Patch, error)
 	GetAllowedPatchList(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error)
+	GetAllPatchVersionList(ctx context.Context, application string) ([]string, error)
 }
 
 type PatchService interface {
@@ -18,4 +20,5 @@ type PatchService interface {
 	ListPatches(ctx context.Context, environment uuid.UUID, offset, limit int) ([]patch.Patch, error)
 	ListAllowPatches(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error)
 	ListPatchCount(ctx context.Context) (int, error)
+	ListALlPatchVersions(ctx context.Context, application string) ([]string, error)
 }
