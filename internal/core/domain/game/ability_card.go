@@ -14,16 +14,17 @@ type AbilityCard struct {
 }
 
 type BaseCard struct {
-	SysID           uuid.UUID
-	Active          bool
-	Name            string
-	SkillSeedOne    uuid.UUID
-	SkillSeedTwo    uuid.UUID
-	SkillSeedSplit  string
-	SeedFusionBoost int
-	AbilityID       uuid.UUID
-	Category        string
-	FastLearner     bool
+	SysID               uuid.UUID
+	Active              bool
+	Name                string
+	SkillSeedOne        uuid.UUID
+	SkillSeedTwo        uuid.UUID
+	SkillSeedSplit      string
+	SeedFusionBoost     int
+	EXPFusionMultiplier float32
+	AbilityID           uuid.UUID
+	Category            string
+	FastLearner         bool
 }
 
 type AugmentMaterial struct {

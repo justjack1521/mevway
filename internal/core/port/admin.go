@@ -2,9 +2,10 @@ package port
 
 import (
 	"context"
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/game"
 	"net"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type GameAdminService interface {
@@ -12,6 +13,7 @@ type GameAdminService interface {
 	CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error)
 	CreateBaseJob(ctx context.Context, job game.BaseJob) (bool, error)
 	CreateAugmentMaterials(ctx context.Context, id uuid.UUID, materials []game.AugmentMaterial) error
+	CreateBaseCard(ctx context.Context, card game.BaseCard) error
 }
 
 type GameValidationService interface {

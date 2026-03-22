@@ -1,13 +1,14 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/domain/game"
 	"mevway/internal/core/port"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 type AdminHandler struct {
@@ -59,6 +60,53 @@ func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, resources.CreateBaseJobResponse{Created: response})
+
+}
+
+func (h *AdminHandler) CreateBaseCard(ctx *gin.Context) {
+
+	var request = &resources.CreateBaseCardRequest{}
+
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.CreateBaseCardResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.CreateBaseCardResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	var card = game.BaseCard{
+		SysID:               uuid.FromStringOrNil(request.SysID),
+		Active:              request.Active,
+		Name:                request.Name,
+		SkillSeedOne:        uuid.FromStringOrNil(request.SkillSeedOne),
+		SkillSeedTwo:        uuid.FromStringOrNil(request.SkillSeedTwo),
+		SkillSeedSplit:      request.SkillSeedSplit,
+		SeedFusionBoost:     int(request.SeedFusionBoost),
+		EXPFusionMultiplier: request.EXPFusionMultiplier,
+		AbilityID:           uuid.FromStringOrNil(request.AbilityID),
+		Category:            request.Name,
+		FastLearner:         request.FastLearner,
+	}
+
+	if err := h.svc.CreateBaseCard(actx, card); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, resources.CreateBaseCardResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(200, resources.CreateBaseCardResponse{})
 
 }
 

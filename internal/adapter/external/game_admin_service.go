@@ -2,15 +2,44 @@ package external
 
 import (
 	"context"
+	"mevway/internal/core/domain/game"
+
 	"github.com/justjack1521/mevium/pkg/genproto/protoadmin"
 	"github.com/justjack1521/mevium/pkg/genproto/protogame"
+	"github.com/justjack1521/mevium/pkg/genproto/protomodel"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	uuid "github.com/satori/go.uuid"
-	"mevway/internal/core/domain/game"
 )
 
 type GameAdminService struct {
 	svc services.MeviusAdminServiceClient
+}
+
+func (s *GameAdminService) CreateBaseCard(ctx context.Context, card game.BaseCard) error {
+
+	var request = &protoadmin.CreateBaseCardRequest{
+		Card: &protomodel.BaseAbilityCard{
+			SysId:               card.SysID.String(),
+			Active:              card.Active,
+			Name:                card.Name,
+			FiendCard:           false,
+			SkillSeedOne:        card.SkillSeedOne.String(),
+			SkillSeedTwo:        card.SkillSeedTwo.String(),
+			SkillSeedSplit:      card.SkillSeedSplit,
+			SeedFusionBoost:     int32(card.SeedFusionBoost),
+			Ability:             card.AbilityID.String(),
+			FastLearner:         card.FastLearner,
+			ExpFusionMultiplier: card.EXPFusionMultiplier,
+		},
+	}
+
+	_, err := s.svc.CreateBaseCard(ctx, request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func NewGameAdminService(svc services.MeviusAdminServiceClient) *GameAdminService {
