@@ -1,21 +1,22 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/port"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-type FeatureHandler struct {
+type ContentHandler struct {
 	svc port.ProgressService
 }
 
-func NewFeatureHandler(svc port.ProgressService) *FeatureHandler {
-	return &FeatureHandler{svc: svc}
+func NewFeatureHandler(svc port.ProgressService) *ContentHandler {
+	return &ContentHandler{svc: svc}
 }
 
-func (h *FeatureHandler) ListProgress(ctx *gin.Context) {
+func (h *ContentHandler) ListProgress(ctx *gin.Context) {
 
 	list, err := h.svc.ListProgress(ctx)
 	if err != nil {
@@ -27,7 +28,7 @@ func (h *FeatureHandler) ListProgress(ctx *gin.Context) {
 
 }
 
-func (h *FeatureHandler) ListRelease(ctx *gin.Context) {
+func (h *ContentHandler) ListRelease(ctx *gin.Context) {
 
 	list, err := h.svc.ListRelease(ctx)
 	if err != nil {
