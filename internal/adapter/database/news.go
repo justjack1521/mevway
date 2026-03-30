@@ -30,7 +30,7 @@ func NewArticleRepository(db *gorm.DB) *ArticleRepository {
 func (r *ArticleRepository) QueryNewsArticleContainers(ctx context.Context, articleID uuid.UUID) ([]content.NewsContainer, error) {
 	var rows []dto.ArticleNodeContainer
 	err := r.db.WithContext(ctx).
-		Where("article_id = ?", articleID).
+		Where("news_item = ?", articleID).
 		Order("sort_order").
 		Find(&rows).Error
 	if err != nil {
@@ -47,7 +47,7 @@ func (r *ArticleRepository) QueryNewsArticleContainers(ctx context.Context, arti
 func (r *ArticleRepository) QueryNewsArticleNodes(ctx context.Context, containerID uuid.UUID) ([]content.NewsNode, error) {
 	var rows []dto.ArticleNodeGorm
 	err := r.db.WithContext(ctx).
-		Where("container_id = ?", containerID).
+		Where("news_item_container = ?", containerID).
 		Order("sort_order").
 		Find(&rows).Error
 	if err != nil {
