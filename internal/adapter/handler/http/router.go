@@ -24,6 +24,7 @@ func NewRouter(
 	modelHandler *ModelHandler,
 	contactHandler *ContactHandler,
 	rankHandler *RankHandler,
+	newsHandler *NewsHandler,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
 
@@ -84,6 +85,11 @@ func NewRouter(
 		var systemGroup = publicGroup.Group("/system")
 		{
 			systemGroup.GET("/status", statusHandler.Get)
+		}
+
+		var newsGroup = publicGroup.Group("/news")
+		{
+			newsGroup.GET("/:id", newsHandler.Get)
 		}
 
 		var patch = publicGroup.Group("/patch")

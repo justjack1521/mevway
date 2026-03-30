@@ -7,6 +7,55 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+type NewsArticle struct {
+	ID         uuid.UUID              `json:"id"`
+	Title      string                 `json:"title"`
+	Containers []NewsArticleContainer `json:"containers"`
+}
+
+func NewNewsArticle(article content.NewsArticle) (NewsArticle, error) {
+
+	var containers = make([]NewsArticleContainer, len(article.Containers))
+
+	for index, container := range article.Containers {
+		c, err := NewNewsArticleContainer(container)
+		if err != nil {
+			return NewsArticle{}, err
+		}
+		containers[index] = c
+	}
+
+	var result = NewsArticle{
+		ID:         article.ID,
+		Title:      article.Title,
+		Containers: containers,
+	}
+
+	return result, nil
+
+}
+
+type NewsArticleContainer struct {
+	ID    uuid.UUID `json:"id"`
+	Nodes []any     `json:"nodes"`
+}
+
+func NewNewsArticleContainer(container content.NewsContainer) (NewsArticleContainer, error) {
+
+	nodes, err := NodesToResponse(container.Nodes)
+	if err != nil {
+		return NewsArticleContainer{}, err
+	}
+
+	var result = NewsArticleContainer{
+		ID:    container.ID,
+		Nodes: nodes,
+	}
+
+	return result, nil
+
+}
+
 type HeadingResponse struct {
 	ID        uuid.UUID `json:"id"`
 	SortOrder int       `json:"sort_order"`
@@ -57,7 +106,7 @@ type VideoResponse struct {
 
 // response/convert.go
 
-func NewNode(n content.Node) (any, error) {
+func NewNode(n content.NewsNode) (any, error) {
 	switch n := n.(type) {
 	case content.HeadingNode:
 		return HeadingResponse{
@@ -97,7 +146,7 @@ func NewNode(n content.Node) (any, error) {
 	}
 }
 
-func NodesToResponse(nodes []content.Node) ([]any, error) {
+func NodesToResponse(nodes []content.NewsNode) ([]any, error) {
 	out := make([]any, 0, len(nodes))
 	for _, n := range nodes {
 		r, err := NewNode(n)

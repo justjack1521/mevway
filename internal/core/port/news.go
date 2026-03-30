@@ -9,6 +9,8 @@ import (
 
 type NewsRepository interface {
 	QueryNewsArticle(ctx context.Context, id uuid.UUID) (content.NewsArticle, error)
+	QueryNewsArticleContainers(ctx context.Context, id uuid.UUID) ([]content.NewsContainer, error)
+	QueryNewsArticleNodes(ctx context.Context, id uuid.UUID) ([]content.NewsNode, error)
 }
 
 type NewsService interface {

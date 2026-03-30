@@ -2,12 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/Nerzal/gocloak/v13"
-	"github.com/justjack1521/mevconn"
-	"github.com/justjack1521/mevium/pkg/mevent"
-	"github.com/justjack1521/mevrelic"
-	slogrus "github.com/samber/slog-logrus/v2"
-	"github.com/sirupsen/logrus"
 	"log/slog"
 	"mevway/internal/adapter/broker"
 	"mevway/internal/adapter/database"
@@ -25,6 +19,13 @@ import (
 	"mevway/internal/infrastructure/trace/relic"
 	"mevway/internal/infrastructure/trace/system"
 	"os"
+
+	"github.com/Nerzal/gocloak/v13"
+	"github.com/justjack1521/mevconn"
+	"github.com/justjack1521/mevium/pkg/mevent"
+	"github.com/justjack1521/mevrelic"
+	slogrus "github.com/samber/slog-logrus/v2"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -104,6 +105,7 @@ func main() {
 	var progressRepository = database.NewProgressRepository(db)
 	var rankRepository = external.NewRankingRepository(rank)
 	var adminRepository = database.NewAdministrationRepository(db)
+	var newsRepository = database.NewArticleRepository(db)
 
 	var serviceRouter = application.NewServiceRouter(slogger, requestRepository)
 	serviceRouter.RegisterSubRouter(rpc.GameClientRouteKey, rpc.NewGameServiceClientRouter(game))
@@ -128,6 +130,7 @@ func main() {
 	var progressService = application.NewProgressService(progressRepository)
 	var searchService = application.NewPlayerSearchService(userRepository, socialRepository)
 	var rankService = application.NewRankQueryService(rankRepository)
+	var newsService = application.NewNewsArticleService(newsRepository)
 
 	var loggerMiddleware = middleware.NewLoggingMiddleware(slogger)
 	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
@@ -145,6 +148,7 @@ func main() {
 	var modelHandler = http.NewModelHandler(modelService)
 	var contactHandler = http.NewContactHandler(contactRepository)
 	var rankHandler = http.NewRankHandler(rankService)
+	var newsHandler = http.NewNewsHandler(newsService)
 
 	subscriber.NewClientPersistenceSubscriber(events, clientRepository)
 
@@ -176,6 +180,7 @@ func main() {
 		modelHandler,
 		contactHandler,
 		rankHandler,
+		newsHandler,
 		loggerMiddleware.Handle, relicMiddleware.Handle, patchMiddleware.Handle,
 	)
 	if err := router.Serve(":8080"); err != nil {

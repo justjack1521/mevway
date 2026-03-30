@@ -2,12 +2,23 @@ package content
 
 import uuid "github.com/satori/go.uuid"
 
-type NewsArticle struct {
-	ID      uuid.UUID
-	Heading string
+type NewsContainer struct {
+	ID        uuid.UUID
+	NewsItem  uuid.UUID
+	SortOrder int
+	Direction string
+	Align     string
+	Gap       string
+	Nodes     []NewsNode
 }
 
-type Node interface {
+type NewsArticle struct {
+	ID         uuid.UUID
+	Title      string
+	Containers []NewsContainer
+}
+
+type NewsNode interface {
 	nodeType() string
 }
 
@@ -54,8 +65,17 @@ type VideoNode struct {
 	Muted     bool
 }
 
+type JobCardNode struct {
+	ID                 uuid.UUID
+	Name               string
+	JobType            string
+	AbilityName        string
+	AbilityDescription string
+}
+
 func (n HeadingNode) nodeType() string { return "heading" }
 func (n TextNode) nodeType() string    { return "text" }
 func (n ImageNode) nodeType() string   { return "image" }
 func (n ButtonNode) nodeType() string  { return "button" }
 func (n VideoNode) nodeType() string   { return "video" }
+func (n JobCardNode) nodeType() string { return "job" }

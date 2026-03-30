@@ -9,6 +9,46 @@ import (
 	"gorm.io/datatypes"
 )
 
+type ArticleGorm struct {
+	SysID uuid.UUID `gorm:"primaryKey;column:sys_id"`
+	Title string    `gorm:"column:title"`
+}
+
+func (ArticleGorm) TableName() string {
+	return "system.news_item"
+}
+
+func (n *ArticleGorm) ToEntity() content.NewsArticle {
+	return content.NewsArticle{
+		ID:    n.SysID,
+		Title: n.Title,
+	}
+}
+
+type ArticleNodeContainer struct {
+	SysID     uuid.UUID `gorm:"primaryKey;column:sys_id"`
+	NewsItem  uuid.UUID `gorm:"column:news_item"`
+	SortOrder int       `gorm:"column:sort_order"`
+	Direction string    `gorm:"column:direction"`
+	Align     string    `gorm:"column:align"`
+	Gap       string    `gorm:"column:gap"`
+}
+
+func (ArticleNodeContainer) TableName() string {
+	return "system.news_item_article_container"
+}
+
+func (n *ArticleNodeContainer) ToEntity() content.NewsContainer {
+	return content.NewsContainer{
+		ID:        n.SysID,
+		NewsItem:  n.NewsItem,
+		SortOrder: n.SortOrder,
+		Direction: n.Direction,
+		Align:     n.Align,
+		Gap:       n.Gap,
+	}
+}
+
 type ArticleNodeGorm struct {
 	SysID       uuid.UUID      `gorm:"primaryKey;column:sys_id"`
 	ContainerID uuid.UUID      `gorm:"column:news_item_container"`
@@ -18,7 +58,7 @@ type ArticleNodeGorm struct {
 }
 
 func (ArticleNodeGorm) TableName() string {
-	return "system.news_item_article_now"
+	return "system.news_item_article_node"
 }
 
 type HeadingProps struct {
@@ -54,7 +94,15 @@ type VideoProps struct {
 	Muted    bool   `json:"muted"`
 }
 
-func (n *ArticleNodeGorm) ToEntity() (content.Node, error) {
+type JobCardProps struct {
+	ID                 uuid.UUID `json:"ID"`
+	Name               string    `json:"Name"`
+	JobType            string    `json:"JobType"`
+	AbilityName        string    `json:"AbilityName"`
+	AbilityDescription string    `json:"AbilityDescription"`
+}
+
+func (n *ArticleNodeGorm) ToEntity() (content.NewsNode, error) {
 	switch n.Type {
 	case "heading":
 		var p HeadingProps
@@ -107,6 +155,19 @@ func (n *ArticleNodeGorm) ToEntity() (content.Node, error) {
 			ID: n.SysID, SortOrder: n.SortOrder,
 			Src: p.Src, Poster: p.Poster,
 			Autoplay: p.Autoplay, Loop: p.Loop, Muted: p.Muted,
+		}, nil
+
+	case "job":
+		var p JobCardProps
+		if err := json.Unmarshal(n.Props, &p); err != nil {
+			return nil, fmt.Errorf("video props: %w", err)
+		}
+		return content.JobCardNode{
+			ID:                 p.ID,
+			Name:               p.Name,
+			JobType:            p.JobType,
+			AbilityName:        p.AbilityName,
+			AbilityDescription: p.AbilityDescription,
 		}, nil
 
 	default:
