@@ -15,8 +15,12 @@ type ArticleRepository struct {
 }
 
 func (r *ArticleRepository) QueryNewsArticle(ctx context.Context, id uuid.UUID) (content.NewsArticle, error) {
-	//TODO implement me
-	panic("implement me")
+	var cond = &dto.ArticleGorm{SysID: id}
+	var res = &dto.ArticleGorm{}
+	if err := r.db.WithContext(ctx).Model(cond).First(res, cond).Error; err != nil {
+		return content.NewsArticle{}, err
+	}
+	return res.ToEntity(), nil
 }
 
 func NewArticleRepository(db *gorm.DB) *ArticleRepository {
