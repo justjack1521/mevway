@@ -95,11 +95,11 @@ type VideoProps struct {
 }
 
 type JobCardProps struct {
-	ID                 uuid.UUID `json:"ID"`
-	Name               string    `json:"Name"`
-	JobType            string    `json:"JobType"`
-	AbilityName        string    `json:"AbilityName"`
-	AbilityDescription string    `json:"AbilityDescription"`
+	ID                 uuid.UUID `json:"id"`
+	Name               string    `json:"name"`
+	JobType            string    `json:"job_type"`
+	AbilityName        string    `json:"ability_name"`
+	AbilityDescription string    `json:"ability_description"`
 }
 
 func (n *ArticleNodeGorm) ToEntity() (content.NewsNode, error) {
@@ -160,7 +160,7 @@ func (n *ArticleNodeGorm) ToEntity() (content.NewsNode, error) {
 	case "job":
 		var p JobCardProps
 		if err := json.Unmarshal(n.Props, &p); err != nil {
-			return nil, fmt.Errorf("video props: %w", err)
+			return nil, fmt.Errorf("job card props: %w", err)
 		}
 		return content.JobCardNode{
 			ID:                 p.ID,
