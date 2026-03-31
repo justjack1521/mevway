@@ -104,6 +104,17 @@ type VideoResponse struct {
 	Muted     bool      `json:"muted"`
 }
 
+type JobResponse struct {
+	ID                 uuid.UUID `json:"id"`
+	SortOrder          int       `json:"sort_order"`
+	Type               string    `json:"type"`
+	JobID              uuid.UUID `json:"job_id"`
+	Name               string    `json:"name"`
+	JobType            string    `json:"job_type"`
+	AbilityName        string    `json:"ability_name"`
+	AbilityDescription string    `json:"ability_description"`
+}
+
 // response/convert.go
 
 func NewNode(n content.NewsNode) (any, error) {
@@ -140,7 +151,17 @@ func NewNode(n content.NewsNode) (any, error) {
 			Src: n.Src, Poster: n.Poster,
 			Autoplay: n.Autoplay, Loop: n.Loop, Muted: n.Muted,
 		}, nil
-
+	case content.JobCardNode:
+		return JobResponse{
+			ID:                 n.ID,
+			SortOrder:          n.SortOrder,
+			Type:               "job",
+			JobID:              n.JobID,
+			Name:               n.Name,
+			JobType:            n.JobType,
+			AbilityName:        n.AbilityName,
+			AbilityDescription: n.AbilityDescription,
+		}, nil
 	default:
 		return nil, fmt.Errorf("unhandled node type: %T", n)
 	}

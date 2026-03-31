@@ -67,6 +67,8 @@ type VideoNode struct {
 
 type JobCardNode struct {
 	ID                 uuid.UUID
+	SortOrder          int
+	JobID              uuid.UUID
 	Name               string
 	JobType            string
 	AbilityName        string

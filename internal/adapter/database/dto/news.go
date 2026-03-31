@@ -163,7 +163,9 @@ func (n *ArticleNodeGorm) ToEntity() (content.NewsNode, error) {
 			return nil, fmt.Errorf("job card props: %w", err)
 		}
 		return content.JobCardNode{
-			ID:                 p.ID,
+			ID:                 n.SysID,
+			SortOrder:          n.SortOrder,
+			JobID:              p.ID,
 			Name:               p.Name,
 			JobType:            p.JobType,
 			AbilityName:        p.AbilityName,
