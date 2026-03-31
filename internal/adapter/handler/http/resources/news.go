@@ -126,6 +126,17 @@ type JobResponse struct {
 	AbilityDescription string    `json:"ability_description"`
 }
 
+type AbilityCardResponse struct {
+	ID                 uuid.UUID `json:"id"`
+	SortOrder          int       `json:"sort_order"`
+	Type               string    `json:"type"`
+	AbilityCardID      uuid.UUID `json:"ability_card_id"`
+	Name               string    `json:"name"`
+	CardElement        string    `json:"card_element"`
+	AbilityName        string    `json:"ability_name"`
+	AbilityDescription string    `json:"ability_description"`
+}
+
 // response/convert.go
 
 func NewNode(n content.NewsNode) (any, error) {
@@ -170,6 +181,17 @@ func NewNode(n content.NewsNode) (any, error) {
 			JobID:              n.JobID,
 			Name:               n.Name,
 			JobType:            n.JobType,
+			AbilityName:        n.AbilityName,
+			AbilityDescription: n.AbilityDescription,
+		}, nil
+	case content.AbilityCardNode:
+		return AbilityCardResponse{
+			ID:                 n.ID,
+			SortOrder:          n.SortOrder,
+			Type:               "ability_card",
+			AbilityCardID:      n.AbilityCardID,
+			Name:               n.Name,
+			CardElement:        n.CardElement,
 			AbilityName:        n.AbilityName,
 			AbilityDescription: n.AbilityDescription,
 		}, nil

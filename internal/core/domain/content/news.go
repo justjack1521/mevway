@@ -80,9 +80,20 @@ type JobCardNode struct {
 	AbilityDescription string
 }
 
-func (n HeadingNode) nodeType() string { return "heading" }
-func (n TextNode) nodeType() string    { return "text" }
-func (n ImageNode) nodeType() string   { return "image" }
-func (n ButtonNode) nodeType() string  { return "button" }
-func (n VideoNode) nodeType() string   { return "video" }
-func (n JobCardNode) nodeType() string { return "job" }
+type AbilityCardNode struct {
+	ID                 uuid.UUID
+	SortOrder          int
+	AbilityCardID      uuid.UUID
+	Name               string
+	CardElement        string
+	AbilityName        string
+	AbilityDescription string
+}
+
+func (n HeadingNode) nodeType() string     { return "heading" }
+func (n TextNode) nodeType() string        { return "text" }
+func (n ImageNode) nodeType() string       { return "image" }
+func (n ButtonNode) nodeType() string      { return "button" }
+func (n VideoNode) nodeType() string       { return "video" }
+func (n JobCardNode) nodeType() string     { return "job" }
+func (n AbilityCardNode) nodeType() string { return "ability_card" }

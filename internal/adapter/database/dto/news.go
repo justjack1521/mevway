@@ -105,6 +105,14 @@ type JobCardProps struct {
 	AbilityDescription string    `json:"ability_description"`
 }
 
+type AbilityCardProps struct {
+	ID                 uuid.UUID `json:"id"`
+	Name               string    `json:"name"`
+	CardElement        string    `json:"card_element"`
+	AbilityName        string    `json:"ability_name"`
+	AbilityDescription string    `json:"ability_description"`
+}
+
 func (n *ArticleNodeGorm) ToEntity() (content.NewsNode, error) {
 	switch n.Type {
 	case "heading":
@@ -174,7 +182,20 @@ func (n *ArticleNodeGorm) ToEntity() (content.NewsNode, error) {
 			AbilityName:        p.AbilityName,
 			AbilityDescription: p.AbilityDescription,
 		}, nil
-
+	case "ability_card":
+		var p AbilityCardProps
+		if err := json.Unmarshal(n.Props, &p); err != nil {
+			return nil, fmt.Errorf("ability card props: %w", err)
+		}
+		return content.AbilityCardNode{
+			ID:                 n.SysID,
+			SortOrder:          n.SortOrder,
+			AbilityCardID:      p.ID,
+			Name:               p.Name,
+			CardElement:        p.CardElement,
+			AbilityName:        p.AbilityName,
+			AbilityDescription: p.AbilityDescription,
+		}, nil
 	default:
 		return nil, fmt.Errorf("unknown node type: %s", n.Type)
 	}
