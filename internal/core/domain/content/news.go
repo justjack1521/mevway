@@ -1,6 +1,10 @@
 package content
 
-import uuid "github.com/satori/go.uuid"
+import (
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 type NewsContainer struct {
 	ID        uuid.UUID
@@ -13,9 +17,10 @@ type NewsContainer struct {
 }
 
 type NewsArticle struct {
-	ID         uuid.UUID
-	Title      string
-	Containers []NewsContainer
+	ID          uuid.UUID
+	Title       string
+	PublishedAt time.Time
+	Containers  []NewsContainer
 }
 
 type NewsNode interface {

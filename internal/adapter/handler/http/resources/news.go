@@ -3,14 +3,16 @@ package resources
 import (
 	"fmt"
 	"mevway/internal/core/domain/content"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 )
 
 type NewsArticle struct {
-	ID         uuid.UUID              `json:"id"`
-	Title      string                 `json:"title"`
-	Containers []NewsArticleContainer `json:"containers"`
+	ID          uuid.UUID              `json:"id"`
+	Title       string                 `json:"title"`
+	PublishedAt time.Time              `json:"published_at"`
+	Containers  []NewsArticleContainer `json:"containers"`
 }
 
 func NewNewsArticle(article content.NewsArticle) (NewsArticle, error) {
@@ -26,9 +28,10 @@ func NewNewsArticle(article content.NewsArticle) (NewsArticle, error) {
 	}
 
 	var result = NewsArticle{
-		ID:         article.ID,
-		Title:      article.Title,
-		Containers: containers,
+		ID:          article.ID,
+		Title:       article.Title,
+		PublishedAt: article.PublishedAt,
+		Containers:  containers,
 	}
 
 	return result, nil

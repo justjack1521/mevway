@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"mevway/internal/core/domain/content"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/datatypes"
 )
 
 type ArticleGorm struct {
-	SysID uuid.UUID `gorm:"primaryKey;column:sys_id"`
-	Title string    `gorm:"column:title"`
+	SysID       uuid.UUID `gorm:"primaryKey;column:sys_id"`
+	Title       string    `gorm:"column:title"`
+	PublishedAt time.Time `gorm:"column:published_at"`
 }
 
 func (ArticleGorm) TableName() string {
@@ -20,8 +22,9 @@ func (ArticleGorm) TableName() string {
 
 func (n *ArticleGorm) ToEntity() content.NewsArticle {
 	return content.NewsArticle{
-		ID:    n.SysID,
-		Title: n.Title,
+		ID:          n.SysID,
+		Title:       n.Title,
+		PublishedAt: n.PublishedAt,
 	}
 }
 
