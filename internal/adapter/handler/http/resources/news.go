@@ -36,8 +36,12 @@ func NewNewsArticle(article content.NewsArticle) (NewsArticle, error) {
 }
 
 type NewsArticleContainer struct {
-	ID    uuid.UUID `json:"id"`
-	Nodes []any     `json:"nodes"`
+	ID        uuid.UUID `json:"id"`
+	Nodes     []any     `json:"nodes"`
+	SortOrder int       `json:"sort_order"`
+	Direction string    `json:"direction"`
+	Align     string    `json:"align"`
+	Gap       string    `json:"gap"`
 }
 
 func NewNewsArticleContainer(container content.NewsContainer) (NewsArticleContainer, error) {
@@ -48,8 +52,12 @@ func NewNewsArticleContainer(container content.NewsContainer) (NewsArticleContai
 	}
 
 	var result = NewsArticleContainer{
-		ID:    container.ID,
-		Nodes: nodes,
+		ID:        container.ID,
+		Nodes:     nodes,
+		SortOrder: container.SortOrder,
+		Direction: container.Direction,
+		Align:     container.Align,
+		Gap:       container.Gap,
 	}
 
 	return result, nil
