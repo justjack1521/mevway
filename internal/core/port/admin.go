@@ -14,6 +14,7 @@ type GameAdminService interface {
 	CreateBaseJob(ctx context.Context, job game.BaseJob) (bool, error)
 	CreateAugmentMaterials(ctx context.Context, id uuid.UUID, materials []game.AugmentMaterial) error
 	CreateBaseCard(ctx context.Context, card game.BaseCard) error
+	CreateAbilityCard(ctx context.Context, ability game.AbilityCard) error
 }
 
 type GameValidationService interface {

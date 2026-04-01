@@ -63,6 +63,53 @@ func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
 
 }
 
+func (h *AdminHandler) CreateAbilityCard(ctx *gin.Context) {
+
+	var request = &resources.CreateAbilityCardRequest{}
+
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.CreateAbilityCardResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, resources.CreateAbilityCardResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	var card = game.AbilityCard{
+		SysID:      uuid.FromStringOrNil(request.SysID),
+		Active:     request.Active,
+		CardNumber: request.CardNumber,
+		InShop:     request.InShop,
+		BaseCard: game.BaseCard{
+			SysID: uuid.FromStringOrNil(request.BaseCardID),
+		},
+		AugmentConfigID:   uuid.FromStringOrNil(request.AugmentConfigID),
+		OverrideAbilityID: uuid.FromStringOrNil(request.OverrideAbilityID),
+		FusionEXPOverride: request.FusionEXPOverride,
+		SaleGoldOverride:  request.SaleGoldOverride,
+	}
+
+	if err := h.svc.CreateAbilityCard(actx, card); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, resources.CreateAbilityCardResponse{
+			Error:        true,
+			ErrorMessage: err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(200, resources.CreateAbilityCardResponse{})
+
+}
+
 func (h *AdminHandler) CreateBaseCard(ctx *gin.Context) {
 
 	var request = &resources.CreateBaseCardRequest{}

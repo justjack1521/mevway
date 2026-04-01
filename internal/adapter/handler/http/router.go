@@ -57,6 +57,10 @@ func NewRouter(
 				cardGroup.POST("/augment", adminHandler.CreateAugmentMaterials)
 				cardGroup.POST("/create", adminHandler.CreateBaseCard)
 			}
+			var abilityCardGroup = gameGroup.Group("/ability_card")
+			{
+				abilityCardGroup.POST("/create", adminHandler.CreateAbilityCard)
+			}
 		}
 		var userGroup = privateGroup.Group("/user")
 		{

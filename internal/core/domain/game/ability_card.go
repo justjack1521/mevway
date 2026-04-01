@@ -8,6 +8,7 @@ type AbilityCard struct {
 	CardNumber        int
 	InShop            bool
 	BaseCard          BaseCard
+	AugmentConfigID   uuid.UUID
 	OverrideAbilityID uuid.UUID
 	FusionEXPOverride int
 	SaleGoldOverride  int

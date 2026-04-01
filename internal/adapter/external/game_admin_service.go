@@ -123,6 +123,36 @@ func (s *GameAdminService) CreateAugmentMaterials(ctx context.Context, id uuid.U
 
 }
 
+func (s *GameAdminService) CreateAbilityCard(ctx context.Context, ability game.AbilityCard) error {
+
+	var request = &protoadmin.CreateAbilityCardRequest{
+		Card: &protomodel.AbilityCard{
+			SysId:             ability.SysID.String(),
+			Active:            ability.Active,
+			CardNumber:        int32(ability.CardNumber),
+			InShop:            ability.InShop,
+			BaseAbilityCard:   &protomodel.BaseAbilityCard{SysId: ability.BaseCard.SysID.String()},
+			AugmentConfig:     &protomodel.AugmentConfig{SysId: ability.AugmentConfigID.String()},
+			FusionExpOverride: int32(ability.FusionEXPOverride),
+			SaleGoldOverride:  int32(ability.SaleGoldOverride),
+			OverrideAbility:   ability.OverrideAbilityID.String(),
+		},
+	}
+
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.svc.CreateAbilityCard(out, request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
 func (s *GameAdminService) CreateBaseCard(ctx context.Context, card game.BaseCard) error {
 
 	var request = &protoadmin.CreateBaseCardRequest{

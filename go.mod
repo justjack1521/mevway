@@ -11,7 +11,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
 	github.com/justjack1521/mevconn v0.0.0-20240930091432-610652e91304
-	github.com/justjack1521/mevium v0.0.0-20260322065211-2d6b5f8f6bc2
+	github.com/justjack1521/mevium v0.0.0-20260401121811-90bef7ad2c61
 	github.com/justjack1521/mevrabbit v0.0.0-20241120034927-1727a709432d
 	github.com/justjack1521/mevrelic v0.0.0-20251114174959-41cf07147187
 	github.com/justjack1521/mevrpc v0.0.0-20240508141837-73ab62053f83
