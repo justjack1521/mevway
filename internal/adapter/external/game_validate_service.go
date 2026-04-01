@@ -2,9 +2,10 @@ package external
 
 import (
 	"context"
+	"mevway/internal/core/domain/game"
+
 	"github.com/justjack1521/mevium/pkg/genproto/protomodel"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
-	"mevway/internal/core/domain/game"
 )
 
 type GameValidateService struct {
@@ -41,7 +42,12 @@ func (s *GameValidateService) ValidateAbilityCard(ctx context.Context, card game
 		},
 	}
 
-	_, err := s.svc.ValidateAbilityCard(OutgoingContext(ctx), request)
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.svc.ValidateAbilityCard(out, request)
 	if err != nil {
 		return err
 	}
@@ -62,7 +68,12 @@ func (s *GameValidateService) ValidateBaseItem(ctx context.Context, model game.B
 		},
 	}
 
-	_, err := s.svc.ValidateBaseItem(OutgoingContext(ctx), request)
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.svc.ValidateBaseItem(out, request)
 	if err != nil {
 		return err
 	}

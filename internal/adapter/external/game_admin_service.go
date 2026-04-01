@@ -27,7 +27,12 @@ func (s *GameAdminService) GrantItem(ctx context.Context, player uuid.UUID, item
 		Quantity: int32(quantity),
 	}
 
-	_, err := s.svc.GrantItem(OutgoingContext(ctx), request)
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.svc.GrantItem(out, request)
 	if err != nil {
 		return err
 	}
@@ -46,7 +51,12 @@ func (s *GameAdminService) CreateBaseJob(ctx context.Context, job game.BaseJob) 
 		TypeId:    job.TypeID.String(),
 	}
 
-	response, err := s.svc.CreateBaseJobCard(OutgoingContext(ctx), request)
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	response, err := s.svc.CreateBaseJobCard(out, request)
 	if err != nil {
 		return false, err
 	}
@@ -74,7 +84,12 @@ func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, 
 		}
 	}
 
-	response, err := s.svc.CreateSkillPanel(OutgoingContext(ctx), request)
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	response, err := s.svc.CreateSkillPanel(out, request)
 	if err != nil {
 		return false, err
 	}
@@ -87,14 +102,19 @@ func (s *GameAdminService) CreateAugmentMaterials(ctx context.Context, id uuid.U
 
 	var request = &protoadmin.CreateAugmentMaterialRequest{
 		AbilityCardId: id.String(),
-		Materials:     make(map[string]int32, 0),
+		Materials:     make(map[string]int32),
 	}
 
 	for _, value := range materials {
 		request.Materials[value.SysID.String()] = int32(value.Quantity)
 	}
 
-	_, err := s.svc.CreateAugmentMaterials(OutgoingContext(ctx), request)
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.svc.CreateAugmentMaterials(out, request)
 	if err != nil {
 		return err
 	}
@@ -121,7 +141,12 @@ func (s *GameAdminService) CreateBaseCard(ctx context.Context, card game.BaseCar
 		},
 	}
 
-	_, err := s.svc.CreateBaseCard(OutgoingContext(ctx), request)
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.svc.CreateBaseCard(out, request)
 	if err != nil {
 		return err
 	}
