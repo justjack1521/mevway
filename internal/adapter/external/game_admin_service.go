@@ -15,33 +15,6 @@ type GameAdminService struct {
 	svc services.MeviusAdminServiceClient
 }
 
-func (s *GameAdminService) CreateBaseCard(ctx context.Context, card game.BaseCard) error {
-
-	var request = &protoadmin.CreateBaseCardRequest{
-		Card: &protomodel.BaseAbilityCard{
-			SysId:               card.SysID.String(),
-			Active:              card.Active,
-			Name:                card.Name,
-			FiendCard:           false,
-			SkillSeedOne:        card.SkillSeedOne.String(),
-			SkillSeedTwo:        card.SkillSeedTwo.String(),
-			SkillSeedSplit:      card.SkillSeedSplit,
-			SeedFusionBoost:     int32(card.SeedFusionBoost),
-			Ability:             card.AbilityID.String(),
-			FastLearner:         card.FastLearner,
-			ExpFusionMultiplier: card.EXPFusionMultiplier,
-		},
-	}
-
-	_, err := s.svc.CreateBaseCard(ctx, request)
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-}
-
 func NewGameAdminService(svc services.MeviusAdminServiceClient) *GameAdminService {
 	return &GameAdminService{svc: svc}
 }
@@ -122,6 +95,33 @@ func (s *GameAdminService) CreateAugmentMaterials(ctx context.Context, id uuid.U
 	}
 
 	_, err := s.svc.CreateAugmentMaterials(OutgoingContext(ctx), request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (s *GameAdminService) CreateBaseCard(ctx context.Context, card game.BaseCard) error {
+
+	var request = &protoadmin.CreateBaseCardRequest{
+		Card: &protomodel.BaseAbilityCard{
+			SysId:               card.SysID.String(),
+			Active:              card.Active,
+			Name:                card.Name,
+			FiendCard:           false,
+			SkillSeedOne:        card.SkillSeedOne.String(),
+			SkillSeedTwo:        card.SkillSeedTwo.String(),
+			SkillSeedSplit:      card.SkillSeedSplit,
+			SeedFusionBoost:     int32(card.SeedFusionBoost),
+			Ability:             card.AbilityID.String(),
+			FastLearner:         card.FastLearner,
+			ExpFusionMultiplier: card.EXPFusionMultiplier,
+		},
+	}
+
+	_, err := s.svc.CreateBaseCard(OutgoingContext(ctx), request)
 	if err != nil {
 		return err
 	}
