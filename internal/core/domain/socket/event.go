@@ -2,8 +2,9 @@ package socket
 
 import (
 	"context"
-	uuid "github.com/satori/go.uuid"
 	"log/slog"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type ClientConnectedEvent struct {
@@ -141,14 +142,14 @@ func (e ConnectionTerminateEvent) UserID() uuid.UUID {
 }
 
 type SuspiciousConnectionEvent struct {
-	ctx      context.Context
-	user     uuid.UUID
-	existing uuid.UUID
-	attempt  uuid.UUID
+	ctx     context.Context
+	user    uuid.UUID
+	player  uuid.UUID
+	attempt uuid.UUID
 }
 
-func NewSuspiciousConnectionEvent(ctx context.Context, user, existing, attempt uuid.UUID) SuspiciousConnectionEvent {
-	return SuspiciousConnectionEvent{ctx: ctx, user: user, existing: existing, attempt: attempt}
+func NewSuspiciousConnectionEvent(ctx context.Context, user, player, attempt uuid.UUID) SuspiciousConnectionEvent {
+	return SuspiciousConnectionEvent{ctx: ctx, user: user, player: player, attempt: attempt}
 }
 
 func (e SuspiciousConnectionEvent) Name() string {
@@ -158,8 +159,8 @@ func (e SuspiciousConnectionEvent) Name() string {
 func (e SuspiciousConnectionEvent) ToSlogFields() []slog.Attr {
 	return []slog.Attr{
 		slog.String("user.id", e.user.String()),
-		slog.String("existing.id", e.existing.String()),
-		slog.String("attempted.id", e.attempt.String()),
+		slog.String("player.id", e.player.String()),
+		slog.String("session.id", e.attempt.String()),
 	}
 }
 
@@ -171,8 +172,8 @@ func (e SuspiciousConnectionEvent) UserID() uuid.UUID {
 	return e.user
 }
 
-func (e SuspiciousConnectionEvent) ExistingSessionID() uuid.UUID {
-	return e.existing
+func (e SuspiciousConnectionEvent) PlayerID() uuid.UUID {
+	return e.player
 }
 
 func (e SuspiciousConnectionEvent) NewSessionID() uuid.UUID {

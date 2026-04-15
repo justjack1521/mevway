@@ -94,26 +94,24 @@ func (s *SocketServer) revoke(conn connection) {
 }
 
 func (s *SocketServer) handleRegister(c *SocketClient) {
+
 	var user = c.client.UserID
+	var player = c.client.PlayerID
 	var session = c.client.Session
 
 	// Reject if session already revoked
 	if _, revoked := s.revoked[session]; revoked {
 		c.notifier.Close(socket.ClosureReasonRejected)
+		s.publisher.Notify(socket.NewSuspiciousConnectionEvent(
+			context.Background(),
+			user,
+			player,
+			session,
+		))
 		return
 	}
 
 	if existing, exists := s.users[user]; exists {
-
-		// 🔍 Optional: still log suspicious
-		if existing.client.Session != session {
-			s.publisher.Notify(socket.NewSuspiciousConnectionEvent(
-				context.Background(),
-				user,
-				existing.client.Session,
-				session,
-			))
-		}
 
 		// Revoke old session
 		s.revoke(existing)
