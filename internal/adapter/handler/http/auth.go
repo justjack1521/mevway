@@ -2,13 +2,14 @@ package http
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"mevway/internal/adapter/handler/http/middleware"
 	"mevway/internal/adapter/handler/http/resources"
 	"mevway/internal/core/domain/user"
 	"mevway/internal/core/port"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -88,9 +89,7 @@ func (h *AuthenticationHandler) AccessTokenAuthorise(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set(middleware.SessionIDContextKey, claims.SessionID.String())
-	//TODO swap
-	//ctx.Set(middleware.SessionIDContextKey, ctx.GetHeader(sessionHeaderKey))
+	ctx.Set(middleware.SessionIDContextKey, ctx.GetHeader(sessionHeaderKey))
 	ctx.Set(middleware.UserIDContextKey, claims.UserID.String())
 	ctx.Set(middleware.PlayerIDContextKey, claims.PlayerID.String())
 	ctx.Set(middleware.UserEnvironmentKey, claims.Environment)

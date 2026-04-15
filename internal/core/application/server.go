@@ -2,12 +2,12 @@ package application
 
 import (
 	"context"
-	"github.com/justjack1521/mevium/pkg/mevent"
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
-	"sync"
 	"time"
+
+	"github.com/justjack1521/mevium/pkg/mevent"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -20,10 +20,15 @@ type SocketClient struct {
 	notifier port.Client
 }
 
+type connection struct {
+	client   socket.Client
+	notifier port.Client
+}
+
 type SocketServer struct {
-	clientRegister  map[socket.Client]port.Client
-	userRegister    map[uuid.UUID]socket.Client
-	sessionRegister map[uuid.UUID]uuid.UUID
+	users   map[uuid.UUID]connection
+	players map[uuid.UUID]connection
+	revoked map[uuid.UUID]time.Time
 
 	register   chan *SocketClient
 	unregister chan socket.Client
@@ -31,214 +36,196 @@ type SocketServer struct {
 	terminate  chan uuid.UUID
 
 	publisher *mevent.Publisher
-
-	mu sync.RWMutex
 }
 
 func NewSocketServer(publisher *mevent.Publisher) *SocketServer {
 	return &SocketServer{
-		publisher:       publisher,
-		clientRegister:  make(map[socket.Client]port.Client),
-		userRegister:    make(map[uuid.UUID]socket.Client),
-		sessionRegister: make(map[uuid.UUID]uuid.UUID),
-		register:        make(chan *SocketClient),
-		unregister:      make(chan socket.Client),
-		terminate:       make(chan uuid.UUID),
-		notify:          make(chan socket.Message),
+		publisher:  publisher,
+		users:      make(map[uuid.UUID]connection),
+		players:    make(map[uuid.UUID]connection),
+		revoked:    make(map[uuid.UUID]time.Time),
+		register:   make(chan *SocketClient, 64),
+		unregister: make(chan socket.Client, 64),
+		terminate:  make(chan uuid.UUID, 64),
+		notify:     make(chan socket.Message, 128),
 	}
 }
 
 func (s *SocketServer) Start() {
 	go s.run()
-	go s.reap()
-}
-
-func (s *SocketServer) reap() {
-
-	var ticker = time.NewTicker(ReapTickerInterval)
-	defer ticker.Stop()
-
-	for range ticker.C {
-
-		var inactive = make([]port.Client, 0)
-		s.mu.Lock()
-		var now = time.Now().UTC()
-
-		for _, value := range s.clientRegister {
-			if now.Sub(value.LastMessage()) > ReapDuration {
-				inactive = append(inactive, value)
-			}
-		}
-
-		s.mu.Unlock()
-
-		if len(inactive) > 0 {
-			s.publisher.Notify(socket.NewServerReapEvent(len(inactive)))
-		}
-
-		for _, client := range inactive {
-			client.Terminate(socket.ClosureReasonInactivity)
-		}
-
-	}
-
 }
 
 func (s *SocketServer) run() {
+	ticker := time.NewTicker(ReapTickerInterval)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case c := <-s.register:
-			s.HandleRegister(c)
+			s.handleRegister(c)
+
 		case c := <-s.unregister:
-			s.HandleUnregister(c)
-		case c := <-s.terminate:
-			s.HandleTerminate(c)
+			s.handleUnregister(c)
+
+		case id := <-s.terminate:
+			s.handleTerminate(id)
+
 		case n := <-s.notify:
-			s.HandleNotify(n)
+			s.handleNotify(n)
+
+		case <-ticker.C:
+			s.handleReap()
 		}
 	}
 }
 
-func (s *SocketServer) HandleTerminate(id uuid.UUID) {
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if client, ok := s.userRegister[id]; ok {
-		if notifier, found := s.clientRegister[client]; found {
-			go notifier.Close(socket.ClosureReasonServerStop)
-			delete(s.clientRegister, client)
-			delete(s.userRegister, id)
-		}
-	}
-
-	delete(s.sessionRegister, id)
-
-	s.publisher.Notify(socket.NewConnectionTerminateEvent(context.Background(), id))
-
+func (s *SocketServer) addConnection(conn connection) {
+	s.users[conn.client.UserID] = conn
+	s.players[conn.client.PlayerID] = conn
 }
 
-func (s *SocketServer) HandleRegister(c *SocketClient) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *SocketServer) removeConnection(conn connection) {
+	delete(s.users, conn.client.UserID)
+	delete(s.players, conn.client.PlayerID)
+}
 
-	userID := c.client.UserID
+func (s *SocketServer) revoke(conn connection) {
+	s.revoked[conn.client.Session] = time.Now().UTC()
+}
 
-	//if session, exists := s.sessionRegister[userID]; exists {
-	//
-	//	if c.client.Session == session {
-	//
-	//		if client, ok := s.userRegister[userID]; ok {
-	//			if notifier, found := s.clientRegister[client]; found {
-	//				go notifier.Close(socket.ClosureReasonTakeover)
-	//				delete(s.clientRegister, client)
-	//			}
-	//		}
-	//
-	//	} else {
-	//
-	//		s.publisher.Notify(socket.NewSuspiciousConnectionEvent(
-	//			context.Background(),
-	//			userID,
-	//			session,
-	//			c.client.Session,
-	//		))
-	//
-	//		go c.notifier.Close(socket.ClosureReasonRejected)
-	//		return
-	//
-	//	}
-	//}
+func (s *SocketServer) handleRegister(c *SocketClient) {
+	var user = c.client.UserID
+	var session = c.client.Session
 
-	s.clientRegister[c.client] = c.notifier
-	s.userRegister[userID] = c.client
-	s.sessionRegister[userID] = c.client.Session
+	// Reject if session already revoked
+	if _, revoked := s.revoked[session]; revoked {
+		c.notifier.Close(socket.ClosureReasonRejected)
+		return
+	}
+
+	if existing, exists := s.users[user]; exists {
+
+		// 🔍 Optional: still log suspicious
+		if existing.client.Session != session {
+			s.publisher.Notify(socket.NewSuspiciousConnectionEvent(
+				context.Background(),
+				user,
+				existing.client.Session,
+				session,
+			))
+		}
+
+		// Revoke old session
+		s.revoke(existing)
+
+		// Remove + close the old connection
+		s.removeConnection(existing)
+		existing.notifier.Close(socket.ClosureReasonTakeover)
+	}
+
+	conn := connection{
+		client:   c.client,
+		notifier: c.notifier,
+	}
+
+	s.addConnection(conn)
 
 	s.publisher.Notify(socket.NewClientConnectedEvent(
 		context.Background(),
-		c.client.Session,
+		session,
 		c.client.UserID,
 		c.client.PlayerID,
 		c.client.PatchID,
 	))
-
 }
 
-func (s *SocketServer) HandleUnregister(c socket.Client) {
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if value, ok := s.clientRegister[c]; ok {
-		s.publisher.Notify(socket.NewClientDisconnectedEvent(
-			context.Background(),
-			c.Session,
-			c.UserID,
-			c.PlayerID,
-			value.ClosureReason(),
-		))
-
-		delete(s.clientRegister, c)
-
-		if current, exists := s.userRegister[c.UserID]; exists && current.Session == c.Session {
-			delete(s.userRegister, c.UserID)
-		}
-
+func (s *SocketServer) handleUnregister(c socket.Client) {
+	conn, exists := s.users[c.UserID]
+	if !exists {
+		return
 	}
 
+	if conn.client.Session != c.Session {
+		return
+	}
+
+	s.removeConnection(conn)
+
+	s.publisher.Notify(socket.NewClientDisconnectedEvent(
+		context.Background(),
+		c.Session,
+		c.UserID,
+		c.PlayerID,
+		conn.notifier.ClosureReason(),
+	))
 }
 
-func (s *SocketServer) HandleNotify(n socket.Message) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+func (s *SocketServer) handleTerminate(id uuid.UUID) {
+	conn, exists := s.users[id]
+	if !exists {
+		return
+	}
 
-	for client := range s.clientRegister {
-		if client.PlayerID == n.PlayerID {
-			s.clientRegister[client].Notify(n.Data)
-			break
+	s.removeConnection(conn)
+
+	conn.notifier.Close(socket.ClosureReasonServerStop)
+
+	s.publisher.Notify(socket.NewConnectionTerminateEvent(
+		context.Background(),
+		id,
+	))
+}
+
+func (s *SocketServer) handleNotify(n socket.Message) {
+	conn, exists := s.players[n.PlayerID]
+	if !exists {
+		return
+	}
+
+	conn.notifier.Notify(n.Data)
+}
+
+func (s *SocketServer) handleReap() {
+	now := time.Now().UTC()
+
+	var inactive []connection
+
+	for _, conn := range s.users {
+		if now.Sub(conn.notifier.LastMessage()) > ReapDuration {
+			inactive = append(inactive, conn)
 		}
 	}
+
+	if len(inactive) > 0 {
+		s.publisher.Notify(socket.NewServerReapEvent(len(inactive)))
+	}
+
+	for _, conn := range inactive {
+		s.removeConnection(conn)
+		conn.notifier.Terminate(socket.ClosureReasonInactivity)
+	}
+
+	for session, t := range s.revoked {
+		if now.Sub(t) > ReapDuration {
+			delete(s.revoked, session)
+		}
+	}
+
 }
 
 func (s *SocketServer) Register(client socket.Client, notifier port.Client) error {
-
-	select {
-	case s.register <- &SocketClient{client: client, notifier: notifier}:
-		return nil
-	default:
-		return nil
-	}
+	s.register <- &SocketClient{client: client, notifier: notifier}
+	return nil
 }
 
 func (s *SocketServer) Unregister(client socket.Client) {
-	select {
-	case s.unregister <- client:
-		return
-	default:
-		return
-	}
+	s.unregister <- client
 }
 
 func (s *SocketServer) Terminate(id uuid.UUID) {
-	select {
-	case s.terminate <- id:
-	default:
-	}
+	s.terminate <- id
 }
 
 func (s *SocketServer) Notify(ctx context.Context, message socket.Message) {
-	select {
-	case s.notify <- message:
-		return
-	default:
-		return
-	}
-}
-
-func (s *SocketServer) IsUserConnected(id uuid.UUID) bool {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	_, exists := s.userRegister[id]
-	return exists
+	s.notify <- message
 }
