@@ -3,13 +3,14 @@ package web
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"mevway/internal/core/application"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -99,8 +100,20 @@ func (c *Client) Terminate(reason socket.ClosureReason) {
 	if c.connection.IsClosed() {
 		return
 	}
+
 	c.closureReason = reason
+
+	_ = c.connection.WriteControl(
+		websocket.CloseMessage,
+		websocket.FormatCloseMessage(
+			websocket.CloseNormalClosure,
+			"",
+		),
+		time.Now().Add(time.Second),
+	)
+
 	c.server.Unregister(c.client)
+
 	c.connection.Close()
 }
 
