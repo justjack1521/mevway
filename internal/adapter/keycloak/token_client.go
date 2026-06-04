@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Nerzal/gocloak/v13"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/justjack1521/mevconn"
-	uuid "github.com/satori/go.uuid"
 	"log/slog"
 	"mevway/internal/core/domain/auth"
 	"mevway/internal/core/domain/user"
 	"strings"
+
+	"github.com/Nerzal/gocloak/v13"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/justjack1521/mevconn"
+	uuid "github.com/satori/go.uuid"
 )
 
 type TokenClient struct {
@@ -96,7 +97,7 @@ func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth
 		return auth.AccessClaims{}, errFailedVerifyAccessToken(err)
 	}
 
-	aud, ok := claims["sid"]
+	sid, ok := claims["sid"]
 	if ok == false {
 		return auth.AccessClaims{}, errFailedVerifyAccessToken(errAccessTokenMissingSessionID)
 	}
@@ -136,7 +137,7 @@ func (c *TokenClient) VerifyAccessToken(ctx context.Context, token string) (auth
 	).InfoContext(ctx, "access token verified")
 
 	return auth.AccessClaims{
-		SessionID:   uuid.FromStringOrNil(fmt.Sprintf("%v", aud)),
+		SessionID:   uuid.FromStringOrNil(fmt.Sprintf("%v", sid)),
 		UserID:      usr,
 		PlayerID:    uuid.FromStringOrNil(fmt.Sprintf("%v", profile)),
 		Environment: "development",
@@ -159,7 +160,7 @@ func (c *TokenClient) AuthoriseToken(ctx context.Context, token string) error {
 		return errTokenAuthoriseFailed(err)
 	}
 
-	if *result.Active == false {
+	if result == nil || result.Active == nil || !*result.Active {
 		return errTokenAuthoriseFailed(errTokenInactive)
 	}
 

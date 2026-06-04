@@ -2,10 +2,11 @@ package rpc
 
 import (
 	"context"
+	"mevway/internal/core/domain/socket"
+
 	"github.com/justjack1521/mevium/pkg/genproto/protogame"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevrpc"
-	"mevway/internal/core/domain/socket"
 )
 
 type GameServiceClientRouter struct {
@@ -59,6 +60,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_STAMINA_CONVERT] = router.ConvertStaminaRoute
 	router.routes[protogame.GameRequestType_ARENA_START] = router.StartArenaRoute
 	router.routes[protogame.GameRequestType_ARENA_CLAIM] = router.ClaimArenaRoute
+	router.routes[protogame.GameRequestType_CONFIRM_GIFT_BOX] = router.ConfirmGiftBoxRoute
 
 	return router
 }
@@ -626,6 +628,20 @@ func (r *GameServiceClientRouter) PurchaseGiftBoxRoute(ctx context.Context, byte
 	}
 
 	result, err := r.service.PurchaseGiftBox(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) ConfirmGiftBoxRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewConfirmGiftBoxRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ConfirmGiftBox(ctx, request)
 	if err != nil {
 		return nil, err
 	}
