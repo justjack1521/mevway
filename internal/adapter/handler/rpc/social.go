@@ -2,10 +2,11 @@ package rpc
 
 import (
 	"context"
+	"mevway/internal/core/domain/socket"
+
 	"github.com/justjack1521/mevium/pkg/genproto/protosocial"
 	services "github.com/justjack1521/mevium/pkg/genproto/service"
 	"github.com/justjack1521/mevrpc"
-	"mevway/internal/core/domain/socket"
 )
 
 type SocialServiceClientRouter struct {
@@ -18,6 +19,7 @@ func NewSocialServiceClientRouter(service services.MeviusSocialServiceClient) *S
 	router.routes[protosocial.SocialRequestType_FOLLOW_PLAYER] = router.FollowPlayerRoute
 	router.routes[protosocial.SocialRequestType_UNFOLLOW_PLAYER] = router.UnfollowPlayerRoute
 	router.routes[protosocial.SocialRequestType_GET_SOCIAL_DATA] = router.GetSocialDataRoute
+	router.routes[protosocial.SocialRequestType_RENTAL_SEARCH] = router.RentalSearchRoute
 	return router
 }
 
@@ -37,6 +39,20 @@ func (r *SocialServiceClientRouter) GetSocialDataRoute(ctx context.Context, byte
 	}
 
 	result, err := r.service.FetchPlayerSocialInfo(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *SocialServiceClientRouter) RentalSearchRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protosocial.NewRentalSearchRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.RentalSearch(ctx, request)
 	if err != nil {
 		return nil, err
 	}

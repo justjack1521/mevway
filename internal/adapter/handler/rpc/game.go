@@ -61,6 +61,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_ARENA_START] = router.StartArenaRoute
 	router.routes[protogame.GameRequestType_ARENA_CLAIM] = router.ClaimArenaRoute
 	router.routes[protogame.GameRequestType_CONFIRM_GIFT_BOX] = router.ConfirmGiftBoxRoute
+	router.routes[protogame.GameRequestType_CLAIM_ACHIEVEMENT] = router.ClaimAchievementRoute
 
 	return router
 }
@@ -642,6 +643,20 @@ func (r *GameServiceClientRouter) ConfirmGiftBoxRoute(ctx context.Context, bytes
 	}
 
 	result, err := r.service.ConfirmGiftBox(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) ClaimAchievementRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewClaimAchievementRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.ClaimAchievement(ctx, request)
 	if err != nil {
 		return nil, err
 	}
