@@ -25,6 +25,7 @@ func NewRouter(
 	contactHandler *ContactHandler,
 	rankHandler *RankHandler,
 	newsHandler *NewsHandler,
+	userStatusMiddleware *middleware.UserStatusMiddleware,
 	middle ...gin.HandlerFunc,
 ) (*Router, error) {
 
@@ -73,7 +74,7 @@ func NewRouter(
 	var publicGroup = router.Group("/public")
 	{
 		publicGroup.POST("/contact", contactHandler.CreateContact)
-		var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise)
+		var socketGroup = publicGroup.Group("/socket", authHandler.AccessTokenAuthorise, userStatusMiddleware.Handle)
 		{
 			socketGroup.GET("/join", statusHandler.Get, socketHandler.Join)
 			socketGroup.GET("/list", middleware.AdminRoleMiddleware(), socketHandler.List)

@@ -17,6 +17,7 @@ type Identity struct {
 	PlayerID   uuid.UUID
 	Username   string
 	CustomerID string
+	Enabled    bool
 }
 
 type User struct {

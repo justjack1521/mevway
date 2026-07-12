@@ -135,6 +135,7 @@ func main() {
 	var loggerMiddleware = middleware.NewLoggingMiddleware(slogger)
 	var relicMiddleware = middleware.NewRelicMiddleware(nrl.Application)
 	var patchMiddleware = middleware.NewPatchMiddleware()
+	var userStatusMiddleware = middleware.NewUserStatusMiddleware(userService)
 
 	var statusHandler = http.NewStatusHandler(statusService)
 	var authHandler = http.NewAuthenticationHandler(authService, tokenRepository)
@@ -181,6 +182,7 @@ func main() {
 		contactHandler,
 		rankHandler,
 		newsHandler,
+		userStatusMiddleware,
 		loggerMiddleware.Handle, relicMiddleware.Handle, patchMiddleware.Handle,
 	)
 	if err := router.Serve(":8080"); err != nil {

@@ -101,6 +101,7 @@ func (c *UserClient) IdentityFromUser(target *gocloak.User) (user.Identity, erro
 		PlayerID:   pid,
 		Username:   *target.Username,
 		CustomerID: fmt.Sprintf("%s", csm),
+		Enabled:    gocloak.PBool(target.Enabled),
 	}, nil
 
 }
