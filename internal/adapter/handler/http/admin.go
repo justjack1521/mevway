@@ -261,3 +261,37 @@ func (h *AdminHandler) GrantItem(ctx *gin.Context) {
 	ctx.JSON(200, resources.AdminGrantItemResponse{})
 
 }
+
+func (h *AdminHandler) QueryRegionMapData(ctx *gin.Context) {
+
+	param1, err := uuid.FromString(ctx.Query("player_id"))
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	param2, err := uuid.FromString(ctx.Query("region_id"))
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var request = &resources.AdminQueryRegionMapData{
+		PlayerID: param1,
+		RegionID: param2,
+	}
+
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	bytes, err := h.svc.QueryRegionData(actx, request.PlayerID, request.RegionID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(200, bytes)
+
+}

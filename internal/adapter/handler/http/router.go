@@ -62,6 +62,10 @@ func NewRouter(
 			{
 				abilityCardGroup.POST("/create", adminHandler.CreateAbilityCard)
 			}
+			var regionGroup = gameGroup.Group("/region")
+			{
+				regionGroup.GET("/data", adminHandler.QueryRegionMapData)
+			}
 		}
 		var userGroup = privateGroup.Group("/user")
 		{
