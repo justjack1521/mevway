@@ -5,6 +5,7 @@ import (
 	"mevway/internal/core/domain/game"
 	"net"
 
+	"github.com/justjack1521/mevium/pkg/genproto/protogame"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -15,7 +16,7 @@ type GameAdminService interface {
 	CreateAugmentMaterials(ctx context.Context, id uuid.UUID, materials []game.AugmentMaterial) error
 	CreateBaseCard(ctx context.Context, card game.BaseCard) error
 	CreateAbilityCard(ctx context.Context, ability game.AbilityCard) error
-	QueryRegionData(ctx context.Context, player uuid.UUID, id uuid.UUID) ([]byte, error)
+	QueryRegionData(ctx context.Context, player uuid.UUID, id uuid.UUID) (*protogame.ProtoRegionMapInstance, error)
 }
 
 type GameValidationService interface {

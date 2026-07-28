@@ -15,7 +15,7 @@ type GameAdminService struct {
 	svc services.MeviusAdminServiceClient
 }
 
-func (s *GameAdminService) QueryRegionData(ctx context.Context, player uuid.UUID, id uuid.UUID) ([]byte, error) {
+func (s *GameAdminService) QueryRegionData(ctx context.Context, player uuid.UUID, id uuid.UUID) (*protogame.ProtoRegionMapInstance, error) {
 
 	var request = &protoadmin.QueryRegionMapDataRequest{
 		PlayerId: player.String(),
