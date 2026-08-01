@@ -1,8 +1,9 @@
 package resources
 
 import (
-	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/player"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type ListRankingResponse struct {
@@ -18,16 +19,18 @@ func NewListRankingResponse(rankings []player.RankPlayer) ListRankingResponse {
 }
 
 type PlayerRankingResponse struct {
-	Rank    int             `json:"Rank"`
-	Score   int64           `json:"Score"`
-	Player  PlayerResponse  `json:"Player"`
-	Loadout LoadoutResponse `json:"Loadout"`
+	Rank      int             `json:"Rank"`
+	Score     int64           `json:"Score"`
+	Secondary int64           `json:"Secondary"`
+	Player    PlayerResponse  `json:"Player"`
+	Loadout   LoadoutResponse `json:"Loadout"`
 }
 
 func NewPlayerRankingResponse(ranking player.RankPlayer) PlayerRankingResponse {
 	return PlayerRankingResponse{
-		Rank:  ranking.Rank,
-		Score: ranking.Score,
+		Rank:      ranking.Rank,
+		Score:     ranking.Primary,
+		Secondary: ranking.Secondary,
 		Player: PlayerResponse{
 			PlayerID:      ranking.Player.ID,
 			PlayerName:    ranking.Player.Name,

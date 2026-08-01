@@ -61,8 +61,9 @@ func (r RankingRepository) QueryRankingRange(ctx context.Context, code string, p
 
 func (r RankingRepository) convert(value *protorank.ProtoPlayerRankSetDetails) player.RankPlayer {
 	return player.RankPlayer{
-		Rank:  int(value.Rank),
-		Score: int64(value.Score),
+		Rank:      int(value.Rank),
+		Primary:   value.PrimaryScore,
+		Secondary: value.SecondaryScore,
 		Player: player.Player{
 			ID:    uuid.FromStringOrNil(value.PlayerId),
 			Name:  value.PlayerName,

@@ -35,8 +35,9 @@ type RentalCard struct {
 }
 
 type RankPlayer struct {
-	Rank  int
-	Score int64
+	Rank      int
+	Primary   int64
+	Secondary int64
 	Player
 	Loadout
 }
