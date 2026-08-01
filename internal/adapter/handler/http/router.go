@@ -131,6 +131,8 @@ func NewRouter(
 		var rank = publicGroup.Group("/ranking")
 		{
 			rank.GET("/top/:code", rankHandler.Top)
+			rank.GET("/player/:code", rankHandler.Player)
+			rank.GET("/range/:code", rankHandler.Range)
 		}
 
 	}

@@ -4,6 +4,8 @@ import (
 	"context"
 	"mevway/internal/core/domain/player"
 	"mevway/internal/core/port"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type RankQueryService struct {
@@ -16,4 +18,12 @@ func NewRankQueryService(repository port.RankRepository) *RankQueryService {
 
 func (r *RankQueryService) ListTopRankings(ctx context.Context, code string) ([]player.RankPlayer, error) {
 	return r.repository.QueryTopRankings(ctx, code)
+}
+
+func (r *RankQueryService) ListPlayerRanking(ctx context.Context, code string, player uuid.UUID) (player.RankPlayer, error) {
+	return r.repository.QueryPlayerRanking(ctx, code, player)
+}
+
+func (r *RankQueryService) ListRankingRange(ctx context.Context, code string, player uuid.UUID, start, stop int) ([]player.RankPlayer, error) {
+	return r.repository.QueryRankingRange(ctx, code, player, start, stop)
 }
