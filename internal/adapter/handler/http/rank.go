@@ -38,7 +38,7 @@ func (h *RankHandler) Top(ctx *gin.Context) {
 
 func (h *RankHandler) Player(ctx *gin.Context) {
 
-	p, err := uuid.FromString(ctx.Param("player"))
+	p, err := uuid.FromString(ctx.Query("player"))
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -61,19 +61,15 @@ func (h *RankHandler) Player(ctx *gin.Context) {
 
 func (h *RankHandler) Range(ctx *gin.Context) {
 
-	p, err := uuid.FromString(ctx.Param("player"))
+	var p = uuid.FromStringOrNil(ctx.Query("player"))
+
+	start, err := strconv.Atoi(ctx.Query("start"))
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	start, err := strconv.Atoi(ctx.Param("start"))
-	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	stop, err := strconv.Atoi(ctx.Param("stop"))
+	stop, err := strconv.Atoi(ctx.Query("stop"))
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
