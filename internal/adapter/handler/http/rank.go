@@ -46,10 +46,10 @@ func (h *RankHandler) Player(ctx *gin.Context) {
 
 	var md = application.ContextMetadata{
 		UserID:   uuid.NewV4(),
-		PlayerID: p,
+		PlayerID: uuid.NewV4(),
 	}
 
-	result, err := h.svc.ListPlayerRanking(application.NewApplicationContext(ctx, md), ctx.Param("code"), md.PlayerID)
+	result, err := h.svc.ListPlayerRanking(application.NewApplicationContext(ctx, md), ctx.Param("code"), p)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -77,10 +77,10 @@ func (h *RankHandler) Range(ctx *gin.Context) {
 
 	var md = application.ContextMetadata{
 		UserID:   uuid.NewV4(),
-		PlayerID: p,
+		PlayerID: uuid.NewV4(),
 	}
 
-	result, err := h.svc.ListRankingRange(application.NewApplicationContext(ctx, md), ctx.Param("code"), md.PlayerID, start, stop)
+	result, err := h.svc.ListRankingRange(application.NewApplicationContext(ctx, md), ctx.Param("code"), p, start, stop)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
