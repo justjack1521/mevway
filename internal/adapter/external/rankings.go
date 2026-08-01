@@ -39,6 +39,7 @@ func (r RankingRepository) QueryRankingRange(ctx context.Context, code string, p
 
 	result, err := r.svc.GetPlayerRankRangeDetails(mevrpc.NewOutgoingContext(ctx, md.PlayerID, md.UserID), &protorank.GetPlayerRankRangeDetailsRequest{
 		PlayerId:     p.String(),
+		Shortcode:    code,
 		Start:        int32(start),
 		Stop:         int32(stop),
 		WithIdentity: true,
@@ -51,25 +52,6 @@ func (r RankingRepository) QueryRankingRange(ctx context.Context, code string, p
 	var results = make([]player.RankPlayer, len(result.Details))
 
 	for index, value := range result.Details {
-		results[index] = r.convert(value)
-	}
-
-	return results, nil
-
-}
-
-func (r RankingRepository) QueryTopRankings(ctx context.Context, code string) ([]player.RankPlayer, error) {
-
-	var md = application.MetadataFromContext(ctx)
-
-	result, err := r.svc.GetTopRankings(mevrpc.NewOutgoingContext(ctx, md.UserID, md.PlayerID), &protorank.GetTopRankRequest{EventName: code})
-	if err != nil {
-		return nil, err
-	}
-
-	var results = make([]player.RankPlayer, len(result.Rankings))
-
-	for index, value := range result.Rankings {
 		results[index] = r.convert(value)
 	}
 

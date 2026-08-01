@@ -26,13 +26,13 @@ func (h *RankHandler) Top(ctx *gin.Context) {
 		PlayerID: uuid.NewV4(),
 	}
 
-	results, err := h.svc.ListTopRankings(application.NewApplicationContext(ctx, md), ctx.Param("code"))
+	result, err := h.svc.ListTopRankings(application.NewApplicationContext(ctx, md), ctx.Param("code"))
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	ctx.JSON(200, resources.NewListRankingResponse(results))
+	ctx.JSON(200, resources.NewListRankingResponse(result))
 
 }
 

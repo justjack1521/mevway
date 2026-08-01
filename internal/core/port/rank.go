@@ -8,7 +8,6 @@ import (
 )
 
 type RankRepository interface {
-	QueryTopRankings(ctx context.Context, code string) ([]player.RankPlayer, error)
 	QueryPlayerRanking(ctx context.Context, code string, player uuid.UUID) (player.RankPlayer, error)
 	QueryRankingRange(ctx context.Context, code string, player uuid.UUID, start, stop int) ([]player.RankPlayer, error)
 }

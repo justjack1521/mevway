@@ -17,7 +17,7 @@ func NewRankQueryService(repository port.RankRepository) *RankQueryService {
 }
 
 func (r *RankQueryService) ListTopRankings(ctx context.Context, code string) ([]player.RankPlayer, error) {
-	return r.repository.QueryTopRankings(ctx, code)
+	return r.repository.QueryRankingRange(ctx, code, uuid.Nil, 0, 10)
 }
 
 func (r *RankQueryService) ListPlayerRanking(ctx context.Context, code string, player uuid.UUID) (player.RankPlayer, error) {
