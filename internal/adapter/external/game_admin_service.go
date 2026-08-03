@@ -86,6 +86,32 @@ func (s *GameAdminService) CreateBaseJob(ctx context.Context, job game.BaseJob) 
 
 }
 
+func (s *GameAdminService) CreateAbility(ctx context.Context, ability game.Ability) error {
+
+	var request = &protoadmin.CreateAbilityRequest{
+		Ability: &protomodel.Ability{
+			SysId:    ability.SysID.String(),
+			Element:  ability.ElementID.String(),
+			CardType: ability.CardTypeID.String(),
+			Active:   ability.Active,
+			Name:     ability.Name,
+		},
+	}
+
+	out, err := OutgoingContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.svc.CreateAbility(out, request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
 func (s *GameAdminService) CreateSkillPanel(ctx context.Context, job uuid.UUID, page int, panel game.SkillPanel) (bool, error) {
 
 	var request = &protoadmin.CreateSkillPanelRequest{

@@ -19,6 +19,54 @@ func NewAdminHandler(svc port.GameAdminService) *AdminHandler {
 	return &AdminHandler{svc: svc}
 }
 
+func (h *AdminHandler) CreateAbility(ctx *gin.Context) {
+	var request = &resources.CreateAbilityRequesst{}
+
+	if err := ctx.BindJSON(request); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	actx, err := middleware.ApplicationContextFromMetadata(ctx)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	id, err := uuid.FromString(request.SysID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	e, err := uuid.FromString(request.ElementID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	t, err := uuid.FromString(request.CardTypeID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var job = game.Ability{
+		SysID:      id,
+		Active:     request.Active,
+		Name:       request.Name,
+		ElementID:  e,
+		CardTypeID: t,
+	}
+
+	if err := h.svc.CreateAbility(actx, job); err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, resources.CreateAbilityResponse{Created: true})
+}
+
 func (h *AdminHandler) CreateBaseJob(ctx *gin.Context) {
 	var request = &resources.CreateBaseJobRequest{}
 
