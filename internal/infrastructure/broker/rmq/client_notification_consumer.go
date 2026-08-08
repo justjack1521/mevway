@@ -37,6 +37,7 @@ func (s *ClientNotificationConsumer) consume(ctx *mevrabbit.ConsumerContext) (ac
 		return rabbitmq.NackDiscard, err
 	}
 	notification.UserID = ctx.UserID()
+	notification.PlayerID = ctx.PlayerID()
 
 	s.svc.Notify(ctx, notification)
 
