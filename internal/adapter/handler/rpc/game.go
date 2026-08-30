@@ -63,6 +63,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_CONFIRM_GIFT_BOX] = router.ConfirmGiftBoxRoute
 	router.routes[protogame.GameRequestType_CLAIM_ACHIEVEMENT] = router.ClaimAchievementRoute
 	router.routes[protogame.GameRequestType_PURCHASE_SHOP_ENTRY] = router.PurchaseShopEntryRoute
+	router.routes[protogame.GameRequestType_STAMP_EDIT_ALL] = router.StampEditAllRoute
 
 	return router
 }
@@ -728,6 +729,20 @@ func (r *GameServiceClientRouter) ClaimArenaRoute(ctx context.Context, bytes []b
 	}
 
 	result, err := r.service.ClaimArena(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) StampEditAllRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewStampLayoutEditAllRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.StampLayoutEdit(ctx, request)
 	if err != nil {
 		return nil, err
 	}
