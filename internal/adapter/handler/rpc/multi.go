@@ -23,6 +23,7 @@ func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *Mul
 	router.routes[protomulti.MultiRequestType_LOBBY_READY] = router.LobbyReadyRoute
 	router.routes[protomulti.MultiRequestType_LOBBY_START] = router.LobbyStartRoute
 	router.routes[protomulti.MultiRequestType_LOBBY_STAMP] = router.LobbyStampRoute
+	router.routes[protomulti.MultiRequestType_LOBBY_CHAT] = router.LobbyChatRoute
 	router.routes[protomulti.MultiRequestType_LOBBY_SEARCH] = router.LobbySearchRoute
 
 	router.routes[protomulti.MultiRequestType_PARTICIPANT_JOIN] = router.ParticipantJoinRoute
@@ -38,6 +39,10 @@ func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *Mul
 	router.routes[protomulti.MultiRequestType_GAME_ENQUEUE_ACTION] = router.GameEnqueueActionRoute
 	router.routes[protomulti.MultiRequestType_GAME_DEQUEUE_ACTION] = router.GameDequeueActionRoute
 	router.routes[protomulti.MultiRequestType_GAME_LOCK_ACTIONS] = router.GameLockActionRoute
+	router.routes[protomulti.MultiRequestType_GAME_PLAYER_DEATH] = router.GamePlayerDeathRoute
+	router.routes[protomulti.MultiRequestType_GAME_PLAYER_REVIVE] = router.GamePlayerReviveRoute
+	router.routes[protomulti.MultiRequestType_GAME_PLAYER_REVIVE_CLAIM] = router.GamePlayerReviveClaimRoute
+	router.routes[protomulti.MultiRequestType_GAME_CHAT] = router.GameChatRoute
 	return router
 }
 
@@ -323,6 +328,76 @@ func (r *MultiServiceClientRouter) LobbyStampRoute(ctx context.Context, bytes []
 	}
 
 	result, err := r.service.LobbyStamp(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) LobbyChatRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewLobbyChatRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.LobbyChat(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GamePlayerDeathRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewGamePlayerDeathRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.PlayerDeath(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GamePlayerReviveRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewGamePlayerReviveRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.PlayerRevive(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GamePlayerReviveClaimRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewGamePlayerReviveClaimRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.PlayerReviveClaim(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GameChatRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewGameChatRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.GameChat(ctx, request)
 	if err != nil {
 		return nil, err
 	}
