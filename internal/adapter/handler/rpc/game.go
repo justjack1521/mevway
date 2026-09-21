@@ -23,6 +23,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_CARD_SALE] = router.CardSaleRoute
 	router.routes[protogame.GameRequestType_CARD_FAVOURITE] = router.CardFavouriteRoute
 	router.routes[protogame.GameRequestType_SKILL_PANEL] = router.SkillPanelUnlockRoute
+	router.routes[protogame.GameRequestType_SKILL_PANEL_MULTI] = router.SkillPanelMultiUnlockRoute
 	router.routes[protogame.GameRequestType_DECK_EDIT_ALL] = router.DeckEditAllRoute
 	router.routes[protogame.GameRequestType_TELEPORT] = router.TeleportRoute
 	router.routes[protogame.GameRequestType_PROCESS_REGION_EVENT] = router.ProcessRegionEventRoute
@@ -505,6 +506,20 @@ func (r *GameServiceClientRouter) SkillPanelUnlockRoute(ctx context.Context, byt
 	}
 
 	result, err := r.service.SkillPanelUnlock(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) SkillPanelMultiUnlockRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewSkillPanelMultiUnlockRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.SkillPanelMultiUnlock(ctx, request)
 	if err != nil {
 		return nil, err
 	}
