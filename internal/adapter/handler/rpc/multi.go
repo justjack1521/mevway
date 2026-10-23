@@ -43,6 +43,7 @@ func NewMultiServiceClientRouter(service services.MeviusMultiServiceClient) *Mul
 	router.routes[protomulti.MultiRequestType_GAME_PLAYER_REVIVE] = router.GamePlayerReviveRoute
 	router.routes[protomulti.MultiRequestType_GAME_PLAYER_REVIVE_CLAIM] = router.GamePlayerReviveClaimRoute
 	router.routes[protomulti.MultiRequestType_GAME_CHAT] = router.GameChatRoute
+	router.routes[protomulti.MultiRequestType_GAME_STAMP] = router.GameStampRoute
 	return router
 }
 
@@ -398,6 +399,20 @@ func (r *MultiServiceClientRouter) GameChatRoute(ctx context.Context, bytes []by
 	}
 
 	result, err := r.service.GameChat(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MultiServiceClientRouter) GameStampRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protomulti.NewGameStampRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.GameStamp(ctx, request)
 	if err != nil {
 		return nil, err
 	}
