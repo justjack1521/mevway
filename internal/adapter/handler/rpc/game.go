@@ -65,6 +65,7 @@ func NewGameServiceClientRouter(service services.MeviusGameServiceClient) *GameS
 	router.routes[protogame.GameRequestType_CLAIM_ACHIEVEMENT] = router.ClaimAchievementRoute
 	router.routes[protogame.GameRequestType_PURCHASE_SHOP_ENTRY] = router.PurchaseShopEntryRoute
 	router.routes[protogame.GameRequestType_STAMP_EDIT_ALL] = router.StampEditAllRoute
+	router.routes[protogame.GameRequestType_GET_MULTI_QUEST_SCHEDULE] = router.GetMultiQuestScheduleRoute
 
 	return router
 }
@@ -758,6 +759,20 @@ func (r *GameServiceClientRouter) StampEditAllRoute(ctx context.Context, bytes [
 	}
 
 	result, err := r.service.StampLayoutEdit(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *GameServiceClientRouter) GetMultiQuestScheduleRoute(ctx context.Context, bytes []byte) (socket.Response, error) {
+	request, err := protogame.NewGetMultiQuestScheduleRequest(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.service.GetMultiQuestSchedule(ctx, request)
 	if err != nil {
 		return nil, err
 	}
