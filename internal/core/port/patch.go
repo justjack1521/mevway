@@ -19,6 +19,7 @@ type PatchService interface {
 	GetCurrentPatch(ctx context.Context, application string, environment uuid.UUID) (patch.Patch, error)
 	ListPatches(ctx context.Context, environment uuid.UUID, offset, limit int) ([]patch.Patch, error)
 	ListAllowPatches(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error)
+	IsPatchAllowed(ctx context.Context, application string, id uuid.UUID) (bool, error)
 	ListPatchCount(ctx context.Context) (int, error)
 	ListALlPatchVersions(ctx context.Context, application string) ([]string, error)
 }

@@ -143,7 +143,7 @@ func main() {
 	var patchHandler = http.NewPatchHandler(patchService)
 	var issueHandler = http.NewIssueHandler(issueService)
 	var progressHandler = http.NewFeatureHandler(progressService)
-	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory)
+	var socketHandler = http.NewSocketHandler(server, clientRepository, socketFactory, patchService)
 	var searchHandler = http.NewSearchHandler(searchService)
 	var adminHandler = http.NewAdminHandler(adminService)
 	var modelHandler = http.NewModelHandler(modelService)

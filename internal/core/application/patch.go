@@ -48,3 +48,18 @@ func (s *PatchService) ListPatchCount(ctx context.Context) (int, error) {
 func (s *PatchService) ListAllowPatches(ctx context.Context, application string, environment uuid.UUID) ([]patch.Patch, error) {
 	return s.repository.GetAllowedPatchList(ctx, application, environment)
 }
+
+// IsPatchAllowed reports whether a client on the given patch may connect - the same list
+// /patch/allow answers from.
+func (s *PatchService) IsPatchAllowed(ctx context.Context, application string, id uuid.UUID) (bool, error) {
+	allowed, err := s.repository.GetAllowedPatchList(ctx, application, uuid.Nil)
+	if err != nil {
+		return false, err
+	}
+	for _, value := range allowed {
+		if uuid.Equal(value.SysID, id) {
+			return true, nil
+		}
+	}
+	return false, nil
+}

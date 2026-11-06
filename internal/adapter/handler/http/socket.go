@@ -25,14 +25,19 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:      func(r *http.Request) bool { return true },
 }
 
+// socketPatchApplication is the patch application the game client connects as, matching the
+// default /patch/allow answers for.
+const socketPatchApplication = "game"
+
 type SocketHandler struct {
 	svc        port.SocketServer
 	repository port.ClientConnectionRepository
 	factory    application.SocketClientFactory
+	patches    port.PatchService
 }
 
-func NewSocketHandler(svc port.SocketServer, clients port.ClientConnectionRepository, factory application.SocketClientFactory) *SocketHandler {
-	return &SocketHandler{svc: svc, repository: clients, factory: factory}
+func NewSocketHandler(svc port.SocketServer, clients port.ClientConnectionRepository, factory application.SocketClientFactory, patches port.PatchService) *SocketHandler {
+	return &SocketHandler{svc: svc, repository: clients, factory: factory, patches: patches}
 }
 
 func (h *SocketHandler) List(ctx *gin.Context) {
@@ -54,6 +59,26 @@ func (h *SocketHandler) Join(ctx *gin.Context) {
 		return
 	}
 
+	// The patch is checked here, before the upgrade, so a refusal is still an HTTP status the
+	// client can read. The boot check alone only runs once per launch, and only if the client
+	// chooses to run it - every connection and reconnect comes through here.
+	patch, err := middleware.PatchIDFromContext(ctx)
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusUpgradeRequired)
+		return
+	}
+
+	allowed, err := h.patches.IsPatchAllowed(ctx, socketPatchApplication, patch)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	if allowed == false {
+		ctx.AbortWithStatus(http.StatusUpgradeRequired)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -67,12 +92,6 @@ func (h *SocketHandler) Join(ctx *gin.Context) {
 	}
 
 	player, err := middleware.PlayerIDFromContext(ctx)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	patch, err := middleware.PatchIDFromContext(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
