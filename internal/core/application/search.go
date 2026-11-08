@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	uuid "github.com/satori/go.uuid"
 	"mevway/internal/core/domain/player"
 	"mevway/internal/core/port"
 )
@@ -29,4 +30,8 @@ func (s *PlayerSearchService) Search(ctx context.Context, customer string) (play
 
 	return social, err
 
+}
+
+func (s *PlayerSearchService) Get(ctx context.Context, id uuid.UUID) (player.SocialPlayer, error) {
+	return s.social.GetByID(ctx, id)
 }
