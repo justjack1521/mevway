@@ -6,7 +6,6 @@ import (
 	"mevway/internal/core/application"
 	"mevway/internal/core/domain/socket"
 	"mevway/internal/core/port"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -19,6 +18,11 @@ const (
 	pongWait              = 60 * time.Second
 	pingPeriod            = (pongWait * 9) / 10
 	heartBeatPeriod       = 15 * time.Minute
+
+	// replyWait is how long a reply may wait for room in the send queue before the connection
+	// is given up on. A queue that stays full this long belongs to a stalled connection, which
+	// the writer's own writeWait would end shortly anyway.
+	replyWait = 5 * time.Second
 )
 
 const (
@@ -43,12 +47,19 @@ var (
 	errFailedWriteMessage = func(err error) error {
 		return fmt.Errorf("failed to write client message: %w", err)
 	}
+	errReplyQueueFull = fmt.Errorf("reply waited %s for room in a full send queue; closing the connection", replyWait)
 )
 
+// Connection is one client's websocket and its outgoing queue.
+//
+// send is never closed. Notifications and replies are sent on it from other goroutines, and
+// closing a channel that someone may still send on panics - here, on the server loop, which
+// would take the whole gateway down. Shutdown is signalled on done instead, which the writer
+// and any waiting sender select on.
 type Connection struct {
 	*websocket.Conn
 	send   chan []byte
-	mu     sync.Mutex
+	done   chan struct{}
 	closed atomic.Bool
 }
 
@@ -58,10 +69,7 @@ func (c *Connection) Close() {
 		return
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	close(c.send)
+	close(c.done)
 	c.Conn.Close()
 
 }
@@ -87,6 +95,7 @@ func NewClient(client socket.Client, conn *websocket.Conn, server port.SocketSer
 		connection: &Connection{
 			Conn: conn,
 			send: make(chan []byte, 16),
+			done: make(chan struct{}),
 		},
 		server:       server,
 		router:       router,
@@ -137,6 +146,9 @@ func (c *Client) Close(reason socket.ClosureReason) {
 
 }
 
+// Notify queues a server-pushed notification. One that finds the queue full is dropped: it is
+// a live update, and losing one under load is preferable to holding up the server loop that
+// delivers everyone's.
 func (c *Client) Notify(data []byte) {
 	if c.connection.IsClosed() {
 		return
@@ -145,6 +157,40 @@ func (c *Client) Notify(data []byte) {
 	case c.connection.send <- data:
 	default:
 	}
+}
+
+// reply queues the answer to a client request. Unlike a notification it is never dropped: the
+// client is waiting on it, and a lost reply surfaces there as a timeout indistinguishable from a
+// slow server, with nothing on either side to say what happened.
+//
+// When the queue is full it waits up to replyWait for room. If none comes the connection is
+// stalled, so it is closed - the client then sees a disconnect and reconnects, rather than
+// waiting out its own timeout for an answer that was thrown away.
+func (c *Client) reply(data []byte) error {
+
+	if c.connection.IsClosed() {
+		return nil
+	}
+
+	select {
+	case c.connection.send <- data:
+		return nil
+	default:
+	}
+
+	timer := time.NewTimer(replyWait)
+	defer timer.Stop()
+
+	select {
+	case c.connection.send <- data:
+		return nil
+	case <-c.connection.done:
+		return nil
+	case <-timer.C:
+		c.Terminate(socket.ClosureReasonWriteStop)
+		return errReplyQueueFull
+	}
+
 }
 
 func (c *Client) error(message socket.Message, response socket.Response, transaction application.Segment) {
@@ -158,7 +204,9 @@ func (c *Client) error(message socket.Message, response socket.Response, transac
 	if err != nil {
 		transaction.NoticeError(err)
 	}
-	c.Notify(send)
+	if err := c.reply(send); err != nil {
+		transaction.NoticeError(err)
+	}
 }
 
 func (c *Client) response(message socket.Message, err error, transaction application.Segment) {
@@ -169,7 +217,9 @@ func (c *Client) response(message socket.Message, err error, transaction applica
 		transaction.NoticeError(err)
 		return
 	}
-	c.Notify(send)
+	if err := c.reply(send); err != nil {
+		transaction.NoticeError(err)
+	}
 }
 
 func (c *Client) Read() {
@@ -248,12 +298,11 @@ func (c *Client) Write() {
 				return
 			}
 
-		case message, ok := <-c.connection.send:
+		case <-c.connection.done:
+			// Terminate has already sent the close frame before closing the connection.
+			return
 
-			if ok == false {
-				c.connection.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
+		case message := <-c.connection.send:
 
 			if c.connection.IsClosed() {
 				return
